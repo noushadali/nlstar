@@ -30,7 +30,7 @@ public class DatastoreTest {
 	}
 	
 	@Test
-	public void memcacheTest() {
+	public void datastoreTest() {
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 		final String kind = "yum";
 		assertEquals(0, ds.prepare(new Query(kind)).countEntities(withLimit(10)));

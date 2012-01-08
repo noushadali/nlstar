@@ -39,7 +39,7 @@ public class Nl implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		final Button sendButton = new Button("Send");
+		final Button sendButton = new Button("Submit once");
 		final TextBox nameField = new TextBox();
 		nameField.setText("Denis");
 		final Label errorLabel = new Label();
@@ -61,7 +61,7 @@ public class Nl implements EntryPoint {
 		final DialogBox dialogBox = new DialogBox();
 		dialogBox.setText("Remote Procedure Call");
 		dialogBox.setAnimationEnabled(true);
-		final Button closeButton = new Button("Close");
+		final Button closeButton = new Button("Close me");
 		// We can set the id of a widget by accessing its Element
 		closeButton.getElement().setId("closeButton");
 		final Label textToServerLabel = new Label();

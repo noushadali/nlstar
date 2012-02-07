@@ -41,7 +41,7 @@ public class Nl implements EntryPoint {
 	public void onModuleLoad() {
 		final Button sendButton = new Button("Submit once");
 		final TextBox nameField = new TextBox();
-		nameField.setText("Denis");
+		nameField.setText("DenisK");
 		final Label errorLabel = new Label();
 
 		// We can add style names to widgets

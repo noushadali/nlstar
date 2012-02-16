@@ -8,9 +8,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.denisk.appengine.nl.server.DataHandler;
+import com.denisk.appengine.nl.server.data.Category;
+import com.denisk.appengine.nl.server.data.Good;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -39,4 +44,35 @@ public class DatastoreTest {
 		assertEquals(2, ds.prepare(new Query(kind)).countEntities(withLimit(10)));
 	}
 
+	@Test
+	public void dataHandlerBasicTest() throws EntityNotFoundException {
+		DataHandler dh = new DataHandler();
+		
+		Category c = new Category();
+		c.setName("hello");
+		c.setDescription("desc");
+		
+		Good g1 = new Good();
+		Good g2 = new Good();
+
+		g1.setName("g1_name");
+		g2.setName("g2_name");
+		
+		g1.setName("g1_desc");
+		g2.setDescription("g2_desc");
+		
+		c.getGoods().add(g1);
+		c.getGoods().add(g2);
+		
+		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		assertEquals(0, ds.prepare(new Query(Category.KIND)).countEntities(withLimit(10)));
+		assertEquals(0, ds.prepare(new Query(Good.KIND)).countEntities(withLimit(10)));
+
+		Key key = dh.saveCategoryWithGoods(c);
+		
+		assertEquals(1, ds.prepare(new Query(Category.KIND)).countEntities(withLimit(10)));
+		assertEquals(2, ds.prepare(new Query(Good.KIND)).countEntities(withLimit(10)));
+		
+		ds.get(key);
+	}
 }

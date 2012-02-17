@@ -1,11 +1,13 @@
 package com.denisk.appengine.nl.server;
 
+import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 import com.denisk.appengine.nl.server.data.Category;
 import com.denisk.appengine.nl.server.data.Good;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Transaction;
 
 public class DataHandler {
@@ -36,5 +38,19 @@ public class DataHandler {
 		tx.commit();
 		
 		return key;
+	}
+	
+	public int countCategories() {
+		return countKind(Category.KIND);
+	}
+	
+	public int countGoods() {
+		return countKind(Good.KIND);
+	}
+
+	private int countKind(String kind) {
+		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		int countEntities = ds.prepare(new Query(kind)).countEntities(withLimit(1000));
+		return countEntities;
 	}
 }

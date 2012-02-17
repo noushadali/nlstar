@@ -1,21 +1,13 @@
 package com.denisk.appengine.nl.client;
 
-import com.denisk.appengine.nl.shared.FieldVerifier;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -28,11 +20,10 @@ public class Nl implements EntryPoint {
 	public void onModuleLoad() {
 		final Button sendButton = new Button("Generate Data_edited");
 		final Label status = new Label();
-		status.setVisible(false);
+		updateLabel(status);
 		
 		RootPanel rootPanel = RootPanel.get("container");
 		rootPanel.add(sendButton);
-		rootPanel.add(new TestBinder("Denis"));
 		rootPanel.add(status);
 		sendButton.addClickHandler(new ClickHandler() {
 			
@@ -42,17 +33,31 @@ public class Nl implements EntryPoint {
 					
 					@Override
 					public void onSuccess(Void result) {
-						status.setText("Data loaded");
-						status.setVisible(true);
+						updateLabel(status);
 						
 					}
 					
 					@Override
 					public void onFailure(Throwable caught) {
-						status.setText("Data load failed");
-						status.setVisible(true);
+						status.setText("Data load failed," + caught);
 					}
 				});
+			}
+		});
+	}
+	private void updateLabel(final Label status) {
+		dtoService.countEntities(new AsyncCallback<String>() {
+			
+			@Override
+			public void onSuccess(String result) {
+				status.setText(result);
+				
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				status.setText("Can't calculate entities");
+				
 			}
 		});
 	}

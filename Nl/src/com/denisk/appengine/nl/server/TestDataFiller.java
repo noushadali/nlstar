@@ -34,4 +34,8 @@ public class TestDataFiller {
 		
 		return sb.toString();
 	}
+
+	public DataHandler getDataHandler() {
+		return dh;
+	}
 }

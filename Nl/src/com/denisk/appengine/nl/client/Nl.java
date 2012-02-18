@@ -51,13 +51,11 @@ public class Nl implements EntryPoint {
 			@Override
 			public void onSuccess(String result) {
 				status.setText(result);
-				
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
 				status.setText("Can't calculate entities");
-				
 			}
 		});
 	}

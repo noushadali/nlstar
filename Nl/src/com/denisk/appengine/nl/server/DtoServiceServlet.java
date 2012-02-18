@@ -3,6 +3,7 @@ package com.denisk.appengine.nl.server;
 import javax.servlet.ServletException;
 
 import com.denisk.appengine.nl.client.DtoService;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class DtoServiceServlet extends RemoteServiceServlet implements
@@ -27,6 +28,12 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 	@Override
 	public String countEntities() {
 		return "Catogories: " + df.getDataHandler().countCategories() + ", goods: " + df.getDataHandler().countGoods();
+	}
+
+
+	@Override
+	public JsArrayString getCategories() {
+		return null;
 	}
 
 }

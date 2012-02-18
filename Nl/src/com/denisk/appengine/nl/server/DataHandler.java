@@ -1,6 +1,9 @@
 package com.denisk.appengine.nl.server;
 
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
+
+import java.util.Iterator;
+
 import com.denisk.appengine.nl.server.data.Category;
 import com.denisk.appengine.nl.server.data.Good;
 import com.google.appengine.api.datastore.DatastoreService;
@@ -9,6 +12,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Transaction;
+import com.google.gwt.dev.util.collect.HashSet;
 
 public class DataHandler {
 	public Key saveCategoryWithGoods(Category category){
@@ -48,6 +52,22 @@ public class DataHandler {
 		return countKind(Good.KIND);
 	}
 
+	public HashSet<Category> getCategories(){
+		HashSet<Category> result = new HashSet<Category>();
+		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		Iterator<Entity> iterator = ds.prepare(new Query(Category.KIND)).asIterator();
+		
+		while(iterator.hasNext()){
+			Entity e = iterator.next();
+			Category c = new Category();
+			c.setName((String) e.getProperty(Category.NAME));
+			c.setDescription((String) e.getProperty(Category.DESCIPTION));
+			
+			result.add(c);
+		}
+		
+		return result;
+	}
 	private int countKind(String kind) {
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 		int countEntities = ds.prepare(new Query(kind)).countEntities(withLimit(1000));

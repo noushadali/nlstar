@@ -1,5 +1,6 @@
 package com.denisk.appengine.nl;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 
@@ -19,6 +20,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.google.gwt.dev.util.collect.HashSet;
 
 public class DatastoreTest {
 	 private final LocalServiceTestHelper helper =
@@ -74,5 +76,39 @@ public class DatastoreTest {
 		assertEquals(2, ds.prepare(new Query(Good.KIND)).countEntities(withLimit(10)));
 		
 		ds.get(key);
+	}
+	
+	@Test
+	public void getCategories(){
+		DataHandler dh = new DataHandler();
+		
+		Category c = new Category();
+		c.setName("hello");
+		c.setDescription("desc");
+		
+		Category c1 = new Category();
+		c1.setName("another");
+		c1.setDescription("desc");
+		
+		Good g1 = new Good();
+		Good g2 = new Good();
+
+		g1.setName("g1_name");
+		g2.setName("g2_name");
+		
+		g1.setName("g1_desc");
+		g2.setDescription("g2_desc");
+		
+		c.getGoods().add(g1);
+		c.getGoods().add(g2);
+		
+		Key key1 = dh.saveCategoryWithGoods(c);
+		Key key2 = dh.saveCategoryWithGoods(c1);
+		
+		HashSet<Category> categories = dh.getCategories();
+		
+		assertEquals(2, categories.size());
+		assertTrue(categories.contains(c));
+		assertTrue(categories.contains(c1));
 	}
 }

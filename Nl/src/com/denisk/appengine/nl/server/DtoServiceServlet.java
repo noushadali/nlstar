@@ -2,8 +2,9 @@ package com.denisk.appengine.nl.server;
 
 import javax.servlet.ServletException;
 
+import org.codehaus.jettison.json.JSONException;
+
 import com.denisk.appengine.nl.client.DtoService;
-import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class DtoServiceServlet extends RemoteServiceServlet implements
@@ -21,7 +22,7 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 
 	@Override
 	public void generateTestData() {
-		System.out.println("In servlet");
+		System.out.println("In servlet_real");
 		df.createTestDataSet(5, 10);
 	}
 
@@ -32,8 +33,15 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 
 
 	@Override
-	public JsArrayString getCategories() {
-		return null;
+	public String getCategoriesJson() {
+		try {
+			return df.getDataHandler().getCategoriesJson();
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
+
+	
 }

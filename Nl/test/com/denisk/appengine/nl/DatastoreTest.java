@@ -1,10 +1,11 @@
 package com.denisk.appengine.nl;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 
 
+import org.codehaus.jettison.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,5 +111,39 @@ public class DatastoreTest {
 		assertEquals(2, categories.size());
 		assertTrue(categories.contains(c));
 		assertTrue(categories.contains(c1));
+	}
+	
+	@Test
+	public void getCategoriesJson() throws JSONException{
+		DataHandler dh = new DataHandler();
+		
+		Category c = new Category();
+		c.setName("hello");
+		c.setDescription("desc");
+		
+		Category c1 = new Category();
+		c1.setName("another");
+		c1.setDescription("desc");
+		
+		Good g1 = new Good();
+		Good g2 = new Good();
+
+		g1.setName("g1_name");
+		g2.setName("g2_name");
+		
+		g1.setName("g1_desc");
+		g2.setDescription("g2_desc");
+		
+		c.getGoods().add(g1);
+		c.getGoods().add(g2);
+		
+		Key key1 = dh.saveCategoryWithGoods(c);
+		Key key2 = dh.saveCategoryWithGoods(c1);
+
+		final String categoriesJson = dh.getCategoriesJson();
+		System.out.println(categoriesJson);
+		
+		assertTrue(categoriesJson.contains("another"));
+		assertTrue(categoriesJson.contains("hello"));
 	}
 }

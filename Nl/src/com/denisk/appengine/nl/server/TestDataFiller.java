@@ -1,7 +1,6 @@
 package com.denisk.appengine.nl.server;
 
 import java.util.Random;
-import java.util.UUID;
 
 import com.denisk.appengine.nl.server.data.Category;
 import com.denisk.appengine.nl.server.data.Good;

@@ -2,7 +2,12 @@ package com.denisk.appengine.nl.server;
 
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 
+import java.util.HashSet;
 import java.util.Iterator;
+
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONStringer;
+import org.codehaus.jettison.json.JSONWriter;
 
 import com.denisk.appengine.nl.server.data.Category;
 import com.denisk.appengine.nl.server.data.Good;
@@ -12,7 +17,6 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Transaction;
-import com.google.gwt.dev.util.collect.HashSet;
 
 public class DataHandler {
 	public Key saveCategoryWithGoods(Category category){
@@ -72,5 +76,20 @@ public class DataHandler {
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 		int countEntities = ds.prepare(new Query(kind)).countEntities(withLimit(1000));
 		return countEntities;
+	}
+
+	public String getCategoriesJson() throws JSONException{
+		HashSet<Category> categories = getCategories();
+		JSONStringer st = new JSONStringer();
+		JSONWriter writer = st.array();
+		for(Category c: categories) {
+			writer = writer.object()
+				.key(Category.NAME).value(c.getName())
+				.key(Category.DESCIPTION).value(c.getDescription())
+			.endObject();
+		}
+		writer = writer.endArray();
+		
+		return writer.toString();
 	}
 }

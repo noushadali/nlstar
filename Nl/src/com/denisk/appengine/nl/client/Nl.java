@@ -8,6 +8,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -51,7 +52,7 @@ public class Nl implements EntryPoint {
 			}
 		});
 	}
-	private void outputCategories(RootPanel rootPanel) {
+	private void outputCategories(final RootPanel rootPanel) {
 		dtoService.getCategoriesJson(new AsyncCallback<String>() {
 			
 			@Override
@@ -67,6 +68,8 @@ public class Nl implements EntryPoint {
 					sb.append(c.getDescription());
 					sb.append(". ");
 				}
+				Image image = new Image("/nl/image?id=147");
+				rootPanel.add(image);
 				categoriesInfo.setText(sb.toString());
 			}
 			

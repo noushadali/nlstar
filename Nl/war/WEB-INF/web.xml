@@ -10,8 +10,17 @@
 		<servlet-class>com.denisk.appengine.nl.server.DtoServiceServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-	<servlet-name>Dto Service</servlet-name>
-	<url-pattern>/nl/dtoService</url-pattern>
+		<servlet-name>Dto Service</servlet-name>
+		<url-pattern>/nl/dtoService</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Image servlet</servlet-name>
+		<servlet-class>com.denisk.appengine.nl.server.ImageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Image servlet</servlet-name>
+		<url-pattern>/nl/image/*</url-pattern>
 	</servlet-mapping>
 	<!-- Default page to serve -->
 	<welcome-file-list>

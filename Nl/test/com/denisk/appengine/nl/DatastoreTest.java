@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 
+import java.util.HashSet;
+
 
 import org.codehaus.jettison.json.JSONException;
 import org.junit.After;
@@ -21,7 +23,6 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.gwt.dev.util.collect.HashSet;
 
 public class DatastoreTest {
 	 private final LocalServiceTestHelper helper =

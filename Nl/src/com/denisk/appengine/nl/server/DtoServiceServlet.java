@@ -43,5 +43,11 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 	}
 
 
+	@Override
+	public void clearData() {
+		df.getDataHandler().clearAll();
+	}
+
+
 	
 }

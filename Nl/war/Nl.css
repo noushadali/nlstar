@@ -1,34 +1,42 @@
-/** Add css rules here for your application. */
-
-
-/** Example rules used by the template application (remove for your app) */
-h1 {
-  font-size: 2em;
-  font-weight: bold;
-  color: #777777;
-  margin: 40px 0px 70px;
-  text-align: center;
+.category {
+	width: 300px;
+	height: 200px;
+	margin: 10px;
+	border: solid 1px black;
+	float: left;	
 }
 
-.sendButton {
-  display: block;
-  font-size: 16pt;
+.categoryEditRoot {
+	position: relative;
+	padding: 7px;
+	background-color: #D4D4D4;
 }
 
-/** Most GWT widgets already have a style name defined */
-.gwt-DialogBox {
-  width: 400px;
+.menuItem {
+	position: relative;
+	margin-bottom: 10px;
+	height: 25px;
 }
 
-.dialogVPanel {
-  margin: 5px;
+.menuItem .gwt-Label {
+	clear: both;
+	position: absolute;
+	left: 0;
+	top: 6px;
 }
 
-.serverResponseLabelError {
-  color: red;
+.menuItem .gwt-TextBox {
+	position: absolute;
+	right: 0;
 }
 
-/** Set ids using widget.getElement().setId("idOfElement") */
-#closeButton {
-  margin: 15px 6px 6px;
+.menuItem .gwt-FileUpload {
+	position: absolute;
+	right: 0;
+}
+
+.categoryEditRoot .buttons {
+	position: absolute;
+	bottom: 0;
+	right: 0;
 }

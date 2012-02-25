@@ -8,4 +8,6 @@ public interface DtoServiceAsync {
 	void countEntities(AsyncCallback<String> callback);
 
 	void getCategoriesJson(AsyncCallback<String> callback);
+
+	void clearData(AsyncCallback<Void> asyncCallback);
 }

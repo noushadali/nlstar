@@ -17,6 +17,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Transaction;
+import com.google.appengine.api.datastore.TransactionOptions;
 
 public class DataHandler {
 	public Key saveCategoryWithGoods(Category category){
@@ -31,10 +32,10 @@ public class DataHandler {
 		
 		Key key = ds.put(c);
 		
-		Key cKey = c.getKey();
+		Key categoryKey = c.getKey();
 		
 		for(Good good: category.getGoods()) {
-			Entity g = new Entity(Good.KIND, cKey);
+			Entity g = new Entity(Good.KIND, categoryKey);
 		
 			g.setProperty(Good.NAME, good.getName());
 			g.setProperty(Good.DESCRIPTION, good.getDescription());
@@ -59,7 +60,7 @@ public class DataHandler {
 	public HashSet<Category> getCategories(){
 		HashSet<Category> result = new HashSet<Category>();
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-		Iterator<Entity> iterator = ds.prepare(new Query(Category.KIND)).asIterator();
+		Iterator<Entity> iterator = getAllEntities(ds, Category.KIND);
 		
 		while(iterator.hasNext()){
 			Entity e = iterator.next();
@@ -72,6 +73,11 @@ public class DataHandler {
 		
 		return result;
 	}
+
+	private Iterator<Entity> getAllEntities(DatastoreService ds, String kind) {
+		return ds.prepare(new Query(kind)).asIterator();
+	}
+	
 	private int countKind(String kind) {
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 		int countEntities = ds.prepare(new Query(kind)).countEntities(withLimit(1000));
@@ -91,5 +97,20 @@ public class DataHandler {
 		writer = writer.endArray();
 		
 		return writer.toString();
+	}
+
+	public void clearAll() {
+		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		
+		deleteAllEntities(ds, Category.KIND);
+		deleteAllEntities(ds, Good.KIND);
+		
+	}
+
+	private void deleteAllEntities(DatastoreService ds, String kind) {
+		final Iterator<Entity> allEntities = getAllEntities(ds, kind);
+		while(allEntities.hasNext()) {
+			ds.delete(allEntities.next().getKey());
+		}
 	}
 }

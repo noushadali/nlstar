@@ -9,5 +9,7 @@ public interface DtoService extends RemoteService {
 	
 	String countEntities();
 	
-	String getCategoriesJson(); 
+	String getCategoriesJson();
+
+	void clearData(); 
 }

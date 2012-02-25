@@ -34,18 +34,17 @@ public class Nl implements EntryPoint {
 		Button newButton = new Button("New category");
 
 		
-		EditCategoryForm form = new EditCategoryForm();
-		final PopupPanel categoryPopup = new PopupPanel();
-
-		categoryPopup.setWidth("500px");
-		categoryPopup.setHeight("165px");
-		categoryPopup.add(form);
-
-		form.getCancel().addClickHandler(new ClickHandler() {
+		final EditCategoryForm form = new EditCategoryForm();
+		dtoService.getUploadUrl(new AsyncCallback<String>() {
 			
 			@Override
-			public void onClick(ClickEvent event) {
-				categoryPopup.hide();
+			public void onSuccess(String result) {
+				form.setUploadUrl(result);
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert("Can't get upload URL: " + caught.getMessage());
 			}
 		});
 		
@@ -102,7 +101,7 @@ public class Nl implements EntryPoint {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				categoryPopup.center();
+				form.getPopup().center();
 			}
 		});
 	}

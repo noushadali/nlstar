@@ -29,6 +29,7 @@ public class DataHandler {
 
 		c.setProperty(Category.NAME, category.getName());
 		c.setProperty(Category.DESCIPTION, category.getDescription());
+		c.setProperty(Category.IMAGE_BLOB_KEY, category.getImageBlobKey());
 		
 		Key key = ds.put(c);
 		

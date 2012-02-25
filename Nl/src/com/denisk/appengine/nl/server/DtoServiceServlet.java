@@ -5,6 +5,8 @@ import javax.servlet.ServletException;
 import org.codehaus.jettison.json.JSONException;
 
 import com.denisk.appengine.nl.client.DtoService;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class DtoServiceServlet extends RemoteServiceServlet implements
@@ -46,6 +48,12 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 	@Override
 	public void clearData() {
 		df.getDataHandler().clearAll();
+	}
+
+
+	@Override
+	public String getUploadUrl() {
+		return BlobstoreServiceFactory.getBlobstoreService().createUploadUrl("/upload");
 	}
 
 

@@ -12,4 +12,6 @@ public interface DtoService extends RemoteService {
 	String getCategoriesJson();
 
 	void clearData(); 
+	
+	String getUploadUrl();
 }

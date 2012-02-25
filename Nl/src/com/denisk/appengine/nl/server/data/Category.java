@@ -9,10 +9,11 @@ public class Category {
 	public static final String KIND = "c";
 	public static final String NAME = "name";
 	public static final String DESCIPTION = "description";
+	public static final String IMAGE_BLOB_KEY = "imageKey";
 	
 	private String name;
 	private String description;
-	private BlobKey image;
+	private String imageBlobKey;
 	private BlobKey background;
 	private Set<Good> goods = new HashSet<Good>();
 	public String getName() {
@@ -26,12 +27,6 @@ public class Category {
 	}
 	public void setDescription(String description) {
 		this.description = description;
-	}
-	public BlobKey getImage() {
-		return image;
-	}
-	public void setImage(BlobKey image) {
-		this.image = image;
 	}
 	public BlobKey getBackground() {
 		return background;
@@ -74,6 +69,12 @@ public class Category {
 		} else if (!name.equals(other.name))
 			return false;
 		return true;
+	}
+	public String getImageBlobKey() {
+		return imageBlobKey;
+	}
+	public void setImageBlobKey(String imageBlobKey) {
+		this.imageBlobKey = imageBlobKey;
 	}
 	
 	

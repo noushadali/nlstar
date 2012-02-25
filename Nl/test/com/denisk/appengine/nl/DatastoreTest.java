@@ -15,6 +15,9 @@ import org.junit.Test;
 import com.denisk.appengine.nl.server.DataHandler;
 import com.denisk.appengine.nl.server.data.Category;
 import com.denisk.appengine.nl.server.data.Good;
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -147,4 +150,5 @@ public class DatastoreTest {
 		assertTrue(categoriesJson.contains("another"));
 		assertTrue(categoriesJson.contains("hello"));
 	}
+	
 }

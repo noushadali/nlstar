@@ -13,6 +13,14 @@
 		<servlet-name>Dto Service</servlet-name>
 		<url-pattern>/nl/dtoService</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>New category</servlet-name>
+		<servlet-class>com.denisk.appengine.nl.server.NewCategoryServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>New category</servlet-name>
+		<url-pattern>/upload</url-pattern>
+	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>Image servlet</servlet-name>
@@ -22,6 +30,7 @@
 		<servlet-name>Image servlet</servlet-name>
 		<url-pattern>/nl/image/*</url-pattern>
 	</servlet-mapping>
+	
 	<!-- Default page to serve -->
 	<welcome-file-list>
 		<welcome-file>Nl.html</welcome-file>

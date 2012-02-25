@@ -15,6 +15,12 @@ import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.FileUpload;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 
 /**
  * @author denisk
@@ -29,6 +35,9 @@ public class EditCategoryForm extends Composite {
 	@UiField FileUpload image;
 	@UiField Button save;
 	@UiField Button cancel;
+	@UiField FormPanel form;
+	@UiField PopupPanel popup;
+	@UiField PopupPanel loading;
 
 	interface EditCategoryFormUiBinder extends
 			UiBinder<Widget, EditCategoryForm> {
@@ -49,26 +58,33 @@ public class EditCategoryForm extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
-	public EditCategoryForm(String firstName) {
-		initWidget(uiBinder.createAndBindUi(this));
+	public PopupPanel getPopup() {
+		return popup;
+	}
 
-		// Can access @UiField after calling createAndBindUi
-	}
-	@UiHandler("save")
-	void onSaveClick(ClickEvent event) {
-		System.out.println("Saving: " + name.getText() + ", " + description.getText() + ", " + image.getFilename());
-	}
 	@UiHandler("cancel")
 	void onCancelClick(ClickEvent event) {
-		System.out.println("Cancelling");
-	}
-
-	public Button getSave() {
-		return save;
-	}
-
-	public Button getCancel() {
-		return cancel;
+		popup.hide();
 	}
 	
+	@UiHandler("form")
+	void onFormSubmit(SubmitEvent event) {
+	}
+	
+	@UiHandler("save")
+	void onSaveClick(ClickEvent event) {
+		loading.center();
+		form.submit();
+	}
+	
+	public void setUploadUrl(String url) {
+		form.setAction(url);
+	}
+	
+	@UiHandler("form")
+	void onFormSubmitComplete(SubmitCompleteEvent event) {
+		loading.hide();
+		popup.hide();
+		System.out.println("Got response: " + event.getResults());
+	}
 }

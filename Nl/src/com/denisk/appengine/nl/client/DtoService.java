@@ -14,4 +14,5 @@ public interface DtoService extends RemoteService {
 	void clearData(); 
 	
 	String getUploadUrl();
+	
 }

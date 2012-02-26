@@ -8,7 +8,7 @@
 		}
 	</ui:style>
 	<g:HTMLPanel>
-		<g:PopupPanel modal="true" ui:field="popup" styleName="categoryEditRoot">
+		<g:PopupPanel modal="true" ui:field="popup" styleName="categoryEditRoot" glassEnabled="true" animationEnabled="true">
 			<g:FormPanel width="474px" height="138px" method="post" ui:field="form" encoding="multipart/form-data">
 			<g:FlowPanel width="100%" height="100%">
 				<g:HorizontalPanel spacing="5" styleName="buttons">

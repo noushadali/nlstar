@@ -24,11 +24,20 @@
 
 	<servlet>
 		<servlet-name>Image servlet</servlet-name>
-		<servlet-class>com.denisk.appengine.nl.server.ImageServlet</servlet-class>
+		<servlet-class>com.denisk.appengine.nl.server.TestImageServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Image servlet</servlet-name>
 		<url-pattern>/nl/image/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>Thumbnail servlet</servlet-name>
+		<servlet-class>com.denisk.appengine.nl.client.ThumbnailServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Thumbnail servlet</servlet-name>
+		<url-pattern>/nl/thumb/*</url-pattern>
 	</servlet-mapping>
 	
 	<!-- Default page to serve -->

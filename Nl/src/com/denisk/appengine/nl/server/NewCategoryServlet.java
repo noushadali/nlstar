@@ -1,6 +1,7 @@
 package com.denisk.appengine.nl.server;
 
 import java.io.IOException;
+
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.List;
@@ -24,6 +25,8 @@ import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.images.ImagesService;
+import com.google.appengine.api.images.ImagesServiceFactory;
 
 public class NewCategoryServlet extends HttpServlet {
 
@@ -85,8 +88,7 @@ public class NewCategoryServlet extends HttpServlet {
 		
 		Key key = dh.saveCategoryWithGoods(category);
 		
-		blobstoreService.serve(imageKey, resp);
-//		resp.getOutputStream().write(("Category created sucessfully, key is " + key.toString()).getBytes());
+		resp.getOutputStream().write(("Category created sucessfully, key is " + key.toString()).getBytes());
 	}
 	
 }

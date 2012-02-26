@@ -12,7 +12,10 @@ public class CategoryJavascriptObject extends JavaScriptObject {
 	
 	public final native String getDescription() /*-{return this.description}-*/;
 	
+	public final native String getImageKey() /*-{return this.imageKey}-*/;
+
 	public static native JsArray<CategoryJavascriptObject> getArrayFromJson(String jsonStr)/*-{
 		return eval(jsonStr);
 	}-*/;
+
 }

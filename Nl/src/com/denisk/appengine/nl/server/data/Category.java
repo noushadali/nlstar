@@ -16,6 +16,7 @@ public class Category {
 	private String imageBlobKey;
 	private BlobKey background;
 	private Set<Good> goods = new HashSet<Good>();
+	
 	public String getName() {
 		return name;
 	}

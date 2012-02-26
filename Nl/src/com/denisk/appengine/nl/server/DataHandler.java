@@ -68,6 +68,7 @@ public class DataHandler {
 			Category c = new Category();
 			c.setName((String) e.getProperty(Category.NAME));
 			c.setDescription((String) e.getProperty(Category.DESCIPTION));
+			c.setImageBlobKey((String) e.getProperty(Category.IMAGE_BLOB_KEY));
 			
 			result.add(c);
 		}
@@ -93,6 +94,7 @@ public class DataHandler {
 			writer = writer.object()
 				.key(Category.NAME).value(c.getName())
 				.key(Category.DESCIPTION).value(c.getDescription())
+				.key(Category.IMAGE_BLOB_KEY).value(c.getImageBlobKey())
 			.endObject();
 		}
 		writer = writer.endArray();

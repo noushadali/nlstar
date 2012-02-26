@@ -85,6 +85,10 @@ public class EditCategoryForm extends Composite {
 	void onFormSubmitComplete(SubmitCompleteEvent event) {
 		loading.hide();
 		popup.hide();
-		System.out.println("Got response: " + event.getResults());
+		System.out.println("Updated entity");
+	}
+
+	public void show() {
+		popup.center();
 	}
 }

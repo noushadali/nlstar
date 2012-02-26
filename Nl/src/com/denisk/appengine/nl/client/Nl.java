@@ -1,5 +1,7 @@
 package com.denisk.appengine.nl.client;
 
+import javax.swing.GroupLayout.Alignment;
+
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -101,7 +103,7 @@ public class Nl implements EntryPoint {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				form.getPopup().center();
+				form.show();
 			}
 		});
 	}
@@ -120,23 +122,27 @@ public class Nl implements EntryPoint {
 					
 					Label name = new Label(c.getName());
 					Label description = new Label(c.getDescription());
+					Image image = new Image("/nl/thumb?key=" + c.getImageKey() + "&x=200&y=150");
 					
 					LayoutPanel p = new LayoutPanel();
 
 					p.addStyleName("category");
 					
 					p.add(name);
+					p.add(image);
 					p.add(description);
 					
 					p.setWidgetLeftRight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
-					p.setWidgetLeftRight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
-					
 					p.setWidgetTopHeight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
+					
+					p.setWidgetLeftRight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
 					p.setWidgetBottomHeight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
 					
+					p.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
+					p.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150, Style.Unit.PX);
+					p.setWidgetHorizontalPosition(image, com.google.gwt.layout.client.Layout.Alignment.END);
 					panel.add(p);
 				}
-//				Image image = new Image("/nl/image?id=147");
 //				rootPanel.add(image);
 				categoriesInfo.setText(sb.toString());
 			}

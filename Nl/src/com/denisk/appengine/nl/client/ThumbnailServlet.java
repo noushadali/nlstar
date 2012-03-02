@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -39,16 +40,16 @@ public class ThumbnailServlet extends HttpServlet {
 			return;
 		}
 		String header = req.getHeader("If-None-Match");
-		if(header != null && header.equals(blobKey)){
+		String x = req.getParameter("x");
+		String y = req.getParameter("y");
+		if(header != null && matches(header, blobKey, x, y)){
 			System.out.println("Not modified");
 			resp.sendError(HttpServletResponse.SC_NOT_MODIFIED);
 			return;
 		}
 		
 		//todo - compose from key, x and y
-		resp.setHeader("ETag", blobKey);
-		String x = req.getParameter("x");
-		String y = req.getParameter("y");
+		resp.setHeader("ETag", blobKey + "_" + x + "_" + y);
 
 		int width;
 		int height;
@@ -85,6 +86,7 @@ public class ThumbnailServlet extends HttpServlet {
 
 		MemcacheService memcacheService = MemcacheServiceFactory
 				.getMemcacheService();
+		//todo put resized image in memache, with x and y
 		Image image = (Image) memcacheService.get(blobKey);
 		if (image == null) {
 			System.out.println("Creating new image for: " + blobKey);
@@ -114,6 +116,25 @@ public class ThumbnailServlet extends HttpServlet {
 			close(input);
 			close(output);
 		}
+	}
+
+	//todo this is wrong. It should check if such image exists in cache, if not - in the DB
+	private boolean matches(String header, String blobKey, String x, String y) {
+		StringTokenizer st = new StringTokenizer(header, "_");
+		String gotBlobKey = st.nextToken();
+		if(! gotBlobKey.equals(blobKey)) {
+			return false;
+		}
+		String gotX = st.nextToken();
+		if(! gotX.equals(x)) {
+			return false;
+		}
+		String gotY = st.nextToken();
+		if(! gotY.equals(y)) {
+			return false;
+		}
+		
+		return true;
 	}
 
 	private void close(Closeable resourse) {

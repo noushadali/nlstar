@@ -5,8 +5,6 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("dtoService")
 public interface DtoService extends RemoteService {
-	void generateTestData();
-	
 	String countEntities();
 	
 	String getCategoriesJson();

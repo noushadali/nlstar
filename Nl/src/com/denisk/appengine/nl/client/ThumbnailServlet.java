@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.denisk.appengine.nl.server.ImageCacheService;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.images.Image;
 import com.google.appengine.api.images.ImagesService;
@@ -22,119 +23,114 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 
 public class ThumbnailServlet extends HttpServlet {
 
-	private static final int DEFAULT_WIDTH = 200;
-	private static final int DEFAULT_HEIGHT = 115;
-
-	private static final int MAX_WIDTH = 500;
-	private static final int MAX_HEIGHT = 300;
-
 	private static final int BUFFER_SIZE = 10240;
 
+	private ImageCacheService imageCacheService = new ImageCacheService();
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		System.out.println("In ThumbnailServlet");
-		String blobKey = req.getParameter("key");
-		if (blobKey == null) {
+		System.out.println("In ThumbnailServlet - GET");
+
+		processRequest(req, resp, true);
+	}
+
+	
+	@Override
+	protected void doHead(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		System.out.println("In ThumbnailServlet - HEAD");
+		processRequest(req, resp, false);
+	}
+
+
+	private void processRequest(HttpServletRequest req, HttpServletResponse resp, boolean content)
+			throws IOException, ServletException {
+		String ifNoteMatch = req.getHeader("If-None-Match");
+		if(ifNoteMatch != null && imageExists(ifNoteMatch)){
+			System.out.println("Not modified based on If-None-Match header");
+			resp.sendError(HttpServletResponse.SC_NOT_MODIFIED);
+			return;
+		}
+
+		String blobKeyStr = req.getParameter("key");
+		if (blobKeyStr == null) {
 			System.out.println("Key was null, exiting");
 			return;
 		}
-		String header = req.getHeader("If-None-Match");
-		String x = req.getParameter("x");
-		String y = req.getParameter("y");
-		if(header != null && matches(header, blobKey, x, y)){
-			System.out.println("Not modified");
+		String widthStr = req.getParameter("w");
+		String heightStr = req.getParameter("h");
+		int w;
+		int h;
+		
+		try {
+			w = Integer.parseInt(widthStr);
+		} catch (NumberFormatException e){
+			throw new ServletException("Width is not a number", e);
+		}
+		
+		try {
+			h = Integer.parseInt(heightStr);
+		} catch (NumberFormatException e){
+			throw new ServletException("Height is not a number", e);
+		}
+		
+		String combinedKey = imageCacheService.buildCombinedKey(new BlobKey(blobKeyStr), w, h);
+		
+		String ifModifiedSince = req.getHeader("If-Modified-Since");
+		if(ifModifiedSince != null && imageExists(combinedKey)){
+			//we don't care what 'ifModifiedSince' value is, the images can't be updated in blobstore - only overridden
+			//so in case of update we would get new blobKey anyway
+			System.out.print("Not modified based on If-Modified-Since presence");
 			resp.sendError(HttpServletResponse.SC_NOT_MODIFIED);
 			return;
 		}
 		
-		//todo - compose from key, x and y
-		resp.setHeader("ETag", blobKey + "_" + x + "_" + y);
+		
+		resp.setHeader("ETag", combinedKey);
 
-		int width;
-		int height;
-
-		if (x == null) {
-			System.out.println("x was null, using default");
-			width = DEFAULT_WIDTH;
-		} else {
+		Image image = imageCacheService.getImage(new BlobKey(blobKeyStr), w, h);
+		if(image == null){
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+		if (content) {
+			BufferedInputStream input = null;
+			BufferedOutputStream output = null;
 			try {
-				width = Integer.parseInt(x);
-				System.out.println("Got width " + width);
-			} catch (NumberFormatException e) {
-				width = DEFAULT_WIDTH;
-			}
-		}
-		if (width > MAX_WIDTH) {
-			width = DEFAULT_WIDTH;
-		}
+				input = new BufferedInputStream(new ByteArrayInputStream(
+						image.getImageData()), BUFFER_SIZE);
+				output = new BufferedOutputStream(resp.getOutputStream(),
+						BUFFER_SIZE);
 
-		if (y == null) {
-			System.out.println("y was null, using default");
-			height = DEFAULT_HEIGHT;
-		} else {
-			try {
-				height = Integer.parseInt(y);
-				System.out.println("got height=" + height);
-			} catch (NumberFormatException e) {
-				height = DEFAULT_HEIGHT;
+				byte[] buffer = new byte[BUFFER_SIZE];
+				int length;
+				while ((length = input.read(buffer)) > 0) {
+					output.write(buffer, 0, length);
+				}
+			} finally {
+				close(input);
+				close(output);
 			}
-		}
-		if (height > MAX_HEIGHT) {
-			height = DEFAULT_HEIGHT;
-		}
-
-		MemcacheService memcacheService = MemcacheServiceFactory
-				.getMemcacheService();
-		//todo put resized image in memache, with x and y
-		Image image = (Image) memcacheService.get(blobKey);
-		if (image == null) {
-			System.out.println("Creating new image for: " + blobKey);
-			image = ImagesServiceFactory
-					.makeImageFromBlob(new BlobKey(blobKey));
-			memcacheService.put(blobKey, image);
-			
-		}
-		ImagesService is = ImagesServiceFactory.getImagesService();
-		Transform resize = ImagesServiceFactory.makeResize(width, height);
-		
-		Image transformed = is.applyTransform(resize, image);
-		
-		
-		BufferedInputStream input = null;
-		BufferedOutputStream output = null;
-		try {
-			input = new BufferedInputStream(new ByteArrayInputStream(transformed.getImageData()), BUFFER_SIZE);
-			output = new BufferedOutputStream(resp.getOutputStream(), BUFFER_SIZE);
-			
-			byte[] buffer = new byte[BUFFER_SIZE];
-			int length;
-			while((length = input.read(buffer)) > 0) {
-				output.write(buffer, 0, length);
-			}
-		} finally {
-			close(input);
-			close(output);
 		}
 	}
 
-	//todo this is wrong. It should check if such image exists in cache, if not - in the DB
-	private boolean matches(String header, String blobKey, String x, String y) {
-		StringTokenizer st = new StringTokenizer(header, "_");
+	private boolean imageExists(String key) {
+		if(! key.matches(".+_\\d{1,4}_\\d{1,4}")){
+			System.out.println("Header has wrong format: " + key);
+			return false;
+		}
+		StringTokenizer st = new StringTokenizer(key, "_");
+
 		String gotBlobKey = st.nextToken();
-		if(! gotBlobKey.equals(blobKey)) {
-			return false;
-		}
 		String gotX = st.nextToken();
-		if(! gotX.equals(x)) {
-			return false;
-		}
 		String gotY = st.nextToken();
-		if(! gotY.equals(y)) {
-			return false;
-		}
 		
-		return true;
+		return getImage(gotBlobKey, gotX, gotY) != null;
+	}
+
+	private Image getImage(String key, String w, String h) {
+		return imageCacheService.getImage(new BlobKey(key), Integer.parseInt(w), Integer.parseInt(h));
 	}
 
 	private void close(Closeable resourse) {

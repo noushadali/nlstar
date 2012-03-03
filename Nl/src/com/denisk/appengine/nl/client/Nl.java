@@ -31,7 +31,6 @@ public class Nl implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		Button sendButton = new Button("Generate Data");
 		Button clearButton = new Button("Clear all");
 		Button newButton = new Button("New category");
 
@@ -54,7 +53,6 @@ public class Nl implements EntryPoint {
 		updateLabel(status);
 		
 		final RootPanel rootPanel = RootPanel.get("container");
-		rootPanel.add(sendButton);
 		rootPanel.add(clearButton);
 		rootPanel.add(newButton);
 		rootPanel.add(status);
@@ -63,23 +61,6 @@ public class Nl implements EntryPoint {
 		final FlowPanel categories = new FlowPanel(); 
 		rootPanel.add(categories);
 		outputCategories(categories);
-		sendButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				dtoService.generateTestData(new AsyncCallback<Void>() {
-					@Override
-					public void onSuccess(Void result) {
-						updateLabel(status);
-						outputCategories(categories);
-					}
-					
-					@Override
-					public void onFailure(Throwable caught) {
-						status.setText("Data load failed," + caught);
-					}
-				});
-			}
-		});
 		
 		clearButton.addClickHandler(new ClickHandler() {
 			
@@ -122,7 +103,7 @@ public class Nl implements EntryPoint {
 					
 					Label name = new Label(c.getName());
 					Label description = new Label(c.getDescription());
-					Image image = new Image("/nl/thumb?key=" + c.getImageKey() + "&x=200&y=150");
+					Image image = new Image("/nl/thumb?key=" + c.getImageKey() + "&w=200&h=150");
 					
 					LayoutPanel p = new LayoutPanel();
 

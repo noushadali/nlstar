@@ -10,4 +10,6 @@ public interface DtoServiceAsync {
 	void clearData(AsyncCallback<Void> asyncCallback);
 
 	void getUploadUrl(AsyncCallback<String> callback);
+
+	void persistCategory(String categoryJson, AsyncCallback<Void> callback);
 }

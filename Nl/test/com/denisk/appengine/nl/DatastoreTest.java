@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 
@@ -110,7 +111,7 @@ public class DatastoreTest {
 		Key key1 = dh.saveCategoryWithGoods(c);
 		Key key2 = dh.saveCategoryWithGoods(c1);
 		
-		HashSet<Category> categories = dh.getCategories();
+		ArrayList<Category> categories = dh.getCategories();
 		
 		assertEquals(2, categories.size());
 		assertTrue(categories.contains(c));

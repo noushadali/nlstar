@@ -2,6 +2,7 @@ package com.denisk.appengine.nl.server;
 
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -58,8 +59,8 @@ public class DataHandler {
 		return countKind(Good.KIND);
 	}
 
-	public HashSet<Category> getCategories(){
-		HashSet<Category> result = new HashSet<Category>();
+	public ArrayList<Category> getCategories(){
+		ArrayList<Category> result = new ArrayList<Category>();
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 		Iterator<Entity> iterator = getAllEntities(ds, Category.KIND);
 		
@@ -87,7 +88,7 @@ public class DataHandler {
 	}
 
 	public String getCategoriesJson() throws JSONException{
-		HashSet<Category> categories = getCategories();
+		ArrayList<Category> categories = getCategories();
 		JSONStringer st = new JSONStringer();
 		JSONWriter writer = st.array();
 		for(Category c: categories) {

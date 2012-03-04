@@ -5,7 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,11 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.denisk.appengine.nl.server.ImageCacheService;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.images.Image;
-import com.google.appengine.api.images.ImagesService;
-import com.google.appengine.api.images.ImagesServiceFactory;
-import com.google.appengine.api.images.Transform;
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 
 public class ThumbnailServlet extends HttpServlet {
 
@@ -116,15 +110,15 @@ public class ThumbnailServlet extends HttpServlet {
 	}
 
 	private boolean imageExists(String key) {
-		if(! key.matches(".+_\\d{1,4}_\\d{1,4}")){
+		if(! key.matches(".+" + ImageCacheService.KEY_DELIM + "\\d{1,4}" + ImageCacheService.KEY_DELIM + "\\d{1,4}")){
 			System.out.println("Header has wrong format: " + key);
 			return false;
 		}
-		StringTokenizer st = new StringTokenizer(key, "_");
+		String[] parts = key.split(ImageCacheService.KEY_DELIM);
 
-		String gotBlobKey = st.nextToken();
-		String gotX = st.nextToken();
-		String gotY = st.nextToken();
+		String gotBlobKey = parts[0];
+		String gotX = parts[1];
+		String gotY = parts[2];
 		
 		return getImage(gotBlobKey, gotX, gotY) != null;
 	}

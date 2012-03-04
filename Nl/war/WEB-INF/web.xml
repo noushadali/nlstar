@@ -14,11 +14,11 @@
 		<url-pattern>/nl/dtoService</url-pattern>
 	</servlet-mapping>
 	<servlet>
-		<servlet-name>New category</servlet-name>
-		<servlet-class>com.denisk.appengine.nl.server.NewCategoryServlet</servlet-class>
+		<servlet-name>category image</servlet-name>
+		<servlet-class>com.denisk.appengine.nl.server.SaveCategoryImageServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>New category</servlet-name>
+		<servlet-name>category image</servlet-name>
 		<url-pattern>/upload</url-pattern>
 	</servlet-mapping>
 

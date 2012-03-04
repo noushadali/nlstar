@@ -3,6 +3,11 @@ package com.denisk.appengine.nl.server.data;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.servlet.ServletException;
+
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+
 import com.google.appengine.api.blobstore.BlobKey;
 
 public class Category {
@@ -78,5 +83,20 @@ public class Category {
 		this.imageBlobKey = imageBlobKey;
 	}
 	
+	public static Category getFromJson(String json) {
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			
+			Category category = new Category();
+			category.setName(jsonObject.getString(NAME));
+			category.setDescription(jsonObject.getString(DESCIPTION));
+			category.setImageBlobKey(jsonObject.getString(IMAGE_BLOB_KEY));
+			
+			return category;
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
 	
 }

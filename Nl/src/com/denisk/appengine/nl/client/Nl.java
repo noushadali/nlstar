@@ -36,19 +36,6 @@ public class Nl implements EntryPoint {
 
 		
 		final EditCategoryForm form = new EditCategoryForm();
-		dtoService.getUploadUrl(new AsyncCallback<String>() {
-			
-			@Override
-			public void onSuccess(String result) {
-				form.setUploadUrl(result);
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				Window.alert("Can't get upload URL: " + caught.getMessage());
-			}
-		});
-		
 		final Label status = new Label();
 		updateLabel(status);
 		
@@ -61,6 +48,14 @@ public class Nl implements EntryPoint {
 		final FlowPanel categories = new FlowPanel(); 
 		rootPanel.add(categories);
 		outputCategories(categories);
+		form.setSubmitCallback(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				updateLabel(status);
+				outputCategories(categories);
+			}
+		});
 		
 		clearButton.addClickHandler(new ClickHandler() {
 			

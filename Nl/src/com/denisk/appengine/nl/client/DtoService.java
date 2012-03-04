@@ -13,4 +13,6 @@ public interface DtoService extends RemoteService {
 	
 	String getUploadUrl();
 	
+	void persistCategory(String categoryJson);
+	
 }

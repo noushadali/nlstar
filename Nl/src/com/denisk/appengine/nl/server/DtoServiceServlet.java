@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 import org.codehaus.jettison.json.JSONException;
 
@@ -15,12 +16,15 @@ import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class DtoServiceServlet extends RemoteServiceServlet implements
 		DtoService {
 	private static final long serialVersionUID = 3021789825605473063L;
 	private static DataHandler dh = new DataHandler();
+	private UserService us = UserServiceFactory.getUserService(); 
 
 	@Override
 	public String countEntities() {
@@ -41,6 +45,10 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 
 	@Override
 	public void clearData() {
+		if(us.getCurrentUser() == null || ! us.isUserAdmin()){
+			throw new IllegalAccessError("User is not allowed to perform this operation: " + us.getCurrentUser());
+		}
+
 		dh.clearAll();
 		
 		MemcacheServiceFactory.getMemcacheService().clearAll();
@@ -56,14 +64,38 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 
 	@Override
 	public String getUploadUrl() {
+		if(us.getCurrentUser() == null || ! us.isUserAdmin()){
+			throw new IllegalAccessError("User is not allowed to perform this operation: " + us.getCurrentUser());
+		}
 		return BlobstoreServiceFactory.getBlobstoreService().createUploadUrl("/upload");
 	}
 
 
 	@Override
 	public void persistCategory(String categoryJson) {
+		if(us.getCurrentUser() == null || ! us.isUserAdmin()){
+			throw new IllegalAccessError("User is not allowed to perform this operation: " + us.getCurrentUser());
+		}
 		Category category = Category.getFromJson(categoryJson);
 		dh.saveCategoryWithGoods(category);
+	}
+
+
+	@Override
+	public Boolean isAdmin() {
+		return us.getCurrentUser() != null && us.isUserAdmin();
+	}
+
+
+	@Override
+	public String getLoginUrl() {
+		return us.createLoginURL("/");
+	}
+
+
+	@Override
+	public String getLogoutUrl() {
+		return us.createLogoutURL("/");
 	}
 
 

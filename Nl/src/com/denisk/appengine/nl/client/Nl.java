@@ -13,6 +13,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -31,57 +32,93 @@ public class Nl implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		Button clearButton = new Button("Clear all");
-		Button newButton = new Button("New category");
+		final RootPanel rootPanel = RootPanel.get("container");
 
 		
-		final EditCategoryForm form = new EditCategoryForm();
 		final Label status = new Label();
 		updateLabel(status);
 		
-		final RootPanel rootPanel = RootPanel.get("container");
-		rootPanel.add(clearButton);
-		rootPanel.add(newButton);
 		rootPanel.add(status);
 		rootPanel.add(categoriesInfo);
-		
 		final FlowPanel categories = new FlowPanel(); 
 		rootPanel.add(categories);
 		outputCategories(categories);
-		form.setSubmitCallback(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				updateLabel(status);
-				outputCategories(categories);
-			}
-		});
 		
-		clearButton.addClickHandler(new ClickHandler() {
+		dtoService.isAdmin(new AsyncCallback<Boolean>() {
 			
 			@Override
-			public void onClick(ClickEvent event) {
-				dtoService.clearData(new AsyncCallback<Void>() {
-					@Override
-					public void onSuccess(Void result) {
-						updateLabel(status);
-						outputCategories(categories);
-					}
+			public void onSuccess(Boolean yes) {
+				if(yes){
+					final EditCategoryForm form = new EditCategoryForm();
+					Button clearButton = new Button("Clear all");
+					Button newButton = new Button("New category");
+					rootPanel.add(clearButton);
+					rootPanel.add(newButton);
+					newButton.addClickHandler(new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							form.show();
+						}
+					});
+					clearButton.addClickHandler(new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							dtoService.clearData(new AsyncCallback<Void>() {
+								@Override
+								public void onSuccess(Void result) {
+									updateLabel(status);
+									outputCategories(categories);
+								}
 
+								@Override
+								public void onFailure(Throwable caught) {
+								}
+							});
+						}
+					});
+					form.setSubmitCallback(new ClickHandler() {
+						
+						@Override
+						public void onClick(ClickEvent event) {
+							updateLabel(status);
+							outputCategories(categories);
+						}
+					});
+				} else {
+					dtoService.getLoginUrl(new AsyncCallback<String>() {
+						
+						@Override
+						public void onSuccess(String result) {
+							HTML link = new HTML();
+							link.setHTML("<a href='" + result + "'>Login</a>");
+							rootPanel.add(link);
+						}
+						
+						@Override
+						public void onFailure(Throwable caught) {
+						}
+					});
+				}
+				dtoService.getLogoutUrl(new AsyncCallback<String>() {
+					
+					@Override
+					public void onSuccess(String result) {
+						HTML link = new HTML();
+						link.setHTML("<a href='" + result + "'>Logout</a>");
+						rootPanel.add(link);
+					}
+					
 					@Override
 					public void onFailure(Throwable caught) {
 					}
 				});
 			}
-		});
-		
-		newButton.addClickHandler(new ClickHandler() {
 			
 			@Override
-			public void onClick(ClickEvent event) {
-				form.show();
+			public void onFailure(Throwable caught) {
 			}
 		});
+
 	}
 	
 	private void outputCategories(final Panel panel) {

@@ -15,4 +15,9 @@ public interface DtoService extends RemoteService {
 	
 	void persistCategory(String categoryJson);
 	
+	Boolean isAdmin();
+	
+	String getLoginUrl();
+
+	String getLogoutUrl();
 }

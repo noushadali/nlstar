@@ -1,4 +1,4 @@
-package com.denisk.appengine.nl.client;
+package com.denisk.appengine.nl.server;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.denisk.appengine.nl.server.ImageCacheService;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.images.Image;
 

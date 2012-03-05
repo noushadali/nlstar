@@ -13,16 +13,23 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 
 public class SaveCategoryImageServlet extends HttpServlet {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+	private UserService us = UserServiceFactory.getUserService();
 	private DataHandler dh = new DataHandler();
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
+		if(us.getCurrentUser() == null || ! us.isUserAdmin()){
+			resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
 		BlobKey imageKey = null;
 
 		Map<String, List<BlobKey>> uploads = blobstoreService.getUploads(req);

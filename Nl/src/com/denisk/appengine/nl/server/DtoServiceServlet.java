@@ -10,12 +10,14 @@ import org.codehaus.jettison.json.JSONException;
 
 import com.denisk.appengine.nl.client.DtoService;
 import com.denisk.appengine.nl.server.data.Category;
+import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.blobstore.BlobInfoFactory;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -82,8 +84,12 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 
 
 	@Override
-	public Boolean isAdmin() {
-		return us.getCurrentUser() != null && us.isUserAdmin();
+	public UserStatus isAdmin() {
+		User currentUser = us.getCurrentUser();
+		if(currentUser==null){
+			return UserStatus.NOT_LOGGED_IN;
+		}
+		return us.isUserAdmin() ? UserStatus.ADMIN : UserStatus.NOT_ADMIN;
 	}
 
 
@@ -96,6 +102,12 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 	@Override
 	public String getLogoutUrl() {
 		return us.createLogoutURL("/");
+	}
+
+
+	@Override
+	public String getGoodsJson(String categoryKeyStr) {
+		return dh.getGoodsJson(categoryKeyStr);
 	}
 
 

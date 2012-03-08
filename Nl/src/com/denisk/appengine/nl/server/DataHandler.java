@@ -106,6 +106,10 @@ public class DataHandler {
 		return writer.toString();
 	}
 
+	public String getGoodsJson(String categoryKeyStr) {
+		return null;
+	}
+
 	public void clearAll() {
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 		
@@ -120,4 +124,5 @@ public class DataHandler {
 			ds.delete(allEntities.next().getKey());
 		}
 	}
+
 }

@@ -1,5 +1,6 @@
 package com.denisk.appengine.nl.client;
 
+import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
@@ -8,6 +9,8 @@ public interface DtoService extends RemoteService {
 	String countEntities();
 	
 	String getCategoriesJson();
+	
+	String getGoodsJson(String categoryKeyStr);
 
 	void clearData(); 
 	
@@ -15,7 +18,7 @@ public interface DtoService extends RemoteService {
 	
 	void persistCategory(String categoryJson);
 	
-	Boolean isAdmin();
+	UserStatus isAdmin();
 	
 	String getLoginUrl();
 

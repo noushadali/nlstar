@@ -1,5 +1,6 @@
 package com.denisk.appengine.nl;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
@@ -24,6 +25,7 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -136,7 +138,7 @@ public class DatastoreTest {
 		g1.setName("g1_name");
 		g2.setName("g2_name");
 		
-		g1.setName("g1_desc");
+		g1.setDescription("g1_desc");
 		g2.setDescription("g2_desc");
 		
 		c.getGoods().add(g1);
@@ -152,4 +154,46 @@ public class DatastoreTest {
 		assertTrue(categoriesJson.contains("hello"));
 	}
 	
+	@Test
+	public void getGoodsJson(){
+		DataHandler dh = new DataHandler();
+		
+		Category c = new Category();
+		c.setName("hello");
+		c.setDescription("desc");
+		
+		Category c1 = new Category();
+		c1.setName("another");
+		c1.setDescription("desc");
+		
+		Good g1 = new Good();
+		Good g2 = new Good();
+		Good g3 = new Good();
+
+		g1.setName("g1_name");
+		g2.setName("g2_name");
+		g3.setName("g3_name");
+		
+		g1.setDescription("g1_desc");
+		g2.setDescription("g2_desc");
+		g3.setDescription("g3_desc");
+		
+		c.getGoods().add(g1);
+		c.getGoods().add(g2);
+		
+		c1.getGoods().add(g3);
+		
+		Key key1 = dh.saveCategoryWithGoods(c);
+		Key key2 = dh.saveCategoryWithGoods(c1);
+
+		String json = dh.getGoodsJson(KeyFactory.keyToString(key1));
+		
+		assertTrue(json.contains("g1_name"));
+		assertTrue(json.contains("g2_name"));
+		assertTrue(json.contains("g1_desc"));
+		assertTrue(json.contains("g2_desc"));
+		
+		assertFalse(json.contains("g3_name"));
+		assertFalse(json.contains("g3_desc"));
+	}
 }

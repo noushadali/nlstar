@@ -3,6 +3,9 @@ package com.denisk.appengine.nl.client;
 import javax.swing.GroupLayout.Alignment;
 
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
+import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
+import com.denisk.appengine.nl.client.overlay.ShopItem;
+import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -35,14 +38,13 @@ public class Nl implements EntryPoint {
 	
 	private final FlowPanel goods = new FlowPanel();
 	private final FlowPanel categories = new FlowPanel(); 
+	private final Label status = new Label();
+	private final RootPanel rootPanel = RootPanel.get("container");
+	
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		final RootPanel rootPanel = RootPanel.get("container");
-
-		
-		final Label status = new Label();
 		updateLabel(status);
 		
 		rootPanel.add(status);
@@ -50,11 +52,12 @@ public class Nl implements EntryPoint {
 		rootPanel.add(categories);
 		outputCategories(categories);
 		
-		dtoService.isAdmin(new AsyncCallback<Boolean>() {
+		dtoService.isAdmin(new AsyncCallback<UserStatus>() {
 			
 			@Override
-			public void onSuccess(Boolean yes) {
-				if(yes){
+			public void onSuccess(UserStatus userStatus) {
+				switch(userStatus) {
+				case ADMIN:
 					final EditCategoryForm form = new EditCategoryForm();
 					Button clearButton = new Button("Clear all");
 					Button newButton = new Button("New category");
@@ -90,7 +93,9 @@ public class Nl implements EntryPoint {
 							outputCategories(categories);
 						}
 					});
-				} else {
+					createLogoutUrl();
+					break;
+				case NOT_LOGGED_IN:
 					dtoService.getLoginUrl(new AsyncCallback<String>() {
 						
 						@Override
@@ -104,7 +109,14 @@ public class Nl implements EntryPoint {
 						public void onFailure(Throwable caught) {
 						}
 					});
+				
+				break;
+				case NOT_ADMIN:
+					createLogoutUrl();
+					break;
 				}
+			}
+			private void createLogoutUrl() {
 				dtoService.getLogoutUrl(new AsyncCallback<String>() {
 					
 					@Override
@@ -119,7 +131,6 @@ public class Nl implements EntryPoint {
 					}
 				});
 			}
-			
 			@Override
 			public void onFailure(Throwable caught) {
 			}
@@ -139,9 +150,7 @@ public class Nl implements EntryPoint {
 				for(int i = 0; i < arrayFromJson.length(); i++){
 					CategoryJavascriptObject categoryJson = arrayFromJson.get(i);
 					
-					LayoutPanel categoryPanel = createCategoryPanel(categoryJson);
-					FocusPanel fp = new FocusPanel();
-					fp.add(categoryPanel);
+					LayoutPanel categoryPanel = createItemPanel(categoryJson);
 					
 					panel.add(categoryPanel);
 				}
@@ -171,11 +180,37 @@ public class Nl implements EntryPoint {
 		});
 	}
 
-	private LayoutPanel createCategoryPanel(
-			final CategoryJavascriptObject categoryJson) {
-		final Label name = new Label(categoryJson.getName());
-		Label description = new Label(categoryJson.getDescription());
-		Image image = new Image("/nl/thumb?key=" + categoryJson.getImageKey() + "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
+	private LayoutPanel createItemPanel(
+			final ShopItem itemJson) {
+		LayoutPanel categoryPanel = createShopItemPanel(itemJson);
+		
+		categoryPanel.addDomHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				categories.clear();
+				dtoService.getGoodsJson(itemJson.getKeyStr(), new AsyncCallback<String>() {
+					
+					@Override
+					public void onSuccess(String goodsJson) {
+						JsArray<GoodJavascriptObject> goodsJsArray = GoodJavascriptObject.<GoodJavascriptObject>getArrayFromJson(goodsJson);
+						outputGoods(goods, goodsJsArray);
+					}
+					
+					@Override
+					public void onFailure(Throwable caught) {
+					}
+				});
+			}
+		}, ClickEvent.getType());
+
+		return categoryPanel;
+	}
+
+	private LayoutPanel createShopItemPanel(final ShopItem itemJson) {
+		final Label name = new Label(itemJson.getName());
+		Label description = new Label(itemJson.getDescription());
+		Image image = new Image("/nl/thumb?key=" + itemJson.getImageKey() + "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
 		
 		LayoutPanel categoryPanel = new LayoutPanel();
 
@@ -194,15 +229,17 @@ public class Nl implements EntryPoint {
 		categoryPanel.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
 		categoryPanel.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150, Style.Unit.PX);
 		categoryPanel.setWidgetHorizontalPosition(image, com.google.gwt.layout.client.Layout.Alignment.END);
-		
-		categoryPanel.addDomHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				System.out.println("Clicked " + categoryJson.getKeyStr());
-			}
-		}, ClickEvent.getType());
-
 		return categoryPanel;
 	}
+	
+	private void outputGoods(FlowPanel goods,
+			JsArray<GoodJavascriptObject> goodsJsArray) {
+		for(int i = 0; i < goodsJsArray.length(); i++){
+			GoodJavascriptObject goodJs = goodsJsArray.get(i);
+			LayoutPanel panel = createItemPanel(goodJs);
+			goods.add(panel);
+		}
+	}
+
+
 }

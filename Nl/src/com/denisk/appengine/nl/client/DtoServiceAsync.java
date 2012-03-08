@@ -1,5 +1,6 @@
 package com.denisk.appengine.nl.client;
 
+import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface DtoServiceAsync {
@@ -13,9 +14,11 @@ public interface DtoServiceAsync {
 
 	void persistCategory(String categoryJson, AsyncCallback<Void> callback);
 
-	void isAdmin(AsyncCallback<Boolean> callback);
+	void isAdmin(AsyncCallback<UserStatus> callback);
 
 	void getLoginUrl(AsyncCallback<String> callback);
 	
 	void getLogoutUrl(AsyncCallback<String> callback);
+
+	void getGoodsJson(String categoryKeyStr, AsyncCallback<String> callback);
 }

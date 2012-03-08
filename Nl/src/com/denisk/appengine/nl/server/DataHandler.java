@@ -16,6 +16,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
@@ -67,6 +68,7 @@ public class DataHandler {
 		while(iterator.hasNext()){
 			Entity e = iterator.next();
 			Category c = new Category();
+			c.setKey(e.getKey());
 			c.setName((String) e.getProperty(Category.NAME));
 			c.setDescription((String) e.getProperty(Category.DESCIPTION));
 			c.setImageBlobKey((String) e.getProperty(Category.IMAGE_BLOB_KEY));
@@ -93,6 +95,7 @@ public class DataHandler {
 		JSONWriter writer = st.array();
 		for(Category c: categories) {
 			writer = writer.object()
+				.key(Category.KEY_STR).value(KeyFactory.keyToString(c.getKey()))
 				.key(Category.NAME).value(c.getName())
 				.key(Category.DESCIPTION).value(c.getDescription())
 				.key(Category.IMAGE_BLOB_KEY).value(c.getImageBlobKey())

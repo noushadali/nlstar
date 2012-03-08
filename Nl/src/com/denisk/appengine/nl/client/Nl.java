@@ -13,6 +13,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -26,8 +27,14 @@ import com.google.gwt.user.client.ui.RootPanel;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class Nl implements EntryPoint {
+	private static final String THUMB_WIDTH = "200";
+	private static final String THUMB_HEIGHT = "100";
+	
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
 	private Label categoriesInfo = new Label();
+	
+	private final FlowPanel goods = new FlowPanel();
+	private final FlowPanel categories = new FlowPanel(); 
 	/**
 	 * This is the entry point method.
 	 */
@@ -40,7 +47,6 @@ public class Nl implements EntryPoint {
 		
 		rootPanel.add(status);
 		rootPanel.add(categoriesInfo);
-		final FlowPanel categories = new FlowPanel(); 
 		rootPanel.add(categories);
 		outputCategories(categories);
 		
@@ -131,30 +137,13 @@ public class Nl implements EntryPoint {
 				categoriesInfo.setText("");
 				StringBuilder sb = new StringBuilder();
 				for(int i = 0; i < arrayFromJson.length(); i++){
-					CategoryJavascriptObject c = arrayFromJson.get(i);
+					CategoryJavascriptObject categoryJson = arrayFromJson.get(i);
 					
-					Label name = new Label(c.getName());
-					Label description = new Label(c.getDescription());
-					Image image = new Image("/nl/thumb?key=" + c.getImageKey() + "&w=200&h=150");
+					LayoutPanel categoryPanel = createCategoryPanel(categoryJson);
+					FocusPanel fp = new FocusPanel();
+					fp.add(categoryPanel);
 					
-					LayoutPanel p = new LayoutPanel();
-
-					p.addStyleName("category");
-					
-					p.add(name);
-					p.add(image);
-					p.add(description);
-					
-					p.setWidgetLeftRight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
-					p.setWidgetTopHeight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
-					
-					p.setWidgetLeftRight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
-					p.setWidgetBottomHeight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
-					
-					p.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
-					p.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150, Style.Unit.PX);
-					p.setWidgetHorizontalPosition(image, com.google.gwt.layout.client.Layout.Alignment.END);
-					panel.add(p);
+					panel.add(categoryPanel);
 				}
 //				rootPanel.add(image);
 				categoriesInfo.setText(sb.toString());
@@ -180,5 +169,40 @@ public class Nl implements EntryPoint {
 				status.setText("Can't calculate entities");
 			}
 		});
+	}
+
+	private LayoutPanel createCategoryPanel(
+			final CategoryJavascriptObject categoryJson) {
+		final Label name = new Label(categoryJson.getName());
+		Label description = new Label(categoryJson.getDescription());
+		Image image = new Image("/nl/thumb?key=" + categoryJson.getImageKey() + "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
+		
+		LayoutPanel categoryPanel = new LayoutPanel();
+
+		categoryPanel.addStyleName("category");
+		
+		categoryPanel.add(name);
+		categoryPanel.add(image);
+		categoryPanel.add(description);
+		
+		categoryPanel.setWidgetLeftRight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
+		categoryPanel.setWidgetTopHeight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
+		
+		categoryPanel.setWidgetLeftRight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
+		categoryPanel.setWidgetBottomHeight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
+		
+		categoryPanel.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
+		categoryPanel.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150, Style.Unit.PX);
+		categoryPanel.setWidgetHorizontalPosition(image, com.google.gwt.layout.client.Layout.Alignment.END);
+		
+		categoryPanel.addDomHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				System.out.println("Clicked " + categoryJson.getKeyStr());
+			}
+		}, ClickEvent.getType());
+
+		return categoryPanel;
 	}
 }

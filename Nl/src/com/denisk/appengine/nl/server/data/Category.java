@@ -9,13 +9,16 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.datastore.Key;
 
 public class Category {
 	public static final String KIND = "c";
+	public static final String KEY_STR = "keyStr";
 	public static final String NAME = "name";
 	public static final String DESCIPTION = "description";
 	public static final String IMAGE_BLOB_KEY = "imageKey";
 	
+	private Key key;
 	private String name;
 	private String description;
 	private String imageBlobKey;
@@ -97,6 +100,12 @@ public class Category {
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	public Key getKey() {
+		return key;
+	}
+	public void setKey(Key key){
+		this.key = key;
 	}
 	
 }

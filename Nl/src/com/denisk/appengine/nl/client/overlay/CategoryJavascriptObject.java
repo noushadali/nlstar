@@ -7,6 +7,7 @@ public class CategoryJavascriptObject extends JavaScriptObject {
 	protected CategoryJavascriptObject() {
 		
 	}
+	public final native String getKeyStr() /*-{return this.keyStr}-*/;
 
 	public final native String getName() /*-{return this.name}-*/;
 	

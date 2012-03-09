@@ -38,7 +38,7 @@ public class Nl implements EntryPoint {
 	
 	private String selectedCategoryKeyStr;
 	
-	private ClickHandler categoriesFormClickHandler = new ClickHandler() {
+	private ClickHandler categoriesClearButtonClickHandler = new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
 			dtoService.clearData(new AsyncCallback<Void>() {
@@ -82,6 +82,7 @@ public class Nl implements EntryPoint {
 		backButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
+				setCategoriesControls();
 				outputCategories(outputPanel);
 			}
 		});
@@ -110,12 +111,7 @@ public class Nl implements EntryPoint {
 					});
 					createLogoutUrl();
 					
-					if(clearButtonHandlerRegistration != null){
-						clearButtonHandlerRegistration.removeHandler();
-					}
-					clearButtonHandlerRegistration = clearButton.addClickHandler(categoriesFormClickHandler);
-					form.setRedrawPageAfterItemPersistedCallback(newCategoryFormSubmitCallback);
-					form.setMisterPersister(categoryPersister);
+					setCategoriesControls();
 					break;
 				case NOT_LOGGED_IN:
 					dtoService.getLoginUrl(new AsyncCallback<String>() {
@@ -137,35 +133,26 @@ public class Nl implements EntryPoint {
 					break;
 				}
 			}
+
 			
 			@Override
 			public void onFailure(Throwable caught) {
 			}
 		});
 	}
+
+	private void setCategoriesControls() {
+		if(clearButtonHandlerRegistration != null){
+			clearButtonHandlerRegistration.removeHandler();
+		}
+		clearButtonHandlerRegistration = clearButton.addClickHandler(categoriesClearButtonClickHandler);
+		form.setRedrawPageAfterItemPersistedCallback(newCategoryFormSubmitCallback);
+		form.setMisterPersister(categoryPersister);
+	}
 	
 	private void outputCategories(final Panel panel) {
 		backButton.setVisible(false);
 		
-		CategoryPanelClickHander handler = new CategoryPanelClickHander() {
-			private String keyStr;
-			@Override
-			public void onClick(ClickEvent event) {
-				backButton.setVisible(true);
-				outputGoodsForCategory(getKeyStr());
-				outputControlsForGoods();
-				selectedCategoryKeyStr = getKeyStr();
-			}
-			@Override
-			public void setKeyStr(String keyStr) {
-				this.keyStr = keyStr;
-			}
-			@Override
-			public String getKeyStr() {
-				return keyStr;
-			}
-		};
-
 		dtoService.getCategoriesJson(new AsyncCallback<String>() {
 			
 			@Override
@@ -229,6 +216,7 @@ public class Nl implements EntryPoint {
 										@Override
 										public void onSuccess(Void result) {
 											outputGoodsForCategory(selectedCategoryKeyStr);
+											updateLabel(status);
 										}
 										
 										@Override
@@ -241,9 +229,9 @@ public class Nl implements EntryPoint {
 						
 						clearButtonHandlerRegistration = clearButton.addClickHandler(goodsClearButtonClickHandler);
 						goodPersister.setParentCategoryItemKeyStr(selectedCategoryKeyStr);
+
 						form.setMisterPersister(goodPersister);
 						form.setRedrawPageAfterItemPersistedCallback(new ClickHandler() {
-							
 							@Override
 							public void onClick(ClickEvent event) {
 								updateLabel(status);

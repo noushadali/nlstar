@@ -123,7 +123,6 @@ public class DataHandler {
 		JSONStringer st = new JSONStringer();
 		JSONWriter writer = st.array();
 		for(Jsonable c: categories) {
-			System.out.println("Outputting: " + c.toJson());
 			writer = writer.value(new JSONObject(c.toJson()));
 		}
 		writer = writer.endArray();

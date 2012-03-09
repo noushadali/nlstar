@@ -15,6 +15,9 @@ import org.codehaus.jettison.json.JSONWriter;
 import com.denisk.appengine.nl.server.data.Category;
 import com.denisk.appengine.nl.server.data.Good;
 import com.denisk.appengine.nl.server.data.Jsonable;
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -27,6 +30,7 @@ import com.google.gwt.dev.GetJreEmulation;
 
 public class DataHandler {
 	private DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+	private BlobstoreService bs = BlobstoreServiceFactory.getBlobstoreService();
 	
 	public Key saveCategoryWithGoods(Category category){
 		Transaction tx = ds.beginTransaction();
@@ -159,6 +163,11 @@ public class DataHandler {
 		
 		for(Entity e: iterable){
 			ds.delete(e.getKey());
+			String imageBlobKey = (String) e.getProperty(Good.IMAGE_BLOB_KEY);
+			if(imageBlobKey != null && ! imageBlobKey.isEmpty()){
+				BlobKey bk = new BlobKey(imageBlobKey);
+				bs.delete(bk);
+			}
 		}
 	}
 

@@ -1,9 +1,5 @@
 package com.denisk.appengine.nl.client;
 
-import javax.swing.GroupLayout.Alignment;
-
-import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
-import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.EntryPoint;
@@ -12,34 +8,63 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.RootPanel;
 
-/**
- * Entry point classes define <code>onModuleLoad()</code>.
- */
+
 public class Nl implements EntryPoint {
 	private static final String THUMB_WIDTH = "200";
 	private static final String THUMB_HEIGHT = "100";
-	
+
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
 	private Label categoriesInfo = new Label();
 	
-	private final FlowPanel goods = new FlowPanel();
-	private final FlowPanel categories = new FlowPanel(); 
+	private final FlowPanel outputPanel = new FlowPanel(); 
 	private final Label status = new Label();
 	private final RootPanel rootPanel = RootPanel.get("container");
+	private HandlerRegistration clearButtonHandlerRegistration;
+	
+	private Button clearButton;
+	private Button newButton;
+	private Button backButton;
+	
+	private String selectedCategoryKeyStr;
+	
+	private ClickHandler categoriesFormClickHandler = new ClickHandler() {
+		@Override
+		public void onClick(ClickEvent event) {
+			dtoService.clearData(new AsyncCallback<Void>() {
+				@Override
+				public void onSuccess(Void result) {
+					updateLabel(status);
+					outputCategories(outputPanel);
+				}
+
+				@Override
+				public void onFailure(Throwable caught) {
+				}
+			});
+		}
+	};
+	private ClickHandler newCategoryFormSubmitCallback = new ClickHandler() {
+		@Override
+		public void onClick(ClickEvent event) {
+			updateLabel(status);
+			outputCategories(outputPanel);
+		}
+	};
+	private CategoryPersister categoryPersister = new CategoryPersister();
+	private GoodPersister goodPersister = new GoodPersister();
+	
+	private EditCategoryForm form = new EditCategoryForm();
 	
 	/**
 	 * This is the entry point method.
@@ -49,18 +74,32 @@ public class Nl implements EntryPoint {
 		
 		rootPanel.add(status);
 		rootPanel.add(categoriesInfo);
-		rootPanel.add(categories);
-		outputCategories(categories);
+		rootPanel.add(outputPanel);
 		
+		backButton = new Button("Back");
+		backButton.setVisible(false);
+		rootPanel.add(backButton);
+		backButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				outputCategories(outputPanel);
+			}
+		});
+		
+		outputCategories(outputPanel);
+		
+		outputCategoriesControls();
+
+	}
+
+	private void outputCategoriesControls() {
 		dtoService.isAdmin(new AsyncCallback<UserStatus>() {
-			
 			@Override
 			public void onSuccess(UserStatus userStatus) {
 				switch(userStatus) {
 				case ADMIN:
-					final EditCategoryForm form = new EditCategoryForm();
-					Button clearButton = new Button("Clear all");
-					Button newButton = new Button("New category");
+					clearButton = new Button("Clear all");
+					newButton = new Button("New item");
 					rootPanel.add(clearButton);
 					rootPanel.add(newButton);
 					newButton.addClickHandler(new ClickHandler() {
@@ -69,35 +108,17 @@ public class Nl implements EntryPoint {
 							form.show();
 						}
 					});
-					clearButton.addClickHandler(new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent event) {
-							dtoService.clearData(new AsyncCallback<Void>() {
-								@Override
-								public void onSuccess(Void result) {
-									updateLabel(status);
-									outputCategories(categories);
-								}
-
-								@Override
-								public void onFailure(Throwable caught) {
-								}
-							});
-						}
-					});
-					form.setSubmitCallback(new ClickHandler() {
-						
-						@Override
-						public void onClick(ClickEvent event) {
-							updateLabel(status);
-							outputCategories(categories);
-						}
-					});
 					createLogoutUrl();
+					
+					if(clearButtonHandlerRegistration != null){
+						clearButtonHandlerRegistration.removeHandler();
+					}
+					clearButtonHandlerRegistration = clearButton.addClickHandler(categoriesFormClickHandler);
+					form.setRedrawPageAfterItemPersistedCallback(newCategoryFormSubmitCallback);
+					form.setMisterPersister(categoryPersister);
 					break;
 				case NOT_LOGGED_IN:
 					dtoService.getLoginUrl(new AsyncCallback<String>() {
-						
 						@Override
 						public void onSuccess(String result) {
 							HTML link = new HTML();
@@ -116,58 +137,68 @@ public class Nl implements EntryPoint {
 					break;
 				}
 			}
-			private void createLogoutUrl() {
-				dtoService.getLogoutUrl(new AsyncCallback<String>() {
-					
-					@Override
-					public void onSuccess(String result) {
-						HTML link = new HTML();
-						link.setHTML("<a href='" + result + "'>Logout</a>");
-						rootPanel.add(link);
-					}
-					
-					@Override
-					public void onFailure(Throwable caught) {
-					}
-				});
-			}
+			
 			@Override
 			public void onFailure(Throwable caught) {
 			}
 		});
-
 	}
 	
 	private void outputCategories(final Panel panel) {
-		panel.clear();
+		backButton.setVisible(false);
+		
+		CategoryPanelClickHander handler = new CategoryPanelClickHander() {
+			private String keyStr;
+			@Override
+			public void onClick(ClickEvent event) {
+				backButton.setVisible(true);
+				outputGoodsForCategory(getKeyStr());
+				outputControlsForGoods();
+				selectedCategoryKeyStr = getKeyStr();
+			}
+			@Override
+			public void setKeyStr(String keyStr) {
+				this.keyStr = keyStr;
+			}
+			@Override
+			public String getKeyStr() {
+				return keyStr;
+			}
+		};
+
 		dtoService.getCategoriesJson(new AsyncCallback<String>() {
 			
 			@Override
 			public void onSuccess(String result) {
-				JsArray<CategoryJavascriptObject> arrayFromJson = CategoryJavascriptObject.getArrayFromJson(result);
-				categoriesInfo.setText("");
-				StringBuilder sb = new StringBuilder();
+				panel.clear();
+				JsArray<ShopItem> arrayFromJson = ShopItem.getArrayFromJson(result);
 				for(int i = 0; i < arrayFromJson.length(); i++){
-					CategoryJavascriptObject categoryJson = arrayFromJson.get(i);
+					final ShopItem itemJson = arrayFromJson.get(i);
+					LayoutPanel itemPanel = createShopItemPanel(itemJson);
 					
-					LayoutPanel categoryPanel = createItemPanel(categoryJson);
-					
-					panel.add(categoryPanel);
+					itemPanel.addDomHandler(new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+								backButton.setVisible(true);
+								String keyStr = itemJson.getKeyStr();
+								outputGoodsForCategory(keyStr);
+								outputControlsForGoods();
+								selectedCategoryKeyStr = keyStr;
+						}
+					}, ClickEvent.getType());
+
+					panel.add(itemPanel);
 				}
-//				rootPanel.add(image);
-				categoriesInfo.setText(sb.toString());
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				caught.printStackTrace();
-				categoriesInfo.setText("Categories Parse failed");
 			}
 		});
 	}
+	
 	private void updateLabel(final Label status) {
 		dtoService.countEntities(new AsyncCallback<String>() {
-			
 			@Override
 			public void onSuccess(String result) {
 				status.setText(result);
@@ -180,65 +211,117 @@ public class Nl implements EntryPoint {
 		});
 	}
 
-	private LayoutPanel createItemPanel(
-			final ShopItem itemJson) {
-		LayoutPanel categoryPanel = createShopItemPanel(itemJson);
-		
-		categoryPanel.addDomHandler(new ClickHandler() {
+	private void outputControlsForGoods() {
+		dtoService.isAdmin(new AsyncCallback<UserStatus>() {
+			@Override
+			public void onSuccess(UserStatus result) {
+				switch(result){
+				case ADMIN:
+					if(clearButtonHandlerRegistration != null){
+						clearButtonHandlerRegistration.removeHandler();
+					}
+					if (clearButton != null) {
+						ClickHandler goodsClearButtonClickHandler = new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+								if(selectedCategoryKeyStr != null) {
+									dtoService.clearGoodsForCategory(selectedCategoryKeyStr, new AsyncCallback<Void>() {
+										@Override
+										public void onSuccess(Void result) {
+											outputGoodsForCategory(selectedCategoryKeyStr);
+										}
+										
+										@Override
+										public void onFailure(Throwable caught) {
+										}
+									});
+								}
+							}
+						};
+						
+						clearButtonHandlerRegistration = clearButton.addClickHandler(goodsClearButtonClickHandler);
+						goodPersister.setParentCategoryItemKeyStr(selectedCategoryKeyStr);
+						form.setMisterPersister(goodPersister);
+						form.setRedrawPageAfterItemPersistedCallback(new ClickHandler() {
+							
+							@Override
+							public void onClick(ClickEvent event) {
+								updateLabel(status);
+								outputGoodsForCategory(selectedCategoryKeyStr);
+							}
+						});
+					}
+					break;
+				case NOT_ADMIN:
+					break;
+				case NOT_LOGGED_IN:
+					break;
+				}
+			}
 			
 			@Override
-			public void onClick(ClickEvent event) {
-				categories.clear();
-				dtoService.getGoodsJson(itemJson.getKeyStr(), new AsyncCallback<String>() {
-					
-					@Override
-					public void onSuccess(String goodsJson) {
-						JsArray<GoodJavascriptObject> goodsJsArray = GoodJavascriptObject.<GoodJavascriptObject>getArrayFromJson(goodsJson);
-						outputGoods(goods, goodsJsArray);
-					}
-					
-					@Override
-					public void onFailure(Throwable caught) {
-					}
-				});
+			public void onFailure(Throwable caught) {
 			}
-		}, ClickEvent.getType());
-
-		return categoryPanel;
+		});
 	}
 
-	private LayoutPanel createShopItemPanel(final ShopItem itemJson) {
-		final Label name = new Label(itemJson.getName());
-		Label description = new Label(itemJson.getDescription());
-		Image image = new Image("/nl/thumb?key=" + itemJson.getImageKey() + "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
-		
-		LayoutPanel categoryPanel = new LayoutPanel();
-
-		categoryPanel.addStyleName("category");
-		
-		categoryPanel.add(name);
-		categoryPanel.add(image);
-		categoryPanel.add(description);
-		
-		categoryPanel.setWidgetLeftRight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
-		categoryPanel.setWidgetTopHeight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
-		
-		categoryPanel.setWidgetLeftRight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
-		categoryPanel.setWidgetBottomHeight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
-		
-		categoryPanel.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
-		categoryPanel.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150, Style.Unit.PX);
-		categoryPanel.setWidgetHorizontalPosition(image, com.google.gwt.layout.client.Layout.Alignment.END);
-		return categoryPanel;
+	private void outputGoodsForCategory(String categoryKeyStr) {
+		dtoService.getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
+			@Override
+			public void onSuccess(String result) {
+				outputPanel.clear();
+				JsArray<ShopItem> arrayFromJson = ShopItem.getArrayFromJson(result);
+				for(int i = 0; i < arrayFromJson.length(); i++){
+					final ShopItem itemJson = arrayFromJson.get(i);
+					LayoutPanel itemPanel = createShopItemPanel(itemJson);
+					outputPanel.add(itemPanel);
+				}
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+			}
+		});
 	}
 	
-	private void outputGoods(FlowPanel goods,
-			JsArray<GoodJavascriptObject> goodsJsArray) {
-		for(int i = 0; i < goodsJsArray.length(); i++){
-			GoodJavascriptObject goodJs = goodsJsArray.get(i);
-			LayoutPanel panel = createItemPanel(goodJs);
-			goods.add(panel);
-		}
+	private void createLogoutUrl() {
+		dtoService.getLogoutUrl(new AsyncCallback<String>() {
+			@Override
+			public void onSuccess(String result) {
+				HTML link = new HTML();
+				link.setHTML("<a href='" + result + "'>Logout</a>");
+				rootPanel.add(link);
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+			}
+		});
+	}
+	
+	protected LayoutPanel createShopItemPanel(final ShopItem itemJson) {
+		final Label name = new Label(itemJson.getName());
+		Label description = new Label(itemJson.getDescription());
+		Image image = new Image("/nl/thumb?key=" + itemJson.getImageBlobKey() + "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
+		
+		LayoutPanel itemPanel = new LayoutPanel();
+
+		itemPanel.addStyleName("category");
+		
+		itemPanel.add(name);
+		itemPanel.add(image);
+		itemPanel.add(description);
+		
+		itemPanel.setWidgetLeftRight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
+		itemPanel.setWidgetTopHeight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
+		
+		itemPanel.setWidgetLeftRight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
+		itemPanel.setWidgetBottomHeight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
+		
+		itemPanel.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
+		itemPanel.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150, Style.Unit.PX);
+		itemPanel.setWidgetHorizontalPosition(image, com.google.gwt.layout.client.Layout.Alignment.END);
+		return itemPanel;
 	}
 
 

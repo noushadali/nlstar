@@ -3,27 +3,22 @@
  */
 package com.denisk.appengine.nl.client;
 
-import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
+import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HasText;
-import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.FileUpload;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author denisk
@@ -31,8 +26,7 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
  */
 public class EditCategoryForm extends Composite {
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
-	private static EditCategoryFormUiBinder uiBinder = GWT
-			.create(EditCategoryFormUiBinder.class);
+	private static EditCategoryFormUiBinder uiBinder = GWT.create(EditCategoryFormUiBinder.class);
 	@UiField TextBox name;
 	@UiField TextBox description;
 	@UiField FileUpload image;
@@ -42,7 +36,22 @@ public class EditCategoryForm extends Composite {
 	@UiField PopupPanel loading;
 	@UiField FormPanel imageForm;
 
-	private ClickHandler submitCallback; 
+	private ClickHandler redrawPageAfterItemPersistedCallback;
+	private AsyncCallback<Void> afterItemPersistedCallback = new AsyncCallback<Void>() {
+		@Override
+		public void onSuccess(Void result) {
+			loading.hide();
+			popup.hide();
+			System.out.println("Updated entity");
+			redrawPageAfterItemPersistedCallback.onClick(null);
+		}
+		
+		@Override
+		public void onFailure(Throwable caught) {
+		}
+	};
+	private ShopItemPersister misterPersister;
+	
 	interface EditCategoryFormUiBinder extends
 			UiBinder<Widget, EditCategoryForm> {
 	}
@@ -76,8 +85,8 @@ public class EditCategoryForm extends Composite {
 		dtoService.getUploadUrl(new AsyncCallback<String>() {
 			
 			@Override
-			public void onSuccess(String result) {
-				setUploadUrl(result);
+			public void onSuccess(String url) {
+				imageForm.setAction(url);
 				loading.center();
 				imageForm.submit();
 			}
@@ -88,10 +97,6 @@ public class EditCategoryForm extends Composite {
 		});
 	}
 	
-	public void setUploadUrl(String url) {
-		imageForm.setAction(url);
-	}
-	
 	@UiHandler("imageForm")
 	void onFormSubmitComplete(SubmitCompleteEvent event) {
 		String imageId = event.getResults();
@@ -99,32 +104,24 @@ public class EditCategoryForm extends Composite {
 			//cut <pre>...</pre>
 			imageId = imageId.substring(5, imageId.length() - 6);
 		}
-		CategoryJavascriptObject category = CategoryJavascriptObject.createObject().cast();
-		category.setImageKey(imageId);
-		category.setName(name.getValue());
-		category.setDescription(description.getValue());
-		dtoService.persistCategory(category.toJson(), new AsyncCallback<Void>() {
-			
-			@Override
-			public void onSuccess(Void result) {
-				loading.hide();
-				popup.hide();
-				System.out.println("Updated entity");
-				submitCallback.onClick(null);
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-			}
-		} );
+		final ShopItem item = ShopItem.createObject().cast();
+		item.setImageBlobKey(imageId);
+		item.setName(name.getValue());
+		item.setDescription(description.getValue());
 		
+		
+		misterPersister.persistItem(item, afterItemPersistedCallback);
 	}
 
-	public void setSubmitCallback(ClickHandler submitCallback) {
-		this.submitCallback = submitCallback;
+	public void setRedrawPageAfterItemPersistedCallback(ClickHandler submitCallback) {
+		this.redrawPageAfterItemPersistedCallback = submitCallback;
 	}
 
 	public void show() {
 		popup.center();
+	}
+
+	public void setMisterPersister(ShopItemPersister misterPersister) {
+		this.misterPersister = misterPersister;
 	}
 }

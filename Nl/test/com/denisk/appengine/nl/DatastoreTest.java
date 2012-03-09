@@ -7,6 +7,7 @@ import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 
 import org.codehaus.jettison.json.JSONException;
@@ -195,5 +196,84 @@ public class DatastoreTest {
 		
 		assertFalse(json.contains("g3_name"));
 		assertFalse(json.contains("g3_desc"));
+	}
+	
+	@Test
+	public void clearGoodsForCategory(){
+		DataHandler dh = new DataHandler();
+		
+		Category c = new Category();
+		c.setName("hello");
+		c.setDescription("desc");
+		
+		Category c1 = new Category();
+		c1.setName("another");
+		c1.setDescription("desc");
+		
+		Good g1 = new Good();
+		Good g2 = new Good();
+		Good g3 = new Good();
+
+		g1.setName("g1_name");
+		g2.setName("g2_name");
+		g3.setName("g3_name");
+		
+		g1.setDescription("g1_desc");
+		g2.setDescription("g2_desc");
+		g3.setDescription("g3_desc");
+		
+		c.getGoods().add(g1);
+		c.getGoods().add(g2);
+		
+		c1.getGoods().add(g3);
+		
+		Key key1 = dh.saveCategoryWithGoods(c);
+		Key key2 = dh.saveCategoryWithGoods(c1);
+
+		String key1Str = KeyFactory.keyToString(key1);
+		String key2Str = KeyFactory.keyToString(key2);
+		
+		dh.clearGoodsForCategory(key1Str);
+		
+		String goodsJson = dh.getGoodsJson(key1Str);
+		assertFalse(goodsJson.contains("g1_name"));
+		assertFalse(goodsJson.contains("g2_name"));
+		
+		goodsJson = dh.getGoodsJson(key2Str);
+		assertTrue(goodsJson.contains("g3_name"));
+	}
+	
+	@Test
+	public void persistGood(){
+		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		DataHandler dh = new DataHandler();
+		Category c = new Category();
+		Key categoryKey = dh.saveCategoryWithGoods(c);
+		
+		Good g = new Good();
+		String name = "hello";
+		String descr = "descr";
+		String imageKey = "otnuotenuh";
+
+		g.setName(name);
+		g.setDescription(descr);
+		g.setImageBlobKey(imageKey);
+		g.setParentKeyStr(KeyFactory.keyToString(categoryKey));
+		
+		Key key = dh.persistGood(g.toJson());
+		
+		assertEquals(1, ds.prepare(new Query(Good.KIND)).countEntities(withLimit(10)));
+		
+		List<Entity> list = ds.prepare(new Query(Good.KIND)).asList(withLimit(10));
+		
+		assertEquals(1, list.size());
+		Entity saved = list.get(0);
+		
+		assertEquals(name, saved.getProperty(Good.NAME));
+		assertEquals(descr, saved.getProperty(Good.DESCRIPTION));
+		assertEquals(imageKey, saved.getProperty(Good.IMAGE_BLOB_KEY));
+		assertEquals(name, saved.getProperty(Good.NAME));
+		assertEquals(name, saved.getProperty(Good.NAME));
+		
 	}
 }

@@ -22,8 +22,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
-public class DtoServiceServlet extends RemoteServiceServlet implements
-		DtoService {
+public class DtoServiceServlet extends RemoteServiceServlet implements DtoService {
 	private static final long serialVersionUID = 3021789825605473063L;
 	private static DataHandler dh = new DataHandler();
 	private UserService us = UserServiceFactory.getUserService(); 
@@ -47,9 +46,7 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 
 	@Override
 	public void clearData() {
-		if(us.getCurrentUser() == null || ! us.isUserAdmin()){
-			throw new IllegalAccessError("User is not allowed to perform this operation: " + us.getCurrentUser());
-		}
+		checkCredentials();
 
 		dh.clearAll();
 		
@@ -66,20 +63,22 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 
 	@Override
 	public String getUploadUrl() {
-		if(us.getCurrentUser() == null || ! us.isUserAdmin()){
-			throw new IllegalAccessError("User is not allowed to perform this operation: " + us.getCurrentUser());
-		}
+		checkCredentials();
 		return BlobstoreServiceFactory.getBlobstoreService().createUploadUrl("/upload");
 	}
 
-
 	@Override
 	public void persistCategory(String categoryJson) {
+		checkCredentials();
+		Category category = new Category().getFromJson(categoryJson);
+		dh.saveCategoryWithGoods(category);
+	}
+
+
+	private void checkCredentials() throws IllegalAccessError {
 		if(us.getCurrentUser() == null || ! us.isUserAdmin()){
 			throw new IllegalAccessError("User is not allowed to perform this operation: " + us.getCurrentUser());
 		}
-		Category category = Category.getFromJson(categoryJson);
-		dh.saveCategoryWithGoods(category);
 	}
 
 
@@ -108,6 +107,20 @@ public class DtoServiceServlet extends RemoteServiceServlet implements
 	@Override
 	public String getGoodsJson(String categoryKeyStr) {
 		return dh.getGoodsJson(categoryKeyStr);
+	}
+
+
+	@Override
+	public void clearGoodsForCategory(String categoryKeyStr) {
+		checkCredentials();
+		dh.clearGoodsForCategory(categoryKeyStr);
+	}
+
+
+	@Override
+	public void persistGood(String goodJson) {
+		checkCredentials();
+		dh.persistGood(goodJson);
 	}
 
 

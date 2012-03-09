@@ -14,6 +14,8 @@ public interface DtoServiceAsync {
 
 	void persistCategory(String categoryJson, AsyncCallback<Void> callback);
 
+	void persistGood(String goodJson, AsyncCallback<Void> callback);
+
 	void isAdmin(AsyncCallback<UserStatus> callback);
 
 	void getLoginUrl(AsyncCallback<String> callback);
@@ -21,4 +23,7 @@ public interface DtoServiceAsync {
 	void getLogoutUrl(AsyncCallback<String> callback);
 
 	void getGoodsJson(String categoryKeyStr, AsyncCallback<String> callback);
+
+	void clearGoodsForCategory(String categoryKeyStr,
+			AsyncCallback<Void> callback);
 }

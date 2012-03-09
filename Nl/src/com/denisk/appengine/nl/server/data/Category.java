@@ -9,34 +9,13 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.datastore.Key;
 
-public class Category {
+public class Category extends Jsonable<Category> {
 	public static final String KIND = "c";
-	public static final String KEY_STR = "keyStr";
-	public static final String NAME = "name";
-	public static final String DESCIPTION = "description";
-	public static final String IMAGE_BLOB_KEY = "imageKey";
-	
-	private Key key;
-	private String name;
-	private String description;
-	private String imageBlobKey;
+
 	private BlobKey background;
 	private Set<Good> goods = new HashSet<Good>();
 	
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
 	public BlobKey getBackground() {
 		return background;
 	}
@@ -79,33 +58,9 @@ public class Category {
 			return false;
 		return true;
 	}
-	public String getImageBlobKey() {
-		return imageBlobKey;
-	}
-	public void setImageBlobKey(String imageBlobKey) {
-		this.imageBlobKey = imageBlobKey;
-	}
-	
-	public static Category getFromJson(String json) {
-		JSONObject jsonObject;
-		try {
-			jsonObject = new JSONObject(json);
-			
-			Category category = new Category();
-			category.setName(jsonObject.getString(NAME));
-			category.setDescription(jsonObject.getString(DESCIPTION));
-			category.setImageBlobKey(jsonObject.getString(IMAGE_BLOB_KEY));
-			
-			return category;
-		} catch (JSONException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	public Key getKey() {
-		return key;
-	}
-	public void setKey(Key key){
-		this.key = key;
+	@Override
+	protected Category instance() {
+		return new Category();
 	}
 	
 }

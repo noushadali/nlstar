@@ -14,6 +14,8 @@ public interface DtoService extends RemoteService {
 
 	void clearData(); 
 	
+	void clearGoodsForCategory(String categoryKeyStr);
+	
 	String getUploadUrl();
 	
 	void persistCategory(String categoryJson);
@@ -23,4 +25,6 @@ public interface DtoService extends RemoteService {
 	String getLoginUrl();
 
 	String getLogoutUrl();
+
+	void persistGood(String goodJson);
 }

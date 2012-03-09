@@ -82,7 +82,7 @@ public class Nl implements EntryPoint {
 		backButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				setCategoriesControls();
+				setCategoriesControlsIfNeeded();
 				outputCategories(outputPanel);
 			}
 		});
@@ -111,7 +111,7 @@ public class Nl implements EntryPoint {
 					});
 					createLogoutUrl();
 					
-					setCategoriesControls();
+					setCategoriesControlsIfNeeded();
 					break;
 				case NOT_LOGGED_IN:
 					dtoService.getLoginUrl(new AsyncCallback<String>() {
@@ -141,13 +141,16 @@ public class Nl implements EntryPoint {
 		});
 	}
 
-	private void setCategoriesControls() {
+	private void setCategoriesControlsIfNeeded() {
 		if(clearButtonHandlerRegistration != null){
 			clearButtonHandlerRegistration.removeHandler();
 		}
-		clearButtonHandlerRegistration = clearButton.addClickHandler(categoriesClearButtonClickHandler);
-		form.setRedrawPageAfterItemPersistedCallback(newCategoryFormSubmitCallback);
-		form.setMisterPersister(categoryPersister);
+		if (clearButton != null) {
+			clearButtonHandlerRegistration = clearButton
+					.addClickHandler(categoriesClearButtonClickHandler);
+			form.setRedrawPageAfterItemPersistedCallback(newCategoryFormSubmitCallback);
+			form.setMisterPersister(categoryPersister);
+		}
 	}
 	
 	private void outputCategories(final Panel panel) {

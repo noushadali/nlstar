@@ -1,40 +1,16 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
-	xmlns:g="urn:import:com.google.gwt.user.client.ui">
-	<ui:style>
-		/* Add CSS here. See the GWT docs on UI Binder for more details */
-		.important {
-			font-weight: bold;
-		}
-	</ui:style>
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:d="urn:import:com.denisk.appengine.nl.client">
 	<g:HTMLPanel>
-		<g:PopupPanel ui:field="popup" width="500px" height="175px" modal="true" glassEnabled="true" >
-			<g:VerticalPanel width="100%" height="100%" horizontalAlignment="ALIGN_RIGHT">
-				
-					<g:FlowPanel width="100%" height="100%">
-						<g:FlowPanel styleName="menuItem" >
-							<g:Label text="Name:" />
-							<g:TextBox ui:field="name" name="name" />
-						</g:FlowPanel>
-						<g:FlowPanel styleName="menuItem" >
-							<g:Label text="Description:" />
-							<g:TextBox ui:field="description" name="description" />
-						</g:FlowPanel>
+			<g:FlowPanel>
+				<d:EditItemForm height="189px" ui:field="itemForm">
+					<g:FlowPanel styleName="menuItem" width="100%">
+						<g:Label text="Background" width="200px" height="18px"/>
+						<g:FormPanel width="213px" method="post" encoding="multipart/form-data" ui:field="backgroundImageFormPanel">
+							<g:FileUpload width="240px" height="100%" ui:field="backgroundImage" name="image" />
+						</g:FormPanel>
 					</g:FlowPanel>
-				<g:FormPanel height="47px" ui:field="imageForm" method="post" encoding="multipart/form-data">
-					<g:FlowPanel styleName="menuItem" width="100%" height="35px">
-						<g:Label text="Image:" />
-						<g:FileUpload ui:field="image" name="image" />
-					</g:FlowPanel>
-				</g:FormPanel>
-				<g:HorizontalPanel spacing="5" verticalAlignment="ALIGN_BOTTOM" horizontalAlignment="ALIGN_LEFT">
-					<g:Button text="Save" ui:field="save" />
-					<g:Button text="Cancel" ui:field="cancel" />
-				</g:HorizontalPanel>
-			</g:VerticalPanel>
-		</g:PopupPanel>
-		<g:PopupPanel ui:field="loading" modal="true" glassEnabled="true">
-			<g:Image width="100%" height="100%" url="images/loading.gif" />
-		</g:PopupPanel>
+				</d:EditItemForm>
+			</g:FlowPanel>
 	</g:HTMLPanel>
 </ui:UiBinder> 

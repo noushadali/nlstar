@@ -1,0 +1,11 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:d="urn:import:com.denisk.appengine.nl.client">
+	<ui:style>
+		
+	</ui:style>
+	<g:HTMLPanel>
+	<d:EditItemForm ui:field="itemForm"></d:EditItemForm>
+	</g:HTMLPanel>
+</ui:UiBinder> 

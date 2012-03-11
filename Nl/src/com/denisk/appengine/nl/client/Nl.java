@@ -1,6 +1,9 @@
 package com.denisk.appengine.nl.client;
 
+import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
+import com.denisk.appengine.nl.client.persisters.CategoryPersister;
+import com.denisk.appengine.nl.client.persisters.GoodPersister;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -30,6 +33,7 @@ public class Nl implements EntryPoint {
 	private final FlowPanel outputPanel = new FlowPanel(); 
 	private final Label status = new Label();
 	private final RootPanel rootPanel = RootPanel.get("container");
+	private HandlerRegistration newButtonClickHandlerRegistration;
 	private HandlerRegistration clearButtonHandlerRegistration;
 	
 	private Button clearButton;
@@ -54,22 +58,46 @@ public class Nl implements EntryPoint {
 			});
 		}
 	};
-	private ClickHandler newCategoryFormSubmitCallback = new ClickHandler() {
+	//add this into mister persister================
+	private ClickHandler redrawAfterCategoryCreatedCallback = new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
+			editCategoryForm.hide();
 			updateLabel(status);
 			outputCategories(outputPanel);
 		}
 	};
-	private CategoryPersister categoryPersister = new CategoryPersister();
-	private GoodPersister goodPersister = new GoodPersister();
-	
-	private EditCategoryForm form = new EditCategoryForm();
+	private ClickHandler redrawAfterGoodCreatedCallback = new ClickHandler() {
+		@Override
+		public void onClick(ClickEvent event) {
+			updateLabel(status);
+			outputGoodsForCategory(selectedCategoryKeyStr);
+		}
+	};
+	//==============================================
+	private ClickHandler goodsNewButtonHandler = new ClickHandler() {
+		@Override
+		public void onClick(ClickEvent event) {
+			editGoodForm.show();
+		}
+	};
+	private ClickHandler categoriesNewButtonHandler = new ClickHandler() {
+		@Override
+		public void onClick(ClickEvent event) {
+			editCategoryForm.show();
+		}
+	};
+	//==============================================
+	private EditGoodForm editGoodForm = new EditGoodForm();
+	private EditCategoryForm editCategoryForm = new EditCategoryForm(); 
 	
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
+		editGoodForm.getPersister().setRedrawAfterItemCreatedCallback(redrawAfterGoodCreatedCallback);
+		editCategoryForm.getPersister().setRedrawAfterItemCreatedCallback(redrawAfterCategoryCreatedCallback);
+		
 		updateLabel(status);
 		
 		rootPanel.add(status);
@@ -84,6 +112,11 @@ public class Nl implements EntryPoint {
 			public void onClick(ClickEvent event) {
 				setCategoriesControlsIfNeeded();
 				outputCategories(outputPanel);
+				if(newButtonClickHandlerRegistration != null){
+					newButtonClickHandlerRegistration.removeHandler();
+				}
+				
+				newButtonClickHandlerRegistration = newButton.addClickHandler(categoriesNewButtonHandler);
 			}
 		});
 		
@@ -103,12 +136,11 @@ public class Nl implements EntryPoint {
 					newButton = new Button("New item");
 					rootPanel.add(clearButton);
 					rootPanel.add(newButton);
-					newButton.addClickHandler(new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent event) {
-							form.show();
-						}
-					});
+					if(newButtonClickHandlerRegistration != null){
+						newButtonClickHandlerRegistration.removeHandler();
+					}
+					
+					newButtonClickHandlerRegistration = newButton.addClickHandler(categoriesNewButtonHandler);
 					createLogoutUrl();
 					
 					setCategoriesControlsIfNeeded();
@@ -148,8 +180,6 @@ public class Nl implements EntryPoint {
 		if (clearButton != null) {
 			clearButtonHandlerRegistration = clearButton
 					.addClickHandler(categoriesClearButtonClickHandler);
-			form.setRedrawPageAfterItemPersistedCallback(newCategoryFormSubmitCallback);
-			form.setMisterPersister(categoryPersister);
 		}
 	}
 	
@@ -161,16 +191,19 @@ public class Nl implements EntryPoint {
 			@Override
 			public void onSuccess(String result) {
 				panel.clear();
-				JsArray<ShopItem> arrayFromJson = ShopItem.getArrayFromJson(result);
+				JsArray<CategoryJavascriptObject> arrayFromJson = CategoryJavascriptObject.getArrayFromJson(result);
 				for(int i = 0; i < arrayFromJson.length(); i++){
-					final ShopItem itemJson = arrayFromJson.get(i);
-					LayoutPanel itemPanel = createShopItemPanel(itemJson);
+					final CategoryJavascriptObject categoryJson = arrayFromJson.get(i);
+					LayoutPanel itemPanel = createShopItemPanel(categoryJson);
+					Label backgroundLabel = new Label(categoryJson.getBackgroundBlobKey());
+					itemPanel.add(backgroundLabel);
+					itemPanel.setWidgetTopHeight(backgroundLabel, 40, Style.Unit.PX, 20, Style.Unit.PX);
 					
 					itemPanel.addDomHandler(new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent event) {
 								backButton.setVisible(true);
-								String keyStr = itemJson.getKeyStr();
+								String keyStr = categoryJson.getKeyStr();
 								outputGoodsForCategory(keyStr);
 								outputControlsForGoods();
 								selectedCategoryKeyStr = keyStr;
@@ -231,16 +264,13 @@ public class Nl implements EntryPoint {
 						};
 						
 						clearButtonHandlerRegistration = clearButton.addClickHandler(goodsClearButtonClickHandler);
-						goodPersister.setParentCategoryItemKeyStr(selectedCategoryKeyStr);
+						editGoodForm.setParentCategoryItemKeyStr(selectedCategoryKeyStr);
 
-						form.setMisterPersister(goodPersister);
-						form.setRedrawPageAfterItemPersistedCallback(new ClickHandler() {
-							@Override
-							public void onClick(ClickEvent event) {
-								updateLabel(status);
-								outputGoodsForCategory(selectedCategoryKeyStr);
-							}
-						});
+						if(newButtonClickHandlerRegistration != null){
+							newButtonClickHandlerRegistration.removeHandler();
+						}
+						
+						newButtonClickHandlerRegistration = newButton.addClickHandler(goodsNewButtonHandler);
 					}
 					break;
 				case NOT_ADMIN:

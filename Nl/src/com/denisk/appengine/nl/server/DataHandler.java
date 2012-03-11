@@ -21,6 +21,7 @@ import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
@@ -36,13 +37,14 @@ public class DataHandler {
 		Transaction tx = ds.beginTransaction();
 		
 		String kind = Category.KIND;
-		Entity c = new Entity(kind);
+		Entity categoryEntity = new Entity(kind);
 
-		c.setProperty(Category.NAME, category.getName());
-		c.setProperty(Category.DESCRIPTION, category.getDescription());
-		c.setProperty(Category.IMAGE_BLOB_KEY, category.getImageBlobKey());
+		categoryEntity.setProperty(Category.NAME, category.getName());
+		categoryEntity.setProperty(Category.DESCRIPTION, category.getDescription());
+		categoryEntity.setProperty(Category.IMAGE_BLOB_KEY, category.getImageBlobKey());
+		categoryEntity.setProperty(Category.BACKGROUND_BLOB_KEY, category.getBackgroundBlobKey());
 		
-		Key key = ds.put(c);
+		Key key = ds.put(categoryEntity);
 		
 		
 		for(Jsonable good: category.getGoods()) {
@@ -81,6 +83,7 @@ public class DataHandler {
 			Entity e = iterator.next();
 			Category c = new Category();
 			setCommonJsonableProperties(e, c);
+			c.setBackgroundBlobKey((String) e.getProperty(Category.BACKGROUND_BLOB_KEY));
 			
 			result.add(c);
 		}
@@ -179,6 +182,19 @@ public class DataHandler {
 		Good fromJson = new Good().getFromJson(goodJson);
 		Key categoryKey = KeyFactory.stringToKey(fromJson.getParentKeyStr());
 		return doPersistGood(ds, categoryKey, fromJson);
+	}
+
+	public void updateCategoryBackground(String categoryKeyStr, String backgoundImageKeyStr) {
+		Key categoryKey = KeyFactory.stringToKey(categoryKeyStr);
+		Entity category;
+		try {
+			category = ds.get(categoryKey);
+		} catch (EntityNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		category.setProperty(Category.BACKGROUND_BLOB_KEY, backgoundImageKeyStr);
+		ds.put(category);
+		
 	}
 
 }

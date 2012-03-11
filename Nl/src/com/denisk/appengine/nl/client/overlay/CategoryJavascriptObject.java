@@ -1,11 +1,8 @@
 package com.denisk.appengine.nl.client.overlay;
 
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
-
 public class CategoryJavascriptObject extends ShopItem {
-	protected CategoryJavascriptObject() {
-		
-	}
-
+	protected CategoryJavascriptObject() {}
+	
+	public final native String getBackgroundBlobKey() /*-{return this.backgroundBlobKey}-*/;
+	public final native void setBackgroundBlobKey(String backgroundBlobKey) /*-{this.backgroundBlobKey = backgroundBlobKey}-*/;
 }

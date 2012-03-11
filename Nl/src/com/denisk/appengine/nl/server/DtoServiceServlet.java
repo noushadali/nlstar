@@ -16,6 +16,7 @@ import com.google.appengine.api.blobstore.BlobInfoFactory;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -62,16 +63,16 @@ public class DtoServiceServlet extends RemoteServiceServlet implements DtoServic
 
 
 	@Override
-	public String getUploadUrl() {
+	public String getImageUploadUrl() {
 		checkCredentials();
 		return BlobstoreServiceFactory.getBlobstoreService().createUploadUrl("/upload");
 	}
 
 	@Override
-	public void persistCategory(String categoryJson) {
+	public String persistCategory(String categoryJson) {
 		checkCredentials();
 		Category category = new Category().getFromJson(categoryJson);
-		dh.saveCategoryWithGoods(category);
+		return KeyFactory.keyToString(dh.saveCategoryWithGoods(category));
 	}
 
 
@@ -118,9 +119,16 @@ public class DtoServiceServlet extends RemoteServiceServlet implements DtoServic
 
 
 	@Override
-	public void persistGood(String goodJson) {
+	public String persistGood(String goodJson) {
 		checkCredentials();
-		dh.persistGood(goodJson);
+		return KeyFactory.keyToString(dh.persistGood(goodJson));
+	}
+
+
+	@Override
+	public void updateCategoryBackground(String categoryKeyStr,	String backgoundImageKeyStr) {
+		checkCredentials();
+		dh.updateCategoryBackground(categoryKeyStr, backgoundImageKeyStr);
 	}
 
 

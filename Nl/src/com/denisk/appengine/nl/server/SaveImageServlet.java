@@ -16,7 +16,7 @@ import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
-public class SaveCategoryImageServlet extends HttpServlet {
+public class SaveImageServlet extends HttpServlet {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();

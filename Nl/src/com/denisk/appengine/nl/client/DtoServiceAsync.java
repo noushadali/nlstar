@@ -10,11 +10,11 @@ public interface DtoServiceAsync {
 
 	void clearData(AsyncCallback<Void> asyncCallback);
 
-	void getUploadUrl(AsyncCallback<String> callback);
+	void getImageUploadUrl(AsyncCallback<String> callback);
 
-	void persistCategory(String categoryJson, AsyncCallback<Void> callback);
+	void persistCategory(String categoryJson, AsyncCallback<String> callback);
 
-	void persistGood(String goodJson, AsyncCallback<Void> callback);
+	void persistGood(String goodJson, AsyncCallback<String> callback);
 
 	void isAdmin(AsyncCallback<UserStatus> callback);
 
@@ -26,4 +26,7 @@ public interface DtoServiceAsync {
 
 	void clearGoodsForCategory(String categoryKeyStr,
 			AsyncCallback<Void> callback);
+
+	void updateCategoryBackground(String categoryKeyStr,
+			String backgoundImageKeyStr, AsyncCallback<Void> callback);
 }

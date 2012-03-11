@@ -16,9 +16,9 @@ public interface DtoService extends RemoteService {
 	
 	void clearGoodsForCategory(String categoryKeyStr);
 	
-	String getUploadUrl();
+	String getImageUploadUrl();
 	
-	void persistCategory(String categoryJson);
+	String persistCategory(String categoryJson);
 	
 	UserStatus isAdmin();
 	
@@ -26,5 +26,7 @@ public interface DtoService extends RemoteService {
 
 	String getLogoutUrl();
 
-	void persistGood(String goodJson);
+	String persistGood(String goodJson);
+	
+	void updateCategoryBackground(String categoryKeyStr, String backgoundImageKeyStr);
 }

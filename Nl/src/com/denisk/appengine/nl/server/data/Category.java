@@ -7,21 +7,24 @@ import javax.servlet.ServletException;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.codehaus.jettison.json.JSONWriter;
 
 import com.google.appengine.api.blobstore.BlobKey;
 
 public class Category extends Jsonable<Category> {
 	public static final String KIND = "c";
+	public static final String BACKGROUND_BLOB_KEY = "backgroundBlobKey";
 
-	private BlobKey background;
+	private String backgroundBlobKey;
 	private Set<Good> goods = new HashSet<Good>();
 	
-	public BlobKey getBackground() {
-		return background;
+	public String getBackgroundBlobKey() {
+		return backgroundBlobKey;
 	}
-	public void setBackground(BlobKey background) {
-		this.background = background;
+	public void setBackgroundBlobKey(String backgroundBlobKey) {
+		this.backgroundBlobKey = backgroundBlobKey;
 	}
+	
 	public Set<Good> getGoods() {
 		return goods;
 	}
@@ -61,6 +64,14 @@ public class Category extends Jsonable<Category> {
 	@Override
 	protected Category instance() {
 		return new Category();
+	}
+	@Override
+	protected JSONWriter addAdditionalPropertiesToJson(JSONWriter value) throws JSONException {
+		return value.key(BACKGROUND_BLOB_KEY).value(getBackgroundBlobKey());
+	}
+	@Override
+	protected void setAddtionalPropertiesOnCategory(Category jsonable, JSONObject jsonObject) throws JSONException {
+		jsonable.setBackgroundBlobKey(jsonObject.getString(BACKGROUND_BLOB_KEY));
 	}
 	
 }

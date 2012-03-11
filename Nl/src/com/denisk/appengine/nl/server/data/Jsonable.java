@@ -74,6 +74,7 @@ public abstract class Jsonable<T extends Jsonable> {
 			jsonable.setImageBlobKey(jsonObject.getString(IMAGE_BLOB_KEY));
 			jsonable.setParentKeyStr(jsonObject.getString(PARENT_KEY_STR));
 			
+			setAddtionalPropertiesOnCategory(jsonable, jsonObject);
 			return jsonable;
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
@@ -86,11 +87,14 @@ public abstract class Jsonable<T extends Jsonable> {
 			if(key != null) {
 				writer = writer.key(Jsonable.KEY_STR).value(KeyFactory.keyToString(key));
 			}
-			String string = writer
+			JSONWriter value = writer
 			.key(Category.NAME).value(getName())
 			.key(Category.DESCRIPTION).value(getDescription())
 			.key(Category.PARENT_KEY_STR).value(getParentKeyStr())
-			.key(Category.IMAGE_BLOB_KEY).value(getImageBlobKey()).endObject().toString();
+			.key(Category.IMAGE_BLOB_KEY).value(getImageBlobKey());
+			
+			value = addAdditionalPropertiesToJson(value);
+			String string = value.endObject().toString();
 			
 			return string;
 		} catch (JSONException e) {
@@ -98,6 +102,13 @@ public abstract class Jsonable<T extends Jsonable> {
 		}
 	}
 	
+	protected JSONWriter addAdditionalPropertiesToJson(JSONWriter value) throws JSONException {
+		return value;
+	}
+	protected void setAddtionalPropertiesOnCategory(T jsonable, JSONObject jsonObject) throws JSONException {
+	}
+
+
 	protected abstract T instance();
 
 }

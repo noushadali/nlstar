@@ -15,7 +15,7 @@
 	</servlet-mapping>
 	<servlet>
 		<servlet-name>category image</servlet-name>
-		<servlet-class>com.denisk.appengine.nl.server.SaveCategoryImageServlet</servlet-class>
+		<servlet-class>com.denisk.appengine.nl.server.SaveImageServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>category image</servlet-name>

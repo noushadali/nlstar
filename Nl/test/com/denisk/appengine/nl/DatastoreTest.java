@@ -5,6 +5,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,16 +31,24 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.files.AppEngineFile;
+import com.google.appengine.api.files.FileService;
+import com.google.appengine.api.files.FileServiceFactory;
+import com.google.appengine.api.files.FileWriteChannel;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 
 public class DatastoreTest {
 	 private final LocalServiceTestHelper helper =
 		        new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-
+	 private DatastoreService ds;
+	 private DataHandler dh;
+	 
 	@Before
 	public void before() {
 		helper.setUp();
+		ds = DatastoreServiceFactory.getDatastoreService();
+		dh= new DataHandler();
 	}
 	
 	@After
@@ -47,7 +58,6 @@ public class DatastoreTest {
 	
 	@Test
 	public void datastoreTest() {
-		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 		final String kind = "yum";
 		assertEquals(0, ds.prepare(new Query(kind)).countEntities(withLimit(10)));
 		ds.put(new Entity(kind));
@@ -57,7 +67,6 @@ public class DatastoreTest {
 
 	@Test
 	public void dataHandlerBasicTest() throws EntityNotFoundException {
-		DataHandler dh = new DataHandler();
 		
 		Category c = new Category();
 		c.setName("hello");
@@ -75,7 +84,6 @@ public class DatastoreTest {
 		c.getGoods().add(g1);
 		c.getGoods().add(g2);
 		
-		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 		assertEquals(0, ds.prepare(new Query(Category.KIND)).countEntities(withLimit(10)));
 		assertEquals(0, ds.prepare(new Query(Good.KIND)).countEntities(withLimit(10)));
 
@@ -89,7 +97,6 @@ public class DatastoreTest {
 	
 	@Test
 	public void getCategories(){
-		DataHandler dh = new DataHandler();
 		
 		Category c = new Category();
 		c.setName("hello");
@@ -123,8 +130,6 @@ public class DatastoreTest {
 	
 	@Test
 	public void getCategoriesJson() throws JSONException{
-		DataHandler dh = new DataHandler();
-		
 		Category c = new Category();
 		c.setName("hello");
 		c.setDescription("desc");
@@ -157,8 +162,6 @@ public class DatastoreTest {
 	
 	@Test
 	public void getGoodsJson(){
-		DataHandler dh = new DataHandler();
-		
 		Category c = new Category();
 		c.setName("hello");
 		c.setDescription("desc");
@@ -200,8 +203,6 @@ public class DatastoreTest {
 	
 	@Test
 	public void clearGoodsForCategory(){
-		DataHandler dh = new DataHandler();
-		
 		Category c = new Category();
 		c.setName("hello");
 		c.setDescription("desc");
@@ -245,8 +246,6 @@ public class DatastoreTest {
 	
 	@Test
 	public void persistGood(){
-		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-		DataHandler dh = new DataHandler();
 		Category c = new Category();
 		Key categoryKey = dh.saveCategoryWithGoods(c);
 		
@@ -276,4 +275,29 @@ public class DatastoreTest {
 		assertEquals(name, saved.getProperty(Good.NAME));
 		
 	}
+	
+	@Test
+	public void updateCategoryBackgroundImage() throws IOException{
+		FileService fileService = FileServiceFactory.getFileService();
+		AppEngineFile file = fileService.createNewBlobFile("text/plain");
+		FileWriteChannel writeChannel = fileService.openWriteChannel(file, true);
+		PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF-8")); 
+		out.println("Hello");
+		out.close();
+		writeChannel.closeFinally();
+		
+		BlobKey bk = fileService.getBlobKey(file);
+		String imageKeyStr = bk.getKeyString();
+		
+		Category c = new Category();
+		String categoryKeyStr = KeyFactory.keyToString(dh.saveCategoryWithGoods(c));
+		
+		dh.updateCategoryBackground(categoryKeyStr, imageKeyStr);
+		
+		ArrayList<Category> categories = dh.getCategories();
+		
+		assertEquals(1, categories.size());
+		assertEquals(imageKeyStr, categories.get(0).getBackgroundBlobKey());
+	}
+	
 }

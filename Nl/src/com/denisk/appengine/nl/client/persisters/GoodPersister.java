@@ -29,6 +29,7 @@ public class GoodPersister extends BaseShopItemPersister {
 
 	@Override
 	public void afterEntitySaved(String keyStr) {
+		super.afterEntitySaved(keyStr);
 	}
 
 }

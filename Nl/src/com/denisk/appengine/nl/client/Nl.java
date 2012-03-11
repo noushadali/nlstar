@@ -70,6 +70,7 @@ public class Nl implements EntryPoint {
 	private ClickHandler redrawAfterGoodCreatedCallback = new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
+			editGoodForm.hide();
 			updateLabel(status);
 			outputGoodsForCategory(selectedCategoryKeyStr);
 		}

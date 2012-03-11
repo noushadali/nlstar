@@ -30,7 +30,7 @@ public class CategoryPersister extends BaseShopItemPersister {
 	public void setAdditionalProperties(ShopItem item, Map<String, Object> additionalProperties) {
 		CategoryJavascriptObject category = item.cast();
 		String backgroundImageKeyStr = (String) additionalProperties.get(Category.BACKGROUND_BLOB_KEY);
-		category.setBackgroundBlobKey(backgroundImageKeyStr);
+		category.setBackgroundBlobKey(backgroundImageKeyStr == null ? "" : backgroundImageKeyStr);
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.client.persisters.CategoryPersister;
 import com.denisk.appengine.nl.client.persisters.GoodPersister;
+import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -12,6 +13,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -24,8 +26,8 @@ import com.google.gwt.user.client.ui.RootPanel;
 
 
 public class Nl implements EntryPoint {
-	private static final String THUMB_WIDTH = "200";
-	private static final String THUMB_HEIGHT = "100";
+	public static final String THUMB_WIDTH = "200";
+	public static final String THUMB_HEIGHT = "100";
 
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
 	private Label categoriesInfo = new Label();
@@ -91,6 +93,35 @@ public class Nl implements EntryPoint {
 	//==============================================
 	private EditGoodForm editGoodForm = new EditGoodForm();
 	private EditCategoryForm editCategoryForm = new EditCategoryForm(); 
+	
+	private Function<CategoryJavascriptObject, LayoutPanel> categoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
+		@Override
+		public LayoutPanel apply(CategoryJavascriptObject input) {
+			return createCategoryPanel(input);
+		}
+	};
+	private Function<CategoryJavascriptObject, LayoutPanel> editableCategoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
+		@Override
+		public LayoutPanel apply(final CategoryJavascriptObject input) {
+			LayoutPanel panel = categoryPanelCreation.apply(input);
+			
+			HTML edit = new HTML("<a href=#>Edit</a>");
+			edit.addClickHandler(new ClickHandler() {
+				
+				@Override
+				public void onClick(ClickEvent event) {
+					event.stopPropagation();
+					editCategoryForm.showForEdit(input);
+				}
+			});
+			panel.add(edit);
+
+			panel.setWidgetRightWidth(edit, 5, Style.Unit.PX, 30, Style.Unit.PX);
+			panel.setWidgetTopHeight(edit, 10, Style.Unit.PX, 20, Style.Unit.PX);
+
+			return panel;
+		}
+	};
 	
 	/**
 	 * This is the entry point method.
@@ -189,33 +220,30 @@ public class Nl implements EntryPoint {
 	
 	private void outputCategories(final Panel panel) {
 		backButton.setVisible(false);
-		
 		dtoService.getCategoriesJson(new AsyncCallback<String>() {
 			
 			@Override
 			public void onSuccess(String result) {
 				panel.clear();
-				JsArray<CategoryJavascriptObject> arrayFromJson = CategoryJavascriptObject.getArrayFromJson(result);
-				for(int i = 0; i < arrayFromJson.length(); i++){
-					final CategoryJavascriptObject categoryJson = arrayFromJson.get(i);
-					LayoutPanel itemPanel = createShopItemPanel(categoryJson);
-					Label backgroundLabel = new Label(categoryJson.getBackgroundBlobKey());
-					itemPanel.add(backgroundLabel);
-					itemPanel.setWidgetTopHeight(backgroundLabel, 40, Style.Unit.PX, 20, Style.Unit.PX);
-					
-					itemPanel.addDomHandler(new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent event) {
-								backButton.setVisible(true);
-								String keyStr = categoryJson.getKeyStr();
-								outputGoodsForCategory(keyStr);
-								outputControlsForGoods();
-								selectedCategoryKeyStr = keyStr;
+				final JsArray<CategoryJavascriptObject> arrayFromJson = CategoryJavascriptObject.getArrayFromJson(result);
+				
+				dtoService.isAdmin(new AsyncCallback<UserStatus>() {
+					@Override
+					public void onSuccess(UserStatus result) {
+						switch(result){
+						case ADMIN:
+							createCategoryTiles(panel, arrayFromJson, editableCategoryPanelCreation);
+							break;
+						default:
+							createCategoryTiles(panel, arrayFromJson, categoryPanelCreation);
 						}
-					}, ClickEvent.getType());
-
-					panel.add(itemPanel);
-				}
+					}
+					
+					@Override
+					public void onFailure(Throwable caught) {
+					}
+				});
+				
 			}
 			
 			@Override
@@ -346,6 +374,34 @@ public class Nl implements EntryPoint {
 		itemPanel.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
 		itemPanel.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150, Style.Unit.PX);
 		itemPanel.setWidgetHorizontalPosition(image, com.google.gwt.layout.client.Layout.Alignment.END);
+		return itemPanel;
+	}
+
+	private void createCategoryTiles(final Panel panel,	JsArray<CategoryJavascriptObject> arrayFromJson, Function<CategoryJavascriptObject, LayoutPanel> panelCreation) {
+		for(int i = 0; i < arrayFromJson.length(); i++) {
+			final CategoryJavascriptObject categoryJson = arrayFromJson.get(i);
+			LayoutPanel itemPanel = panelCreation.apply(categoryJson);
+			panel.add(itemPanel);
+		}
+	}
+	
+	private LayoutPanel createCategoryPanel(
+			final CategoryJavascriptObject categoryJson) {
+		LayoutPanel itemPanel = createShopItemPanel(categoryJson);
+		Label backgroundLabel = new Label(categoryJson.getBackgroundBlobKey());
+		itemPanel.add(backgroundLabel);
+		itemPanel.setWidgetTopHeight(backgroundLabel, 40, Style.Unit.PX, 20, Style.Unit.PX);
+		
+		itemPanel.addDomHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+					backButton.setVisible(true);
+					String keyStr = categoryJson.getKeyStr();
+					outputGoodsForCategory(keyStr);
+					outputControlsForGoods();
+					selectedCategoryKeyStr = keyStr;
+			}
+		}, ClickEvent.getType());
 		return itemPanel;
 	}
 

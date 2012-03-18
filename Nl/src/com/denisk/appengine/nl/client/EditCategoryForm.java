@@ -10,28 +10,16 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 
-public class EditCategoryForm extends Composite implements EditForm {
-
+public class EditCategoryForm extends BaseEditForm {
+	protected CategoryPersister categoryPersister = new CategoryPersister();
 	private static EditCategoryFormUiBinder uiBinder = GWT.create(EditCategoryFormUiBinder.class);
 	
 	@UiField FileUpload backgroundImage;
-	@UiField EditItemForm itemForm;
-	@UiField FormPanel backgroundImageFormPanel;
 
-	private CategoryPersister categoryPersister = new CategoryPersister();
+	@UiField FormPanel backgroundImageFormPanel;
 
 	interface EditCategoryFormUiBinder extends
 			UiBinder<Widget, EditCategoryForm> {
-	}
-
-	public EditCategoryForm() {
-		initWidget(uiBinder.createAndBindUi(this));
-		itemForm.setMisterPersister(categoryPersister);
-		categoryPersister.setBackgroundImageFormPanel(backgroundImageFormPanel);
-	}
-
-	public EditItemForm getItemForm() {
-		return itemForm;
 	}
 
 	@Override
@@ -39,13 +27,14 @@ public class EditCategoryForm extends Composite implements EditForm {
 		return categoryPersister;
 	}
 
-	@Override
-	public void show() {
-		itemForm.show();
+	public EditCategoryForm() {
+		initWidget(uiBinder.createAndBindUi(this));
+		itemForm.setMisterPersister(categoryPersister);
+		categoryPersister.setBackgroundImageFormPanel(backgroundImageFormPanel);
 	}
-
+	
 	@Override
-	public void hide() {
-		itemForm.hide();
+	protected void populateFields(){
+		
 	}
 }

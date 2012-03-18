@@ -8,26 +8,27 @@
 		}
 	</ui:style>
 	<g:HTMLPanel>
-		<g:PopupPanel ui:field="popup" width="800px" height="200px">
-			<g:VerticalPanel width="100%" height="100%" horizontalAlignment="ALIGN_RIGHT">
+		<g:PopupPanel ui:field="popup" width="475px" height="200px">
+			<g:VerticalPanel width="100%" height="100%" horizontalAlignment="ALIGN_LEFT">
 					<g:FlowPanel width="100%" height="100%">
-						<g:FlowPanel styleName="menuItem" >
+						<g:FlowPanel styleName="menuItem" width="479px" >
 							<g:Label text="Name:" />
 							<g:TextBox ui:field="name" name="name" />
 						</g:FlowPanel>
-						<g:FlowPanel styleName="menuItem" >
+						<g:FlowPanel styleName="menuItem" width="480px" >
 							<g:Label text="Description:" />
 							<g:TextBox ui:field="description" name="description" />
 						</g:FlowPanel>
 					</g:FlowPanel>
-				<g:FormPanel height="47px" ui:field="imageForm" method="post" encoding="multipart/form-data">
-					<g:FlowPanel styleName="menuItem" width="100%" height="35px">
+				<g:FormPanel height="47px" ui:field="imageForm" method="post" encoding="multipart/form-data" width="100%">
+					<g:FlowPanel styleName="menuItem" width="475px" height="35px">
 						<g:Label text="Image:" />
-						<g:FileUpload ui:field="image" name="image" />
+						<g:Image ui:field="imageThumbnail"/>
+						<g:FileUpload ui:field="image" name="image"/>
 					</g:FlowPanel>
 				</g:FormPanel>
 				<g:VerticalPanel ui:field="customInputs" width="100%"/>
-				<g:HorizontalPanel spacing="5" verticalAlignment="ALIGN_BOTTOM" horizontalAlignment="ALIGN_LEFT">
+				<g:HorizontalPanel spacing="5" verticalAlignment="ALIGN_BOTTOM" horizontalAlignment="ALIGN_RIGHT">
 					<g:Button text="Save" ui:field="save" />
 					<g:Button text="Cancel" ui:field="cancel" />
 				</g:HorizontalPanel>

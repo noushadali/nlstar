@@ -117,7 +117,10 @@ public class Nl implements EntryPoint {
 					newButtonClickHandlerRegistration.removeHandler();
 				}
 				
-				newButtonClickHandlerRegistration = newButton.addClickHandler(categoriesNewButtonHandler);
+				if (newButton != null) {
+					newButtonClickHandlerRegistration = newButton
+							.addClickHandler(categoriesNewButtonHandler);
+				}
 			}
 		});
 		

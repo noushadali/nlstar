@@ -14,9 +14,8 @@ public class EditCategoryForm extends BaseEditForm {
 	protected CategoryPersister categoryPersister = new CategoryPersister();
 	private static EditCategoryFormUiBinder uiBinder = GWT.create(EditCategoryFormUiBinder.class);
 	
-	@UiField FileUpload backgroundImage;
-
 	@UiField FormPanel backgroundImageFormPanel;
+	@UiField ImagePanel backgroundImagePanel;
 
 	interface EditCategoryFormUiBinder extends
 			UiBinder<Widget, EditCategoryForm> {

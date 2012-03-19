@@ -4,12 +4,9 @@
 	<g:HTMLPanel>
 			<g:FlowPanel>
 				<d:EditItemForm height="189px" ui:field="itemForm">
-					<g:FlowPanel styleName="menuItem" width="100%">
-						<g:Label text="Background" width="200px" height="18px"/>
 						<g:FormPanel width="213px" method="post" encoding="multipart/form-data" ui:field="backgroundImageFormPanel">
-							<g:FileUpload width="240px" height="100%" ui:field="backgroundImage" name="image" />
+							<d:ImagePanel ui:field="backgroundImagePanel"></d:ImagePanel>
 						</g:FormPanel>
-					</g:FlowPanel>
 				</d:EditItemForm>
 			</g:FlowPanel>
 	</g:HTMLPanel>

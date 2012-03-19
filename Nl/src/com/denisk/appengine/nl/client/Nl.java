@@ -81,6 +81,7 @@ public class Nl implements EntryPoint {
 	private ClickHandler goodsNewButtonHandler = new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
+			System.out.println("Showing...");
 			editGoodForm.show();
 		}
 	};
@@ -102,8 +103,8 @@ public class Nl implements EntryPoint {
 	};
 	private Function<CategoryJavascriptObject, LayoutPanel> editableCategoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
 		@Override
-		public LayoutPanel apply(final CategoryJavascriptObject input) {
-			LayoutPanel panel = categoryPanelCreation.apply(input);
+		public LayoutPanel apply(final CategoryJavascriptObject category) {
+			LayoutPanel panel = categoryPanelCreation.apply(category);
 			
 			HTML edit = new HTML("<a href=#>Edit</a>");
 			edit.addClickHandler(new ClickHandler() {
@@ -111,7 +112,7 @@ public class Nl implements EntryPoint {
 				@Override
 				public void onClick(ClickEvent event) {
 					event.stopPropagation();
-					editCategoryForm.showForEdit(input);
+					editCategoryForm.showForEdit(category);
 				}
 			});
 			panel.add(edit);
@@ -135,7 +136,7 @@ public class Nl implements EntryPoint {
 		rootPanel.add(status);
 		rootPanel.add(categoriesInfo);
 		rootPanel.add(outputPanel);
-		
+
 		backButton = new Button("Back");
 		backButton.setVisible(false);
 		rootPanel.add(backButton);

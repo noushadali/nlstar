@@ -39,8 +39,6 @@ public class CategoryPersister extends BaseShopItemPersister {
 			@Override
 			public void onSuccess(String url) {
 				backgroundImageFormPanel.setAction(url);
-				backgroundImageFormPanel.submit();
-				
 				backgroundImageFormPanel.addSubmitCompleteHandler(new SubmitCompleteHandler() {
 					@Override
 					public void onSubmitComplete(SubmitCompleteEvent event) {
@@ -58,6 +56,8 @@ public class CategoryPersister extends BaseShopItemPersister {
 						});
 					}
 				});
+
+				backgroundImageFormPanel.submit();
 			}
 			
 			@Override

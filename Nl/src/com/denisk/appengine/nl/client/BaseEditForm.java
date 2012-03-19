@@ -15,9 +15,10 @@ public abstract class BaseEditForm extends Composite implements EditForm {
 
 	@Override
 	public void show() {
-		itemForm.image.setVisible(true);
-		itemForm.imageThumbnail.setVisible(false);
 		itemForm.show();
+		itemForm.imagePanel.image.setVisible(true);
+		itemForm.imagePanel.imageThumbnail.setVisible(false);
+		itemForm.imagePanel.imageDelete.setVisible(false);
 	}
 
 	@Override
@@ -28,12 +29,14 @@ public abstract class BaseEditForm extends Composite implements EditForm {
 	public void showForEdit(CategoryJavascriptObject input) {
 		itemForm.name.setText(input.getName());
 		itemForm.description.setText(input.getDescription());
-		itemForm.getImage().setVisible(false);
-		itemForm.getImageThumbnail().setVisible(true);
-		itemForm.imageThumbnail.setUrl("/nl/thumb?key=" + input.getImageBlobKey() + "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
 		
 		populateFields();
 		show();
+		
+		itemForm.imagePanel.image.setVisible(false);
+		itemForm.imagePanel.imageThumbnail.setUrl("/nl/thumb?key=" + input.getImageBlobKey() + "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
+		itemForm.imagePanel.imageThumbnail.setVisible(true);
+		itemForm.imagePanel.imageDelete.setVisible(true);
 	}
 
 	protected abstract void populateFields();

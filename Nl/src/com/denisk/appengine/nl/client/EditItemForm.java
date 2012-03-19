@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
 
 /**
  * @author denisk
@@ -40,14 +41,13 @@ public class EditItemForm extends Composite implements HasWidgets {
 	
 	@UiField TextBox name;
 	@UiField TextBox description;
-	@UiField FileUpload image;
 	@UiField Button save;
 	@UiField Button cancel;
 	@UiField PopupPanel loading;
 	@UiField FormPanel imageForm;
 	@UiField VerticalPanel customInputs;
 	@UiField PopupPanel popup;
-	@UiField Image imageThumbnail;
+	@UiField ImagePanel imagePanel;
 	
 
 	private ShopItemPersister misterPersister;
@@ -143,14 +143,4 @@ public class EditItemForm extends Composite implements HasWidgets {
 	public boolean remove(Widget w) {
 		return customInputs.remove(w);
 	}
-
-	public FileUpload getImage() {
-		return image;
-	}
-
-	public Image getImageThumbnail() {
-		return imageThumbnail;
-	}
-	
-	
 }

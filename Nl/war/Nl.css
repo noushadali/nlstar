@@ -35,8 +35,22 @@
 	right: 0;
 }
 
+.menuItem .gwt-Image {
+	position: absolute;
+	right: 30px;
+}
+
+.menuItem .delete {
+	position: absolute;
+	right: 0;
+}
+
 .categoryEditRoot .buttons {
 	position: absolute;
 	bottom: 0;
 	right: 0;
+}
+
+.gwt-PopupPanel {
+	background-color: gray;
 }

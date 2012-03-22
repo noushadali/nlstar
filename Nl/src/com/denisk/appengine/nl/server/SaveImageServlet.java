@@ -45,10 +45,10 @@ public class SaveImageServlet extends HttpServlet {
 				logger.warning("No image key. Using empty string");
 			} else {
 				logger.warning("Got BlobKey " + imageKey.getKeyString());
+				resp.getOutputStream().write(imageKey.getKeyString().getBytes("UTF-8"));
 			}
 		}
 		
-		resp.getOutputStream().write(imageKey.getKeyString().getBytes("UTF-8"));
 	}
 	
 }

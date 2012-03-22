@@ -2,7 +2,7 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
 		<g:FlowPanel height="35px" styleName="menuItem" width="475px">
-			<g:Label text="Image:"/>
+			<g:Label ui:field="label"/>
 			<g:FileUpload name="image" ui:field="image"/>
 			<g:Image ui:field="imageThumbnail"/>
 			<g:Label styleName="delete" text="X" ui:field="imageDelete"/>

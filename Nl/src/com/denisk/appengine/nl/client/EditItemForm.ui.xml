@@ -22,7 +22,7 @@
 						</g:FlowPanel>
 					</g:FlowPanel>
 				<g:FormPanel height="47px" ui:field="imageForm" method="post" encoding="multipart/form-data" width="100%">
-					<d:ImagePanel ui:field="imagePanel"></d:ImagePanel>
+					<d:ImagePanel ui:field="imagePanel" label="Image"></d:ImagePanel>
 				</g:FormPanel>
 				<g:VerticalPanel ui:field="customInputs" width="100%"/>
 				<g:HorizontalPanel spacing="5" verticalAlignment="ALIGN_BOTTOM" horizontalAlignment="ALIGN_RIGHT">

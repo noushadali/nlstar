@@ -5,7 +5,7 @@
 			<g:FlowPanel>
 				<d:EditItemForm height="189px" ui:field="itemForm">
 						<g:FormPanel width="213px" method="post" encoding="multipart/form-data" ui:field="backgroundImageFormPanel">
-							<d:ImagePanel ui:field="backgroundImagePanel"></d:ImagePanel>
+							<d:ImagePanel ui:field="backgroundImagePanel" label="Background"></d:ImagePanel>
 						</g:FormPanel>
 				</d:EditItemForm>
 			</g:FlowPanel>

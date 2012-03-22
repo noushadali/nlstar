@@ -5,8 +5,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 
 public abstract class BaseEditForm extends Composite implements EditForm {
-	private static final String THUMB_HEIGHT = "40";
-	private static final String THUMB_WIDTH = "50";
 	@UiField EditItemForm itemForm;
 
 	public EditItemForm getItemForm() {
@@ -16,9 +14,7 @@ public abstract class BaseEditForm extends Composite implements EditForm {
 	@Override
 	public void show() {
 		itemForm.show();
-		itemForm.imagePanel.image.setVisible(true);
-		itemForm.imagePanel.imageThumbnail.setVisible(false);
-		itemForm.imagePanel.imageDelete.setVisible(false);
+		itemForm.imagePanel.hideImagePreview();
 	}
 
 	@Override
@@ -34,9 +30,12 @@ public abstract class BaseEditForm extends Composite implements EditForm {
 		show();
 		
 		itemForm.imagePanel.image.setVisible(false);
-		itemForm.imagePanel.imageThumbnail.setUrl("/nl/thumb?key=" + input.getImageBlobKey() + "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
-		itemForm.imagePanel.imageThumbnail.setVisible(true);
-		itemForm.imagePanel.imageDelete.setVisible(true);
+		String imageBlobKey = input.getImageBlobKey();
+		if(imageBlobKey == null || imageBlobKey.isEmpty()){
+			itemForm.imagePanel.hideImagePreview();
+		} else {
+			itemForm.imagePanel.showImagePreview(imageBlobKey);
+		}
 	}
 
 	protected abstract void populateFields();

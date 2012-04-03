@@ -42,6 +42,11 @@
 
 .menuItem .delete {
 	position: absolute;
+	right: 40px;
+}
+
+.menuItem .gwt-Button {
+	position: absolute;
 	right: 0;
 }
 

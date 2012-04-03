@@ -1,6 +1,7 @@
 package com.denisk.appengine.nl.client;
 
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
+import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 
@@ -22,7 +23,7 @@ public abstract class BaseEditForm extends Composite implements EditForm {
 		itemForm.hide();
 	}
 
-	public void showForEdit(CategoryJavascriptObject input) {
+	public void showForEdit(ShopItem input) {
 		itemForm.name.setText(input.getName());
 		itemForm.description.setText(input.getDescription());
 		

@@ -116,9 +116,23 @@ public class Nl implements EntryPoint {
 				}
 			});
 			panel.add(edit);
-
+			
 			panel.setWidgetRightWidth(edit, 5, Style.Unit.PX, 30, Style.Unit.PX);
 			panel.setWidgetTopHeight(edit, 10, Style.Unit.PX, 20, Style.Unit.PX);
+			
+			HTML editImagesButton = new HTML("<a href=#>Images</a>");
+			editImagesButton.addClickHandler(new ClickHandler() {
+				
+				@Override
+				public void onClick(ClickEvent event) {
+					event.stopPropagation();
+					editCategoryForm.showForEdit(category);
+				}
+			});
+			panel.add(editImagesButton);
+
+			panel.setWidgetRightWidth(editImagesButton, 5, Style.Unit.PX, 30, Style.Unit.PX);
+			panel.setWidgetTopHeight(editImagesButton, 30, Style.Unit.PX, 20, Style.Unit.PX);
 
 			return panel;
 		}
@@ -242,6 +256,7 @@ public class Nl implements EntryPoint {
 					
 					@Override
 					public void onFailure(Throwable caught) {
+						Window.alert("Can't determine credentials while outputting categories: " + caught.getMessage());
 					}
 				});
 				
@@ -249,6 +264,7 @@ public class Nl implements EntryPoint {
 			
 			@Override
 			public void onFailure(Throwable caught) {
+				Window.alert("Can't output categories: " + caught.getMessage());
 			}
 		});
 	}
@@ -262,7 +278,7 @@ public class Nl implements EntryPoint {
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				status.setText("Can't calculate entities");
+				status.setText("Can't count goods and categories");
 			}
 		});
 	}
@@ -290,6 +306,7 @@ public class Nl implements EntryPoint {
 										
 										@Override
 										public void onFailure(Throwable caught) {
+											Window.alert("Can't clear goods for category " + selectedCategoryKeyStr + ": "+ caught.getMessage());
 										}
 									});
 								}
@@ -315,11 +332,12 @@ public class Nl implements EntryPoint {
 			
 			@Override
 			public void onFailure(Throwable caught) {
+				Window.alert("Can't output controls for good" + caught.getMessage());
 			}
 		});
 	}
 
-	private void outputGoodsForCategory(String categoryKeyStr) {
+	private void outputGoodsForCategory(final String categoryKeyStr) {
 		dtoService.getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String result) {
@@ -334,6 +352,7 @@ public class Nl implements EntryPoint {
 			
 			@Override
 			public void onFailure(Throwable caught) {
+				Window.alert("Can't get goods for category " + categoryKeyStr + ": " + caught.getMessage());
 			}
 		});
 	}
@@ -349,6 +368,7 @@ public class Nl implements EntryPoint {
 			
 			@Override
 			public void onFailure(Throwable caught) {
+				Window.alert("Can't create logout URL: " + caught.getMessage());
 			}
 		});
 	}

@@ -14,6 +14,9 @@ public class EditCategoryForm extends BaseEditForm {
 	protected CategoryPersister categoryPersister = new CategoryPersister();
 	private static EditCategoryFormUiBinder uiBinder = GWT.create(EditCategoryFormUiBinder.class);
 	
+	@UiField FormPanel backgroundImageFormPanel;
+	@UiField ImagePanel backgroundImagePanel;
+
 	interface EditCategoryFormUiBinder extends
 			UiBinder<Widget, EditCategoryForm> {
 	}
@@ -26,6 +29,7 @@ public class EditCategoryForm extends BaseEditForm {
 	public EditCategoryForm() {
 		initWidget(uiBinder.createAndBindUi(this));
 		itemForm.setMisterPersister(categoryPersister);
+		categoryPersister.setBackgroundImageFormPanel(backgroundImageFormPanel);
 	}
 	
 	@Override

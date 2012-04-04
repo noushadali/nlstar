@@ -1,13 +1,10 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
-	<g:FormPanel method="post" encoding="multipart/form-data">
 		<g:FlowPanel height="35px" styleName="menuItem" width="475px">
-			<g:Label ui:field="label" />
-			<g:FileUpload name="image" ui:field="image" />
-			<g:Image ui:field="imageThumbnail" />
-			<g:Label styleName="delete" text="X" ui:field="imageDelete" />
-			<g:Button text="Apply"/>
+			<g:Label ui:field="label"/>
+			<g:FileUpload name="image" ui:field="image"/>
+			<g:Image ui:field="imageThumbnail"/>
+			<g:Label styleName="delete" text="X" ui:field="imageDelete"/>
 		</g:FlowPanel>
-	</g:FormPanel>
 </ui:UiBinder> 

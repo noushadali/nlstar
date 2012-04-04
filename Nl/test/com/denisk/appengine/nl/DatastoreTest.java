@@ -35,24 +35,29 @@ import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileService;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
+import com.google.appengine.tools.development.testing.LocalBlobstoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 
 public class DatastoreTest {
-	 private final LocalServiceTestHelper helper =
-		        new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+	private final LocalServiceTestHelper helper =
+			new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+	 private final LocalServiceTestHelper helper1 =
+		        new LocalServiceTestHelper(new LocalBlobstoreServiceTestConfig());
 	 private DatastoreService ds;
 	 private DataHandler dh;
 	 
 	@Before
 	public void before() {
 		helper.setUp();
+		helper1.setUp();
 		ds = DatastoreServiceFactory.getDatastoreService();
 		dh= new DataHandler();
 	}
 	
 	@After
 	public void after() {
+//		helper1.tearDown();
 		helper.tearDown();
 	}
 	
@@ -272,8 +277,6 @@ public class DatastoreTest {
 		assertEquals(descr, saved.getProperty(Good.DESCRIPTION));
 		assertEquals(imageKey, saved.getProperty(Good.IMAGE_BLOB_KEY));
 		assertEquals(name, saved.getProperty(Good.NAME));
-		assertEquals(name, saved.getProperty(Good.NAME));
-		
 	}
 	
 	@Test
@@ -281,7 +284,7 @@ public class DatastoreTest {
 		FileService fileService = FileServiceFactory.getFileService();
 		AppEngineFile file = fileService.createNewBlobFile("text/plain");
 		FileWriteChannel writeChannel = fileService.openWriteChannel(file, true);
-		PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF-8")); 
+		PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8")); 
 		out.println("Hello");
 		out.close();
 		writeChannel.closeFinally();

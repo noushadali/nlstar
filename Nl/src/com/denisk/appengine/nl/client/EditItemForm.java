@@ -72,45 +72,34 @@ public class EditItemForm extends Composite implements HasWidgets {
 	
 	@UiHandler("save")
 	void onSaveClick(ClickEvent event) {
-		dtoService.getImageUploadUrl(new AsyncCallback<String>() {
-			@Override
-			public void onSuccess(String url) {
-				imageForm.setAction(url);
-				loading.center();
-				imageForm.submit();
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-			}
-		});
+		imageForm.submit();
 	}
 	
-	@UiHandler("imageForm")
-	void onFormSubmitComplete(SubmitCompleteEvent event) {
-		String imageId = Util.cutPre(event.getResults());
-
-		ShopItem shopItem = misterPersister.createEntity();
-
-		shopItem.setImageBlobKey(imageId);
-		shopItem.setName(name.getValue());
-		shopItem.setDescription(description.getValue());
-
-		misterPersister.setAdditionalProperties(shopItem, additionalProperties);
-		
-		misterPersister.persistItem(shopItem, new AsyncCallback<String>() {
-			@Override
-			public void onSuccess(String result) {
-				loading.hide();
-				System.out.println("Updated entity");
-				misterPersister.afterEntitySaved(result);
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-			}
-		});
-	}
+//	@UiHandler("imageForm")
+//	void onFormSubmitComplete(SubmitCompleteEvent event) {
+//		String imageId = Util.cutPre(event.getResults());
+//
+//		ShopItem shopItem = misterPersister.createEntity();
+//
+//		shopItem.setImageBlobKey(imageId);
+//		shopItem.setName(name.getValue());
+//		shopItem.setDescription(description.getValue());
+//
+//		misterPersister.setAdditionalProperties(shopItem, additionalProperties);
+//		
+//		misterPersister.persistItem(shopItem, new AsyncCallback<String>() {
+//			@Override
+//			public void onSuccess(String result) {
+//				loading.hide();
+//				System.out.println("Updated entity");
+//				misterPersister.afterEntitySaved(result);
+//			}
+//			
+//			@Override
+//			public void onFailure(Throwable caught) {
+//			}
+//		});
+//	}
 	
 	public void show(){
 		popup.center();

@@ -31,6 +31,15 @@
 		<url-pattern>/nl/thumb/*</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>Persister</servlet-name>
+		<servlet-class>com.denisk.appengine.nl.server.CategoryPersisterServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Persister</servlet-name>
+		<url-pattern>/nl/persist</url-pattern>
+	</servlet-mapping>
+	
 	<!-- Default page to serve -->
 	<welcome-file-list>
 		<welcome-file>Nl.html</welcome-file>

@@ -54,3 +54,6 @@
 .gwt-PopupPanel {
 	background-color: gray;
 }
+.key {
+	display: none;
+}

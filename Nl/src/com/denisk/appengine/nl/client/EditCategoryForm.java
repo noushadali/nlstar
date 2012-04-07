@@ -1,37 +1,53 @@
 package com.denisk.appengine.nl.client;
 
-import com.denisk.appengine.nl.client.persisters.CategoryPersister;
-import com.denisk.appengine.nl.client.persisters.ShopItemPersister;
+import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
+import com.denisk.appengine.nl.server.data.Category;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.FileUpload;
-import com.google.gwt.user.client.ui.FormPanel;
 
-public class EditCategoryForm extends BaseEditForm {
-	protected CategoryPersister categoryPersister = new CategoryPersister();
+public class EditCategoryForm extends BaseEditForm<CategoryJavascriptObject> {
 	private static EditCategoryFormUiBinder uiBinder = GWT.create(EditCategoryFormUiBinder.class);
 	
-	@UiField ImagePanel backgroundImagePanel;
+	@UiField UploadPanel backgroundImagePanel;
 
 	interface EditCategoryFormUiBinder extends
 			UiBinder<Widget, EditCategoryForm> {
 	}
 
-	@Override
-	public ShopItemPersister getPersister() {
-		return categoryPersister;
-	}
-
 	public EditCategoryForm() {
 		initWidget(uiBinder.createAndBindUi(this));
-		itemForm.setMisterPersister(categoryPersister);
+		initFormCompleteHandler();
 	}
 	
 	@Override
-	protected void populateFields(){
-		
+	protected void populateFields(CategoryJavascriptObject input){
+		super.populateFields(input);
 	}
+
+	@Override
+	protected void clearUploads() {
+		super.clearUploads();
+		backgroundImagePanel.clearImageUpload();
+	}
+
+	@Override
+	public void showForCreation() {
+		super.showForCreation();
+		backgroundImagePanel.hideUploadPreview();
+	}
+
+	@Override
+	public void showForEdit(CategoryJavascriptObject input) {
+		super.showForEdit(input);
+		initPreview(input.getBackgroundBlobKey(), backgroundImagePanel);
+	}
+
+	@Override
+	protected String getKind() {
+		return Category.KIND;
+	}
+	
+	
 }

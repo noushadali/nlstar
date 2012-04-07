@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import com.denisk.appengine.nl.client.overlay.ShopItem;
-import com.denisk.appengine.nl.client.persisters.ShopItemPersister;
 import com.denisk.appengine.nl.client.util.Util;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -39,6 +38,9 @@ public class EditItemForm extends Composite implements HasWidgets {
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
 	private static EditFormFormUiBinder uiBinder = GWT.create(EditFormFormUiBinder.class);
 	
+	@UiField TextBox kind;
+	@UiField TextBox key;
+	@UiField TextBox parentKey;
 	@UiField TextBox name;
 	@UiField TextBox description;
 	@UiField Button save;
@@ -47,10 +49,9 @@ public class EditItemForm extends Composite implements HasWidgets {
 	@UiField FormPanel imageForm;
 	@UiField VerticalPanel customInputs;
 	@UiField PopupPanel popup;
-	@UiField ImagePanel imagePanel;
+	@UiField UploadPanel imagePanel;
 	
 
-	private ShopItemPersister misterPersister;
 	
 	private HashMap<String, Object> additionalProperties = new HashMap<String, Object>();
 	
@@ -75,38 +76,8 @@ public class EditItemForm extends Composite implements HasWidgets {
 		imageForm.submit();
 	}
 	
-//	@UiHandler("imageForm")
-//	void onFormSubmitComplete(SubmitCompleteEvent event) {
-//		String imageId = Util.cutPre(event.getResults());
-//
-//		ShopItem shopItem = misterPersister.createEntity();
-//
-//		shopItem.setImageBlobKey(imageId);
-//		shopItem.setName(name.getValue());
-//		shopItem.setDescription(description.getValue());
-//
-//		misterPersister.setAdditionalProperties(shopItem, additionalProperties);
-//		
-//		misterPersister.persistItem(shopItem, new AsyncCallback<String>() {
-//			@Override
-//			public void onSuccess(String result) {
-//				loading.hide();
-//				System.out.println("Updated entity");
-//				misterPersister.afterEntitySaved(result);
-//			}
-//			
-//			@Override
-//			public void onFailure(Throwable caught) {
-//			}
-//		});
-//	}
-	
 	public void show(){
 		popup.center();
-	}
-
-	public void setMisterPersister(ShopItemPersister misterPersister) {
-		this.misterPersister = misterPersister;
 	}
 
 	public void hide() {
@@ -131,5 +102,21 @@ public class EditItemForm extends Composite implements HasWidgets {
 	@Override
 	public boolean remove(Widget w) {
 		return customInputs.remove(w);
+	}
+	
+	public void setKey(String keyStr){
+		key.setText(keyStr);
+	}
+	
+	public void clearKey(){
+		key.setText("");
+	}
+	
+	public void setParentKey(String parentKey){
+		this.parentKey.setText(parentKey);
+	}
+	
+	public void setKind(String kind){
+		this.kind.setText(kind);
 	}
 }

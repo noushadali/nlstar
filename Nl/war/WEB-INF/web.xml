@@ -33,7 +33,7 @@
 	
 	<servlet>
 		<servlet-name>Persister</servlet-name>
-		<servlet-class>com.denisk.appengine.nl.server.CategoryPersisterServlet</servlet-class>
+		<servlet-class>com.denisk.appengine.nl.server.PersisterServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Persister</servlet-name>

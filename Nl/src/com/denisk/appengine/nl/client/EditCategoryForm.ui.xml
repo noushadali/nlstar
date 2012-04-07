@@ -4,7 +4,7 @@
 	<g:HTMLPanel>
 			<g:FlowPanel>
 				<d:EditItemForm height="189px" ui:field="itemForm">
-					<d:ImagePanel ui:field="backgroundImagePanel" label="Background"></d:ImagePanel>
+					<d:UploadPanel ui:field="backgroundImagePanel" label="Background" name="backgroundBlobKey"></d:UploadPanel>
 				</d:EditItemForm>
 			</g:FlowPanel>
 	</g:HTMLPanel>

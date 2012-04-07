@@ -39,7 +39,7 @@ public class BlobstoreTest {
 	@Test
 	public void updateCategoryBackgroundImage() throws IOException{
 		FileService fileService = FileServiceFactory.getFileService();
-		AppEngineFile file = fileService.createNewBlobFile("text/plain");
+		AppEngineFile file = fileService.createNewBlobFile("image/jpeg");
 		FileWriteChannel writeChannel = fileService.openWriteChannel(file, true);
 		PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8")); 
 		out.println("Hello");

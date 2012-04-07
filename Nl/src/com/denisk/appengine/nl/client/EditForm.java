@@ -1,11 +1,11 @@
 package com.denisk.appengine.nl.client;
 
-import com.denisk.appengine.nl.client.persisters.ShopItemPersister;
+import com.denisk.appengine.nl.client.overlay.ShopItem;
 
-public interface EditForm {
-	ShopItemPersister getPersister();
+public interface EditForm<T extends ShopItem> {
+	void showForCreation();
 	
-	void show();
-	
+	void showForEdit(T input);
+
 	void hide();
 }

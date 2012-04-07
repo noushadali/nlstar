@@ -303,4 +303,11 @@ public class DatastoreTest {
 		assertEquals(imageKeyStr, categories.get(0).getBackgroundBlobKey());
 	}
 	
+	@Test
+	public void updatingExistingEntity(){
+		Entity e = new Entity("hello");
+		assertFalse(e.getKey().isComplete());
+		ds.put(e);
+		assertTrue(e.getKey().isComplete());
+	}
 }

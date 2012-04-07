@@ -2,8 +2,6 @@ package com.denisk.appengine.nl.client;
 
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
-import com.denisk.appengine.nl.client.persisters.CategoryPersister;
-import com.denisk.appengine.nl.client.persisters.GoodPersister;
 import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.EntryPoint;
@@ -60,21 +58,25 @@ public class Nl implements EntryPoint {
 			});
 		}
 	};
-	//add this into mister persister================
-	private ClickHandler redrawAfterCategoryCreatedCallback = new ClickHandler() {
+	//redraw callbacks==============================
+	private Function<Void, Void> redrawAfterCategoryCreatedCallback = new Function<Void, Void>() {
 		@Override
-		public void onClick(ClickEvent event) {
+		public Void apply(Void input) {
 			editCategoryForm.hide();
 			updateLabel(status);
 			outputCategories(outputPanel);
+			
+			return null;
 		}
 	};
-	private ClickHandler redrawAfterGoodCreatedCallback = new ClickHandler() {
+	private Function<Void, Void> redrawAfterGoodCreatedCallback = new Function<Void, Void>() {
 		@Override
-		public void onClick(ClickEvent event) {
+		public Void apply(Void input) {
 			editGoodForm.hide();
 			updateLabel(status);
 			outputGoodsForCategory(selectedCategoryKeyStr);
+			
+			return null;
 		}
 	};
 	//==============================================
@@ -82,13 +84,13 @@ public class Nl implements EntryPoint {
 		@Override
 		public void onClick(ClickEvent event) {
 			System.out.println("Showing...");
-			editGoodForm.show();
+			editGoodForm.showForCreation();
 		}
 	};
 	private ClickHandler categoriesNewButtonHandler = new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
-			editCategoryForm.show();
+			editCategoryForm.showForCreation();
 		}
 	};
 	//==============================================
@@ -128,8 +130,8 @@ public class Nl implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		editGoodForm.getPersister().setRedrawAfterItemCreatedCallback(redrawAfterGoodCreatedCallback);
-		editCategoryForm.getPersister().setRedrawAfterItemCreatedCallback(redrawAfterCategoryCreatedCallback);
+		editGoodForm.setRedrawAfterItemCreatedCallback(redrawAfterGoodCreatedCallback);
+		editCategoryForm.setRedrawAfterItemCreatedCallback(redrawAfterCategoryCreatedCallback);
 		
 		updateLabel(status);
 		

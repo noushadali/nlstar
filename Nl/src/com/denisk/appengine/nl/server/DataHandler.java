@@ -2,15 +2,21 @@ package com.denisk.appengine.nl.server;
 
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
+import javax.servlet.ServletException;
+
+import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.codehaus.jettison.json.JSONStringer;
@@ -88,7 +94,6 @@ public class DataHandler {
 	public ArrayList<Category> getCategories(){
 		ArrayList<Category> result = new ArrayList<Category>();
 		Iterator<Entity> iterator = getAllEntities(ds, Category.KIND);
-		
 		while(iterator.hasNext()){
 			Entity e = iterator.next();
 			Category c = new Category();
@@ -207,4 +212,70 @@ public class DataHandler {
 		
 	}
 
+	public Entity createEntity(String kind, String parentKeyStr, Map<String, String> properties){
+		Entity e;
+		if(parentKeyStr == null || parentKeyStr.isEmpty()) {
+			e = new Entity(kind);
+		} else {
+			e = new Entity(kind, KeyFactory.stringToKey(parentKeyStr));
+		}
+		setProperties(e, properties);
+		ds.put(e);
+		return e;
+	}
+
+	public void setProperties(Entity e, Map<String, String> properties) {
+		for(String name: properties.keySet()){
+			e.setProperty(name, properties.get(name));
+		}
+	}
+
+	public Entity find(String key) throws ServletException {
+		try {
+			return ds.get(KeyFactory.stringToKey(key));
+		} catch (EntityNotFoundException e) {
+			throw new ServletException(e);
+		}
+	}
+
+	public void save(Entity entity) {
+		ds.put(entity);
+	}
+
+	public void deleteBlob(Entity entity, String blobField) {
+		String key = (String) entity.getProperty(blobField);
+		bs.delete(new BlobKey(key));
+		entity.setProperty(blobField, null);
+		save(entity);
+	}
+
+	public BlobKey writeJpegImage(byte[] bytes) throws IOException{
+		FileService fileService = FileServiceFactory.getFileService();
+		AppEngineFile file = fileService.createNewBlobFile("image/jpeg");
+		FileWriteChannel writeChannel = fileService.openWriteChannel(file, true);
+		OutputStream out = (Channels.newOutputStream(writeChannel));
+		out.write(bytes);
+		out.close();
+		writeChannel.closeFinally();
+		
+		return fileService.getBlobKey(file);
+	}
+	
+	public void updateBlob(Entity entity, String blobField, byte[] bytes) throws ServletException {
+		String existingKey = (String) entity.getProperty(blobField);
+		if(existingKey != null && !existingKey.isEmpty()){
+			bs.delete(new BlobKey(existingKey));
+			System.out.println("Deleting existing key " + existingKey);
+		}
+		
+		BlobKey key;
+		try {
+			key = writeJpegImage(bytes);
+		} catch (IOException e) {
+			throw new ServletException(e);
+		}
+		
+		entity.setProperty(blobField, key.getKeyString());
+		save(entity);
+	}
 }

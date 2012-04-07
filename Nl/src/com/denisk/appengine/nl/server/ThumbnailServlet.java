@@ -47,7 +47,7 @@ public class ThumbnailServlet extends HttpServlet {
 		}
 
 		String blobKeyStr = req.getParameter("key");
-		if (blobKeyStr == null || blobKeyStr.isEmpty()) {
+		if (blobKeyStr == null || blobKeyStr.isEmpty() || blobKeyStr.equals("null")) {
 			System.out.println("Key was null, exiting");
 			return;
 		}

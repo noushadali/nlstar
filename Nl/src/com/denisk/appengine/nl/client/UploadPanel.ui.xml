@@ -3,8 +3,11 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
 		<g:FlowPanel height="35px" styleName="menuItem" width="475px">
 			<g:Label ui:field="label"/>
-			<g:FileUpload name="image" ui:field="image"/>
+			<g:TextBox ui:field="flag" visible="false"/>
+			<g:FlowPanel ui:field="uploadPanel">
+				<g:FileUpload name="image" ui:field="image"/>
+			</g:FlowPanel>
 			<g:Image ui:field="imageThumbnail"/>
-			<g:Label styleName="delete" text="X" ui:field="imageDelete"/>
+			<g:Label styleName="delete" text="X" ui:field="imageDeleteButton"/>
 		</g:FlowPanel>
 </ui:UiBinder> 

@@ -66,6 +66,7 @@ public class UploadPanel extends Composite {
 		imageThumbnail.setUrl("/nl/thumb?key=" + imageBlobKey + "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
 		imageThumbnail.setVisible(true);
 		imageDeleteButton.setVisible(true);
+		image.setVisible(false);
 	}
 
 	public void hideUploadPreview() {
@@ -83,6 +84,8 @@ public class UploadPanel extends Composite {
 		uploadPanel.add(newImage);
 		newImage.addChangeHandler(uploadChangeHandler);
 		
-		flag.setText(UploadStatus.NO_CHANGE.name());	
+		flag.setText(UploadStatus.NO_CHANGE.name());
+		
+		image = newImage;
 	}
 }

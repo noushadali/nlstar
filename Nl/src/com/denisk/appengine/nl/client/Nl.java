@@ -1,6 +1,7 @@
 package com.denisk.appengine.nl.client;
 
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
+import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.shared.UserStatus;
@@ -74,7 +75,7 @@ public class Nl implements EntryPoint {
 		public Void apply(Void input) {
 			editGoodForm.hide();
 			updateLabel(status);
-			outputGoodsForCategory(selectedCategoryKeyStr);
+			outputGoodsForCategory(selectedCategoryKeyStr, outputPanel);
 			
 			return null;
 		}
@@ -103,28 +104,47 @@ public class Nl implements EntryPoint {
 			return createCategoryPanel(input);
 		}
 	};
+	
 	private Function<CategoryJavascriptObject, LayoutPanel> editableCategoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
 		@Override
 		public LayoutPanel apply(final CategoryJavascriptObject category) {
 			LayoutPanel panel = categoryPanelCreation.apply(category);
-			
-			HTML edit = new HTML("<a href=#>Edit</a>");
-			edit.addClickHandler(new ClickHandler() {
-				
-				@Override
-				public void onClick(ClickEvent event) {
-					event.stopPropagation();
-					editCategoryForm.showForEdit(category);
-				}
-			});
-			panel.add(edit);
-
-			panel.setWidgetRightWidth(edit, 5, Style.Unit.PX, 30, Style.Unit.PX);
-			panel.setWidgetTopHeight(edit, 10, Style.Unit.PX, 20, Style.Unit.PX);
-
+			buildEditButton(category, panel, editCategoryForm);
 			return panel;
 		}
 	};
+	
+	private Function<GoodJavascriptObject, LayoutPanel> goodPanelCreation = new Function<GoodJavascriptObject, LayoutPanel>() {
+		@Override
+		public LayoutPanel apply(GoodJavascriptObject input) {
+			return createShopItemPanel(input);
+		}
+	};
+	
+	private Function<GoodJavascriptObject, LayoutPanel> editableGoodPanelCreation = new Function<GoodJavascriptObject, LayoutPanel>() {
+		@Override
+		public LayoutPanel apply(GoodJavascriptObject input) {
+			LayoutPanel panel = goodPanelCreation.apply(input);
+			buildEditButton(input, panel, editGoodForm);
+			return panel;
+		}
+	};
+
+	private <T extends ShopItem> void buildEditButton(final T item,
+			LayoutPanel panel, final EditForm<T> editForm) {
+		HTML edit = new HTML("<a href=#>Edit</a>");
+		edit.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+				editForm.showForEdit(item);
+			}
+		});
+		panel.add(edit);
+		
+		panel.setWidgetRightWidth(edit, 5, Style.Unit.PX, 30, Style.Unit.PX);
+		panel.setWidgetTopHeight(edit, 10, Style.Unit.PX, 20, Style.Unit.PX);
+	}
 	
 	/**
 	 * This is the entry point method.
@@ -223,30 +243,13 @@ public class Nl implements EntryPoint {
 	
 	private void outputCategories(final Panel panel) {
 		backButton.setVisible(false);
+		final Function<CategoryJavascriptObject, LayoutPanel> editableCreation = editableCategoryPanelCreation;
+		final Function<CategoryJavascriptObject, LayoutPanel> creation = categoryPanelCreation;
+
 		dtoService.getCategoriesJson(new AsyncCallback<String>() {
-			
 			@Override
-			public void onSuccess(String result) {
-				panel.clear();
-				final JsArray<CategoryJavascriptObject> arrayFromJson = CategoryJavascriptObject.getArrayFromJson(result);
-				
-				dtoService.isAdmin(new AsyncCallback<UserStatus>() {
-					@Override
-					public void onSuccess(UserStatus result) {
-						switch(result){
-						case ADMIN:
-							createCategoryTiles(panel, arrayFromJson, editableCategoryPanelCreation);
-							break;
-						default:
-							createCategoryTiles(panel, arrayFromJson, categoryPanelCreation);
-						}
-					}
-					
-					@Override
-					public void onFailure(Throwable caught) {
-					}
-				});
-				
+			public void onSuccess(String json) {
+				createShopItemsFromJson(panel, creation, editableCreation, json);
 			}
 			
 			@Override
@@ -286,7 +289,7 @@ public class Nl implements EntryPoint {
 									dtoService.clearGoodsForCategory(selectedCategoryKeyStr, new AsyncCallback<Void>() {
 										@Override
 										public void onSuccess(Void result) {
-											outputGoodsForCategory(selectedCategoryKeyStr);
+											outputGoodsForCategory(selectedCategoryKeyStr, outputPanel);
 											updateLabel(status);
 										}
 										
@@ -321,23 +324,50 @@ public class Nl implements EntryPoint {
 		});
 	}
 
-	private void outputGoodsForCategory(String categoryKeyStr) {
+	private void outputGoodsForCategory(String categoryKeyStr, final FlowPanel panel) {
+		final Function<GoodJavascriptObject, LayoutPanel> creation = goodPanelCreation;
+		final Function<GoodJavascriptObject, LayoutPanel> editableCeation = editableGoodPanelCreation;
 		dtoService.getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String result) {
-				outputPanel.clear();
-				JsArray<ShopItem> arrayFromJson = ShopItem.getArrayFromJson(result);
-				for(int i = 0; i < arrayFromJson.length(); i++){
-					final ShopItem itemJson = arrayFromJson.get(i);
-					LayoutPanel itemPanel = createShopItemPanel(itemJson);
-					outputPanel.add(itemPanel);
-				}
+				createShopItemsFromJson(panel, creation, editableCeation,
+						result);
 			}
+
 			
 			@Override
 			public void onFailure(Throwable caught) {
 			}
 		});
+	}
+
+	private<T extends ShopItem> void createShopItemsFromJson(
+			final Panel panel,
+			final Function<T, LayoutPanel> creation,
+			final Function<T, LayoutPanel> editableCeation,
+			String json) {
+		panel.clear();
+		final JsArray<T> arrayFromJson = ShopItem.getArrayFromJson(json);
+		for(int i = 0; i < arrayFromJson.length(); i++){
+			final ShopItem itemJson = arrayFromJson.get(i);
+			dtoService.isAdmin(new AsyncCallback<UserStatus>() {
+				@Override
+				public void onSuccess(UserStatus result) {
+					switch(result){
+					case ADMIN:
+						createTiles(panel, arrayFromJson, editableCeation);
+						break;
+					default:
+						createTiles(panel, arrayFromJson, creation);
+					}
+				}
+				
+				@Override
+				public void onFailure(Throwable caught) {
+				}
+			});
+			
+		}
 	}
 	
 	private void createLogoutUrl() {
@@ -380,9 +410,9 @@ public class Nl implements EntryPoint {
 		return itemPanel;
 	}
 
-	private void createCategoryTiles(final Panel panel,	JsArray<CategoryJavascriptObject> arrayFromJson, Function<CategoryJavascriptObject, LayoutPanel> panelCreation) {
+	private <T extends ShopItem> void createTiles(final Panel panel, JsArray<T> arrayFromJson, Function<T, LayoutPanel> panelCreation) {
 		for(int i = 0; i < arrayFromJson.length(); i++) {
-			final CategoryJavascriptObject categoryJson = arrayFromJson.get(i);
+			final T categoryJson = arrayFromJson.get(i);
 			LayoutPanel itemPanel = panelCreation.apply(categoryJson);
 			panel.add(itemPanel);
 		}
@@ -391,22 +421,23 @@ public class Nl implements EntryPoint {
 	private LayoutPanel createCategoryPanel(
 			final CategoryJavascriptObject categoryJson) {
 		LayoutPanel itemPanel = createShopItemPanel(categoryJson);
+		
 		Label backgroundLabel = new Label(categoryJson.getBackgroundBlobKey());
 		itemPanel.add(backgroundLabel);
 		itemPanel.setWidgetTopHeight(backgroundLabel, 40, Style.Unit.PX, 20, Style.Unit.PX);
-		
-		itemPanel.addDomHandler(new ClickHandler() {
+		ClickHandler clickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 					backButton.setVisible(true);
 					String keyStr = categoryJson.getKeyStr();
-					outputGoodsForCategory(keyStr);
+					outputGoodsForCategory(keyStr, outputPanel);
 					outputControlsForGoods();
 					selectedCategoryKeyStr = keyStr;
 			}
-		}, ClickEvent.getType());
+		};
+		
+		itemPanel.addDomHandler(clickHandler, ClickEvent.getType());
 		return itemPanel;
 	}
-
 
 }

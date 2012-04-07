@@ -23,26 +23,25 @@ import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 
-
 public class Nl implements EntryPoint {
 	public static final String THUMB_WIDTH = "200";
 	public static final String THUMB_HEIGHT = "100";
 
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
 	private Label categoriesInfo = new Label();
-	
-	private final FlowPanel outputPanel = new FlowPanel(); 
+
+	private final FlowPanel outputPanel = new FlowPanel();
 	private final Label status = new Label();
 	private final RootPanel rootPanel = RootPanel.get("container");
 	private HandlerRegistration newButtonClickHandlerRegistration;
 	private HandlerRegistration clearButtonHandlerRegistration;
-	
+
 	private Button clearButton;
 	private Button newButton;
 	private Button backButton;
-	
+
 	private String selectedCategoryKeyStr;
-	
+
 	private ClickHandler categoriesClearButtonClickHandler = new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
@@ -59,14 +58,14 @@ public class Nl implements EntryPoint {
 			});
 		}
 	};
-	//redraw callbacks==============================
+	// redraw callbacks==============================
 	private Function<Void, Void> redrawAfterCategoryCreatedCallback = new Function<Void, Void>() {
 		@Override
 		public Void apply(Void input) {
 			editCategoryForm.hide();
 			updateLabel(status);
 			outputCategories(outputPanel);
-			
+
 			return null;
 		}
 	};
@@ -76,15 +75,14 @@ public class Nl implements EntryPoint {
 			editGoodForm.hide();
 			updateLabel(status);
 			outputGoodsForCategory(selectedCategoryKeyStr, outputPanel);
-			
+
 			return null;
 		}
 	};
-	//==============================================
+	// ==============================================
 	private ClickHandler goodsNewButtonHandler = new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
-			System.out.println("Showing...");
 			editGoodForm.showForCreation();
 		}
 	};
@@ -94,17 +92,17 @@ public class Nl implements EntryPoint {
 			editCategoryForm.showForCreation();
 		}
 	};
-	//==============================================
+	// ==============================================
 	private EditGoodForm editGoodForm = new EditGoodForm();
-	private EditCategoryForm editCategoryForm = new EditCategoryForm(); 
-	
+	private EditCategoryForm editCategoryForm = new EditCategoryForm();
+
 	private Function<CategoryJavascriptObject, LayoutPanel> categoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
 		@Override
 		public LayoutPanel apply(CategoryJavascriptObject input) {
 			return createCategoryPanel(input);
 		}
 	};
-	
+
 	private Function<CategoryJavascriptObject, LayoutPanel> editableCategoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
 		@Override
 		public LayoutPanel apply(final CategoryJavascriptObject category) {
@@ -113,14 +111,14 @@ public class Nl implements EntryPoint {
 			return panel;
 		}
 	};
-	
+
 	private Function<GoodJavascriptObject, LayoutPanel> goodPanelCreation = new Function<GoodJavascriptObject, LayoutPanel>() {
 		@Override
 		public LayoutPanel apply(GoodJavascriptObject input) {
 			return createShopItemPanel(input);
 		}
 	};
-	
+
 	private Function<GoodJavascriptObject, LayoutPanel> editableGoodPanelCreation = new Function<GoodJavascriptObject, LayoutPanel>() {
 		@Override
 		public LayoutPanel apply(GoodJavascriptObject input) {
@@ -141,20 +139,22 @@ public class Nl implements EntryPoint {
 			}
 		});
 		panel.add(edit);
-		
+
 		panel.setWidgetRightWidth(edit, 5, Style.Unit.PX, 30, Style.Unit.PX);
 		panel.setWidgetTopHeight(edit, 10, Style.Unit.PX, 20, Style.Unit.PX);
 	}
-	
+
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		editGoodForm.setRedrawAfterItemCreatedCallback(redrawAfterGoodCreatedCallback);
-		editCategoryForm.setRedrawAfterItemCreatedCallback(redrawAfterCategoryCreatedCallback);
-		
+		editGoodForm
+				.setRedrawAfterItemCreatedCallback(redrawAfterGoodCreatedCallback);
+		editCategoryForm
+				.setRedrawAfterItemCreatedCallback(redrawAfterCategoryCreatedCallback);
+
 		updateLabel(status);
-		
+
 		rootPanel.add(status);
 		rootPanel.add(categoriesInfo);
 		rootPanel.add(outputPanel);
@@ -167,19 +167,19 @@ public class Nl implements EntryPoint {
 			public void onClick(ClickEvent event) {
 				setCategoriesControlsIfNeeded();
 				outputCategories(outputPanel);
-				if(newButtonClickHandlerRegistration != null){
+				if (newButtonClickHandlerRegistration != null) {
 					newButtonClickHandlerRegistration.removeHandler();
 				}
-				
+
 				if (newButton != null) {
 					newButtonClickHandlerRegistration = newButton
 							.addClickHandler(categoriesNewButtonHandler);
 				}
 			}
 		});
-		
+
 		outputCategories(outputPanel);
-		
+
 		outputCategoriesControls();
 
 	}
@@ -188,19 +188,20 @@ public class Nl implements EntryPoint {
 		dtoService.isAdmin(new AsyncCallback<UserStatus>() {
 			@Override
 			public void onSuccess(UserStatus userStatus) {
-				switch(userStatus) {
+				switch (userStatus) {
 				case ADMIN:
 					clearButton = new Button("Clear all");
 					newButton = new Button("New item");
 					rootPanel.add(clearButton);
 					rootPanel.add(newButton);
-					if(newButtonClickHandlerRegistration != null){
+					if (newButtonClickHandlerRegistration != null) {
 						newButtonClickHandlerRegistration.removeHandler();
 					}
-					
-					newButtonClickHandlerRegistration = newButton.addClickHandler(categoriesNewButtonHandler);
+
+					newButtonClickHandlerRegistration = newButton
+							.addClickHandler(categoriesNewButtonHandler);
 					createLogoutUrl();
-					
+
 					setCategoriesControlsIfNeeded();
 					break;
 				case NOT_LOGGED_IN:
@@ -211,20 +212,19 @@ public class Nl implements EntryPoint {
 							link.setHTML("<a href='" + result + "'>Login</a>");
 							rootPanel.add(link);
 						}
-						
+
 						@Override
 						public void onFailure(Throwable caught) {
 						}
 					});
-				
-				break;
+
+					break;
 				case NOT_ADMIN:
 					createLogoutUrl();
 					break;
 				}
 			}
 
-			
 			@Override
 			public void onFailure(Throwable caught) {
 			}
@@ -232,7 +232,7 @@ public class Nl implements EntryPoint {
 	}
 
 	private void setCategoriesControlsIfNeeded() {
-		if(clearButtonHandlerRegistration != null){
+		if (clearButtonHandlerRegistration != null) {
 			clearButtonHandlerRegistration.removeHandler();
 		}
 		if (clearButton != null) {
@@ -240,31 +240,30 @@ public class Nl implements EntryPoint {
 					.addClickHandler(categoriesClearButtonClickHandler);
 		}
 	}
-	
+
 	private void outputCategories(final Panel panel) {
 		backButton.setVisible(false);
 		final Function<CategoryJavascriptObject, LayoutPanel> editableCreation = editableCategoryPanelCreation;
 		final Function<CategoryJavascriptObject, LayoutPanel> creation = categoryPanelCreation;
-
 		dtoService.getCategoriesJson(new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {
 				createShopItemsFromJson(panel, creation, editableCreation, json);
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
 			}
 		});
 	}
-	
+
 	private void updateLabel(final Label status) {
 		dtoService.countEntities(new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String result) {
 				status.setText(result);
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
 				status.setText("Can't calculate entities");
@@ -276,39 +275,48 @@ public class Nl implements EntryPoint {
 		dtoService.isAdmin(new AsyncCallback<UserStatus>() {
 			@Override
 			public void onSuccess(UserStatus result) {
-				switch(result){
+				switch (result) {
 				case ADMIN:
-					if(clearButtonHandlerRegistration != null){
+					if (clearButtonHandlerRegistration != null) {
 						clearButtonHandlerRegistration.removeHandler();
 					}
 					if (clearButton != null) {
 						ClickHandler goodsClearButtonClickHandler = new ClickHandler() {
 							@Override
 							public void onClick(ClickEvent event) {
-								if(selectedCategoryKeyStr != null) {
-									dtoService.clearGoodsForCategory(selectedCategoryKeyStr, new AsyncCallback<Void>() {
-										@Override
-										public void onSuccess(Void result) {
-											outputGoodsForCategory(selectedCategoryKeyStr, outputPanel);
-											updateLabel(status);
-										}
-										
-										@Override
-										public void onFailure(Throwable caught) {
-										}
-									});
+								if (selectedCategoryKeyStr != null) {
+									dtoService.clearGoodsForCategory(
+											selectedCategoryKeyStr,
+											new AsyncCallback<Void>() {
+												@Override
+												public void onSuccess(
+														Void result) {
+													outputGoodsForCategory(
+															selectedCategoryKeyStr,
+															outputPanel);
+													updateLabel(status);
+												}
+
+												@Override
+												public void onFailure(
+														Throwable caught) {
+												}
+											});
 								}
 							}
 						};
-						
-						clearButtonHandlerRegistration = clearButton.addClickHandler(goodsClearButtonClickHandler);
-						editGoodForm.setParentCategoryItemKeyStr(selectedCategoryKeyStr);
 
-						if(newButtonClickHandlerRegistration != null){
+						clearButtonHandlerRegistration = clearButton
+								.addClickHandler(goodsClearButtonClickHandler);
+						editGoodForm
+								.setParentCategoryItemKeyStr(selectedCategoryKeyStr);
+
+						if (newButtonClickHandlerRegistration != null) {
 							newButtonClickHandlerRegistration.removeHandler();
 						}
-						
-						newButtonClickHandlerRegistration = newButton.addClickHandler(goodsNewButtonHandler);
+
+						newButtonClickHandlerRegistration = newButton
+								.addClickHandler(goodsNewButtonHandler);
 					}
 					break;
 				case NOT_ADMIN:
@@ -317,14 +325,15 @@ public class Nl implements EntryPoint {
 					break;
 				}
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
 			}
 		});
 	}
 
-	private void outputGoodsForCategory(String categoryKeyStr, final FlowPanel panel) {
+	private void outputGoodsForCategory(String categoryKeyStr,
+			final FlowPanel panel) {
 		final Function<GoodJavascriptObject, LayoutPanel> creation = goodPanelCreation;
 		final Function<GoodJavascriptObject, LayoutPanel> editableCeation = editableGoodPanelCreation;
 		dtoService.getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
@@ -334,42 +343,36 @@ public class Nl implements EntryPoint {
 						result);
 			}
 
-			
 			@Override
 			public void onFailure(Throwable caught) {
 			}
 		});
 	}
 
-	private<T extends ShopItem> void createShopItemsFromJson(
-			final Panel panel,
-			final Function<T, LayoutPanel> creation,
-			final Function<T, LayoutPanel> editableCeation,
-			String json) {
-		panel.clear();
-		final JsArray<T> arrayFromJson = ShopItem.getArrayFromJson(json);
-		for(int i = 0; i < arrayFromJson.length(); i++){
-			final ShopItem itemJson = arrayFromJson.get(i);
-			dtoService.isAdmin(new AsyncCallback<UserStatus>() {
-				@Override
-				public void onSuccess(UserStatus result) {
-					switch(result){
-					case ADMIN:
-						createTiles(panel, arrayFromJson, editableCeation);
-						break;
-					default:
-						createTiles(panel, arrayFromJson, creation);
-					}
+	private <T extends ShopItem> void createShopItemsFromJson(
+			final Panel panel, final Function<T, LayoutPanel> creation,
+			final Function<T, LayoutPanel> editableCeation, final String json) {
+		dtoService.isAdmin(new AsyncCallback<UserStatus>() {
+			@Override
+			public void onSuccess(UserStatus result) {
+				final JsArray<T> arrayFromJson = ShopItem.getArrayFromJson(json);
+				panel.clear();
+				switch (result) {
+				case ADMIN:
+					createTiles(panel, arrayFromJson, editableCeation);
+					break;
+				default:
+					createTiles(panel, arrayFromJson, creation);
 				}
-				
-				@Override
-				public void onFailure(Throwable caught) {
-				}
-			});
-			
-		}
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+			}
+		});
+
 	}
-	
+
 	private void createLogoutUrl() {
 		dtoService.getLogoutUrl(new AsyncCallback<String>() {
 			@Override
@@ -378,64 +381,72 @@ public class Nl implements EntryPoint {
 				link.setHTML("<a href='" + result + "'>Logout</a>");
 				rootPanel.add(link);
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
 			}
 		});
 	}
-	
+
 	protected LayoutPanel createShopItemPanel(final ShopItem itemJson) {
 		final Label name = new Label(itemJson.getName());
 		Label description = new Label(itemJson.getDescription());
-		Image image = new Image("/nl/thumb?key=" + itemJson.getImageBlobKey() + "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
-		
+		Image image = new Image("/nl/thumb?key=" + itemJson.getImageBlobKey()
+				+ "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
+
 		LayoutPanel itemPanel = new LayoutPanel();
 
 		itemPanel.addStyleName("category");
-		
+
 		itemPanel.add(name);
 		itemPanel.add(image);
 		itemPanel.add(description);
-		
+
 		itemPanel.setWidgetLeftRight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
 		itemPanel.setWidgetTopHeight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
-		
-		itemPanel.setWidgetLeftRight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
-		itemPanel.setWidgetBottomHeight(description, 5, Style.Unit.PX, 20, Style.Unit.PX);
-		
-		itemPanel.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
-		itemPanel.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150, Style.Unit.PX);
-		itemPanel.setWidgetHorizontalPosition(image, com.google.gwt.layout.client.Layout.Alignment.END);
+
+		itemPanel.setWidgetLeftRight(description, 5, Style.Unit.PX, 20,
+				Style.Unit.PX);
+		itemPanel.setWidgetBottomHeight(description, 5, Style.Unit.PX, 20,
+				Style.Unit.PX);
+
+		itemPanel
+				.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
+		itemPanel.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150,
+				Style.Unit.PX);
+		itemPanel.setWidgetHorizontalPosition(image,
+				com.google.gwt.layout.client.Layout.Alignment.END);
 		return itemPanel;
 	}
 
-	private <T extends ShopItem> void createTiles(final Panel panel, JsArray<T> arrayFromJson, Function<T, LayoutPanel> panelCreation) {
-		for(int i = 0; i < arrayFromJson.length(); i++) {
+	private <T extends ShopItem> void createTiles(final Panel panel,
+			JsArray<T> arrayFromJson, Function<T, LayoutPanel> panelCreation) {
+		for (int i = 0; i < arrayFromJson.length(); i++) {
 			final T categoryJson = arrayFromJson.get(i);
 			LayoutPanel itemPanel = panelCreation.apply(categoryJson);
 			panel.add(itemPanel);
 		}
 	}
-	
+
 	private LayoutPanel createCategoryPanel(
 			final CategoryJavascriptObject categoryJson) {
 		LayoutPanel itemPanel = createShopItemPanel(categoryJson);
-		
+
 		Label backgroundLabel = new Label(categoryJson.getBackgroundBlobKey());
 		itemPanel.add(backgroundLabel);
-		itemPanel.setWidgetTopHeight(backgroundLabel, 40, Style.Unit.PX, 20, Style.Unit.PX);
+		itemPanel.setWidgetTopHeight(backgroundLabel, 40, Style.Unit.PX, 20,
+				Style.Unit.PX);
 		ClickHandler clickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-					backButton.setVisible(true);
-					String keyStr = categoryJson.getKeyStr();
-					outputGoodsForCategory(keyStr, outputPanel);
-					outputControlsForGoods();
-					selectedCategoryKeyStr = keyStr;
+				backButton.setVisible(true);
+				String keyStr = categoryJson.getKeyStr();
+				outputGoodsForCategory(keyStr, outputPanel);
+				outputControlsForGoods();
+				selectedCategoryKeyStr = keyStr;
 			}
 		};
-		
+
 		itemPanel.addDomHandler(clickHandler, ClickEvent.getType());
 		return itemPanel;
 	}

@@ -1,8 +1,12 @@
 package com.denisk.appengine.nl.client;
 
+import java.util.ArrayList;
+
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
+import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Carousel;
+import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Photo;
 import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.EntryPoint;
@@ -35,7 +39,7 @@ public class Nl implements EntryPoint {
 	private final RootPanel rootPanel = RootPanel.get("container");
 	private HandlerRegistration newButtonClickHandlerRegistration;
 	private HandlerRegistration clearButtonHandlerRegistration;
-
+	private Carousel carousel = new Carousel();
 	private Button clearButton;
 	private Button newButton;
 	private Button backButton;
@@ -338,9 +342,17 @@ public class Nl implements EntryPoint {
 		final Function<GoodJavascriptObject, LayoutPanel> editableCeation = editableGoodPanelCreation;
 		dtoService.getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
 			@Override
-			public void onSuccess(String result) {
-				createShopItemsFromJson(panel, creation, editableCeation,
-						result);
+			public void onSuccess(String json) {
+				outputPanel.clear();
+				JsArray<GoodJavascriptObject> goods = GoodJavascriptObject.getArrayFromJson(json);
+				ArrayList<Photo> photos = new ArrayList<Photo>();
+				for(int i = 0; i < goods.length(); i++){
+					GoodJavascriptObject good = goods.get(i);
+					Photo photo = new Photo(getImageUrl(good, "500", "500"));
+					photos.add(photo);
+				}
+				carousel.setPhotos(photos);
+				outputPanel.add(carousel);
 			}
 
 			@Override
@@ -391,8 +403,7 @@ public class Nl implements EntryPoint {
 	protected LayoutPanel createShopItemPanel(final ShopItem itemJson) {
 		final Label name = new Label(itemJson.getName());
 		Label description = new Label(itemJson.getDescription());
-		Image image = new Image("/nl/thumb?key=" + itemJson.getImageBlobKey()
-				+ "&w=" + THUMB_WIDTH + "&h=" + THUMB_HEIGHT);
+		Image image = new Image(getImageUrl(itemJson, THUMB_WIDTH, THUMB_HEIGHT));
 
 		LayoutPanel itemPanel = new LayoutPanel();
 
@@ -417,6 +428,11 @@ public class Nl implements EntryPoint {
 		itemPanel.setWidgetHorizontalPosition(image,
 				com.google.gwt.layout.client.Layout.Alignment.END);
 		return itemPanel;
+	}
+
+	private String getImageUrl(final ShopItem itemJson, String width, String height) {
+		return "/nl/thumb?key=" + itemJson.getImageBlobKey()
+				+ "&w=" + width + "&h=" + height;
 	}
 
 	private <T extends ShopItem> void createTiles(final Panel panel,

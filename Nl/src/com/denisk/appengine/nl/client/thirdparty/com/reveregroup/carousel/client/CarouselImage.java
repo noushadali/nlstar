@@ -67,15 +67,15 @@ public class CarouselImage extends Image{
 		if (opacity > .995) {
 			getElement().getStyle().setProperty("opacity", "");
 			getElement().getStyle().setProperty("filter", "");
-			getElement().getStyle().setProperty("-moz-opacity", "");
-			getElement().getStyle().setProperty("-khtml-opacity", "");
+			getElement().getStyle().setProperty("mozOpacity", "");
+			getElement().getStyle().setProperty("khtmlOpacity", "");
 		} else {
 			String s = Integer.toString((int) Math.round(opacity * 100));
 			String sDecimal = (s.length() == 1 ? ".0" : ".") + s;
 			getElement().getStyle().setProperty("opacity", sDecimal);
 			getElement().getStyle().setProperty("filter", "alpha(opacity=" + s + ")");
-			getElement().getStyle().setProperty("-moz-opacity", sDecimal);
-			getElement().getStyle().setProperty("-khtml-opacity", sDecimal);
+			getElement().getStyle().setProperty("mozOpacity", sDecimal);
+			getElement().getStyle().setProperty("khtmlOpacity", sDecimal);
 		}
 	}
 	

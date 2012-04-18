@@ -162,7 +162,7 @@ public class Nl implements EntryPoint {
 		rootPanel.add(status);
 		rootPanel.add(categoriesInfo);
 		rootPanel.add(outputPanel);
-
+		outputPanel.addStyleName("outputPanel");
 		backButton = new Button("Back");
 		backButton.setVisible(false);
 		rootPanel.add(backButton);
@@ -348,7 +348,9 @@ public class Nl implements EntryPoint {
 				ArrayList<Photo> photos = new ArrayList<Photo>();
 				for(int i = 0; i < goods.length(); i++){
 					GoodJavascriptObject good = goods.get(i);
-					Photo photo = new Photo(getImageUrl(good, "500", "500"));
+					String imageUrl = getImageUrl(good, "500", "500");
+					System.out.println("Adding photo: " + imageUrl);
+					Photo photo = new Photo(imageUrl);
 					photos.add(photo);
 				}
 				carousel.setPhotos(photos);

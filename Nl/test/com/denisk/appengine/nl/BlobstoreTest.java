@@ -24,7 +24,7 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 
 public class BlobstoreTest {
 	private final LocalServiceTestHelper helper =
-		        new LocalServiceTestHelper(new LocalBlobstoreServiceTestConfig());
+		        new LocalServiceTestHelper(new LocalBlobstoreServiceTestConfig()); 
 
 	@Before
 	public void before() {

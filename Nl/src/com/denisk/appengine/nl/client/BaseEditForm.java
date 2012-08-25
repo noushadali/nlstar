@@ -1,6 +1,6 @@
 package com.denisk.appengine.nl.client;
 
-import com.denisk.appengine.nl.client.overlay.ShopItem;
+import com.denisk.appengine.nl.client.overlay.ShopItem; 
 import com.denisk.appengine.nl.client.util.Function;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;

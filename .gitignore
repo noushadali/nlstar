@@ -1,0 +1,8 @@
+.project
+.classpath
+.settings/
+gwt-unitCache/
+.gwt/
+Nl/war/WEB-INF/appengine-generated/
+Nl/WEB-INF/appengine-generated/
+test-classes/

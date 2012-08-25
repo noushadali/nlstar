@@ -1,7 +1,7 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:d="urn:import:com.denisk.appengine.nl.client">
-	<g:HTMLPanel>
+	<g:HTMLPanel> 
 			<g:FlowPanel>
 				<d:EditItemForm height="189px" ui:field="itemForm">
 					<d:UploadPanel ui:field="backgroundImagePanel" label="Background" name="backgroundBlobKey"></d:UploadPanel>

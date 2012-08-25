@@ -8,7 +8,7 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 
 public abstract class BaseEditForm<T extends ShopItem> extends Composite implements EditForm<T> {
-	@UiField EditItemForm itemForm ;
+	@UiField EditItemForm itemForm;
 
 	private MySubmitCompleteHandler formCompleteHandler = new MySubmitCompleteHandler();
 	public EditItemForm getItemForm() {

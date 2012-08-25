@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.event.dom.client.ChangeEvent;
 
 public class UploadPanel extends Composite {
-	private static final String THUMB_HEIGHT = "40";
+	private static final String THUMB_HEIGHT = "40" ;
 	private static final String THUMB_WIDTH = "50";
 
 	private static ImagePanelUiBinder uiBinder = GWT

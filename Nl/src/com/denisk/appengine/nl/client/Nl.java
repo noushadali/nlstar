@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class Nl implements EntryPoint {
-	public static final String THUMB_WIDTH = "200";
+	public static final String THUMB_WIDTH = "200"   ;
 	public static final String THUMB_HEIGHT = "100";
 
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
@@ -344,6 +344,7 @@ public class Nl implements EntryPoint {
 			@Override
 			public void onSuccess(String json) {
 				outputPanel.clear();
+				outputPanel.add(carousel);
 				JsArray<GoodJavascriptObject> goods = GoodJavascriptObject.getArrayFromJson(json);
 				ArrayList<Photo> photos = new ArrayList<Photo>();
 				for(int i = 0; i < goods.length(); i++){
@@ -353,8 +354,8 @@ public class Nl implements EntryPoint {
 					Photo photo = new Photo(imageUrl);
 					photos.add(photo);
 				}
+				System.out.println("Setting photos: " + photos.toString());
 				carousel.setPhotos(photos);
-				outputPanel.add(carousel);
 			}
 
 			@Override

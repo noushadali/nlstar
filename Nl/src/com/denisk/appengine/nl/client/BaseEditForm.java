@@ -17,11 +17,16 @@ public abstract class BaseEditForm<T extends ShopItem> extends Composite impleme
 
 	@Override
 	public void showForCreation() {
+		clearNameDescription();
 		itemForm.setKind(getKind());
 		clearUploads();
 		itemForm.show();
 		itemForm.imagePanel.hideUploadPreview();
 		itemForm.clearKey();
+	}
+
+	private void clearNameDescription() {
+		this.itemForm.clearNameDescription();
 	}
 
 	@Override

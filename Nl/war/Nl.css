@@ -8,7 +8,7 @@
 
 .categoryEditRoot {
 	position: relative;
-	padding: 7px; 
+	padding: 7px;
 	background-color: #D4D4D4;
 }
 
@@ -60,4 +60,7 @@
 .photoCarousel {
 	width: 100%;
 	height: 600px;
+}
+.gwt-PopupPanel {
+	z-index: 999;
 }

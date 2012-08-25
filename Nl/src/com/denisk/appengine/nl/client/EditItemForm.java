@@ -119,4 +119,9 @@ public class EditItemForm extends Composite implements HasWidgets {
 	public void setKind(String kind){
 		this.kind.setText(kind);
 	}
+	
+	public void clearNameDescription(){
+		this.name.setText("");
+		this.description.setText("");
+	}
 }

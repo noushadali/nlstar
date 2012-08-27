@@ -63,7 +63,7 @@ public class Nl implements EntryPoint {
 		}
 	};
 	// redraw callbacks==============================
-	private Function<Void, Void> redrawAfterCategoryCreatedCallback = new Function<Void, Void>() {
+	private Function<Void, Void> redrawCategoriesCallback = new Function<Void, Void>() {
 		@Override
 		public Void apply(Void input) {
 			editCategoryForm.hide();
@@ -73,7 +73,7 @@ public class Nl implements EntryPoint {
 			return null;
 		}
 	};
-	private Function<Void, Void> redrawAfterGoodCreatedCallback = new Function<Void, Void>() {
+	private Function<Void, Void> redrawGoodsCallback = new Function<Void, Void>() {
 		@Override
 		public Void apply(Void input) {
 			editGoodForm.hide();
@@ -112,6 +112,7 @@ public class Nl implements EntryPoint {
 		public LayoutPanel apply(final CategoryJavascriptObject category) {
 			LayoutPanel panel = categoryPanelCreation.apply(category);
 			buildEditButton(category, panel, editCategoryForm);
+			buildDeleteButton(category, panel, redrawCategoriesCallback);
 			return panel;
 		}
 	};
@@ -149,13 +150,41 @@ public class Nl implements EntryPoint {
 	}
 
 	/**
+	 * Deletes an item and redraws the panel
+	 */
+	private <T extends ShopItem> void buildDeleteButton(final T item, LayoutPanel panel, final Function<Void, Void> redrawCallback){
+		HTML delete = new HTML("<a href='javascript://'</a>");
+		delete.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				dtoService.deleteItem(item, new AsyncCallback<Void>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						Window.alert("Error processing deletion of the item, exception is " + caught);
+					}
+
+					@Override
+					public void onSuccess(Void result) {
+						redrawCallback.apply(null);
+					}
+				});
+			}
+		});
+		
+		panel.setWidgetRightWidth(delete, 40, Style.Unit.PX, 30, Style.Unit.PX);
+		panel.setWidgetTopHeight(delete, 10, Style.Unit.PX, 20, Style.Unit.PX);
+		
+	}
+	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
 		editGoodForm
-				.setRedrawAfterItemCreatedCallback(redrawAfterGoodCreatedCallback);
+				.setRedrawAfterItemCreatedCallback(redrawGoodsCallback);
 		editCategoryForm
-				.setRedrawAfterItemCreatedCallback(redrawAfterCategoryCreatedCallback);
+				.setRedrawAfterItemCreatedCallback(redrawCategoriesCallback);
 
 		updateLabel(status);
 

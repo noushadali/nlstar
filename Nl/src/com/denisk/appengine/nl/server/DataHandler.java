@@ -22,6 +22,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.codehaus.jettison.json.JSONStringer;
 import org.codehaus.jettison.json.JSONWriter;
 
+import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.server.data.Category;
 import com.denisk.appengine.nl.server.data.Good;
 import com.denisk.appengine.nl.server.data.Jsonable;
@@ -277,5 +278,40 @@ public class DataHandler {
 		
 		entity.setProperty(blobField, key.getKeyString());
 		save(entity);
+	}
+
+	public void deleteItem(ShopItem item) {
+		String imageBlobKey = item.getImageBlobKey();
+		Transaction tx = ds.beginTransaction();
+		
+		//delete an image
+		if(imageBlobKey != null && !imageBlobKey.isEmpty()){
+			ds.delete(KeyFactory.stringToKey(imageBlobKey));
+		}
+		String keyStr = item.getKeyStr();
+		if(keyStr != null && ! keyStr.isEmpty()){
+			bs.delete(new BlobKey(keyStr));
+			
+			//delete children if any
+			deleteChildren(keyStr, tx);			
+		} else {
+			System.out.println("Item " + item + " doesn't have key str" + keyStr);
+		}
+		
+
+		tx.commit();
+	}
+	
+	public void deleteChildren(String keyString, Transaction tx){
+		if(keyString != null && ! keyString.isEmpty()){
+			Query q = new Query();
+			q.setKeysOnly();
+			q.setAncestor(KeyFactory.stringToKey(keyString));
+			
+			Iterable<Entity> iterable = ds.prepare(tx, q).asIterable();
+			for(Entity e: iterable){
+				ds.delete(tx, e.getKey());
+			}
+		}
 	}
 }

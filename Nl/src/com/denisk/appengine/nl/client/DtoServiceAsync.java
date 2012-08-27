@@ -1,5 +1,6 @@
 package com.denisk.appengine.nl.client;
 
+import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -29,4 +30,6 @@ public interface DtoServiceAsync {
 
 	void updateCategoryBackground(String categoryKeyStr,
 			String backgoundImageKeyStr, AsyncCallback<Void> callback);
+
+	void deleteItem(ShopItem item, AsyncCallback<Void> callback);
 }

@@ -1,6 +1,5 @@
 package com.denisk.appengine.nl.client;
 
-import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -31,5 +30,7 @@ public interface DtoService extends RemoteService {
 	
 	void updateCategoryBackground(String categoryKeyStr, String backgoundImageKeyStr);
 	
-	void deleteItem(ShopItem item);
+	void deleteCategory(String key, String imageKey, String backgroundImageKey);
+	
+	void deleteGood(String key, String imageKey);
 }

@@ -3,7 +3,7 @@ package com.denisk.appengine.nl.client.overlay;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
-public class ShopItem extends JavaScriptObject {
+public abstract class ShopItem extends JavaScriptObject {
 
 	protected ShopItem() {
 		super();
@@ -33,4 +33,5 @@ public class ShopItem extends JavaScriptObject {
 
 	public final native String toJson() /*-{return JSON.stringify(this)}-*/;
 
+	public abstract String getKind();
 }

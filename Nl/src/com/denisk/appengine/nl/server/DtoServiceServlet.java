@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jettison.json.JSONException;
 
 import com.denisk.appengine.nl.client.DtoService;
-import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.server.data.Category;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.appengine.api.blobstore.BlobInfo;
@@ -134,11 +133,14 @@ public class DtoServiceServlet extends RemoteServiceServlet implements DtoServic
 
 
 	@Override
-	public void deleteItem(ShopItem item) {
+	public void deleteCategory(String key, String imageKey, String backgroundImageKey) {
 		checkCredentials();
-		dh.deleteItem(item);
+		dh.deleteCategory(key, imageKey, backgroundImageKey);
 	}
-
-
 	
+	@Override
+	public void deleteGood(String key, String imageKey){
+		checkCredentials();
+		dh.deleteGood(key, imageKey);
+	}
 }

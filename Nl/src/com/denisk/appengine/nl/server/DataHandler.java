@@ -280,29 +280,38 @@ public class DataHandler {
 		save(entity);
 	}
 
-	public void deleteItem(ShopItem item) {
-		String imageBlobKey = item.getImageBlobKey();
+	//todo unit test
+	public void deleteGood(String key, String imageKey){
 		Transaction tx = ds.beginTransaction();
-		
-		//delete an image
-		if(imageBlobKey != null && !imageBlobKey.isEmpty()){
-			ds.delete(KeyFactory.stringToKey(imageBlobKey));
-		}
-		String keyStr = item.getKeyStr();
-		if(keyStr != null && ! keyStr.isEmpty()){
-			bs.delete(new BlobKey(keyStr));
-			
-			//delete children if any
-			deleteChildren(keyStr, tx);			
-		} else {
-			System.out.println("Item " + item + " doesn't have key str" + keyStr);
-		}
-		
-
+		delete(key, tx);
 		tx.commit();
+		deleteImage(imageKey);
 	}
 	
-	public void deleteChildren(String keyString, Transaction tx){
+	//todo unit test
+	public void deleteCategory(String key, String imageKey, String backgroundKey){
+		Transaction tx = ds.beginTransaction();
+		deleteChildren(key, tx);
+		delete(key, tx);
+		
+		tx.commit();
+		deleteImage(imageKey);
+		deleteImage(backgroundKey);
+	}
+	
+	private void delete(String key, Transaction tx) {
+		if(key != null && ! key.isEmpty()){
+			ds.delete(tx, KeyFactory.stringToKey(key));
+		}
+	}
+
+	private void deleteImage(String imageKey) {
+		if(imageKey != null && !imageKey.isEmpty()){
+			bs.delete(new BlobKey(imageKey));
+		}
+	}
+	
+	private void deleteChildren(String keyString, Transaction tx){
 		if(keyString != null && ! keyString.isEmpty()){
 			Query q = new Query();
 			q.setKeysOnly();

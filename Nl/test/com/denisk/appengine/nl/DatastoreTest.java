@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.channels.Channels;
@@ -35,6 +36,8 @@ import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileService;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
+import com.google.appengine.api.files.FinalizationException;
+import com.google.appengine.api.files.LockException;
 import com.google.appengine.tools.development.testing.LocalBlobstoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -281,16 +284,7 @@ public class DatastoreTest {
 	
 	@Test
 	public void updateCategoryBackgroundImage() throws IOException{
-		FileService fileService = FileServiceFactory.getFileService();
-		AppEngineFile file = fileService.createNewBlobFile("text/plain");
-		FileWriteChannel writeChannel = fileService.openWriteChannel(file, true);
-		PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8")); 
-		out.println("Hello");
-		out.close();
-		writeChannel.closeFinally();
-		
-		BlobKey bk = fileService.getBlobKey(file);
-		String imageKeyStr = bk.getKeyString();
+		String imageKeyStr = createImage();
 		
 		Category c = new Category();
 		String categoryKeyStr = KeyFactory.keyToString(dh.saveCategoryWithGoods(c));
@@ -302,6 +296,21 @@ public class DatastoreTest {
 		assertEquals(1, categories.size());
 		assertEquals(imageKeyStr, categories.get(0).getBackgroundBlobKey());
 	}
+
+	private String createImage() throws IOException, FileNotFoundException,
+			FinalizationException, LockException {
+		FileService fileService = FileServiceFactory.getFileService();
+		AppEngineFile file = fileService.createNewBlobFile("text/plain");
+		FileWriteChannel writeChannel = fileService.openWriteChannel(file, true);
+		PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8")); 
+		out.println("Hello");
+		out.close();
+		writeChannel.closeFinally();
+		
+		BlobKey bk = fileService.getBlobKey(file);
+		String imageKeyStr = bk.getKeyString();
+		return imageKeyStr;
+	}
 	
 	@Test
 	public void updatingExistingEntity(){
@@ -309,5 +318,66 @@ public class DatastoreTest {
 		assertFalse(e.getKey().isComplete());
 		ds.put(e);
 		assertTrue(e.getKey().isComplete());
+	}
+	
+	@Test
+	public void testDeleteGood() throws Exception {
+		Entity good = new Entity(Good.KIND);
+		String imageKey = createImage();
+		good.setProperty(Good.IMAGE_BLOB_KEY, imageKey);
+		Key k = ds.put(good);
+		
+		assertNotNull(ds.get(k));
+		
+		dh.deleteGood(KeyFactory.keyToString(k), imageKey);
+		
+		assertEntityDoesNotExist(k);
+		
+		assertImageDoesNotExist(imageKey);
+	}
+
+	private void assertEntityDoesNotExist(Key k) {
+		try {
+			ds.get(k);
+			fail();
+		} catch(EntityNotFoundException e){
+			//OK
+		}
+	}
+
+	private void assertImageDoesNotExist(String imageKey) {
+		BlobstoreService bs = BlobstoreServiceFactory.getBlobstoreService();
+		try {
+			bs.fetchData(new BlobKey(imageKey), 0, 1);
+			fail();
+		} catch (IllegalArgumentException e) {
+			//OK
+		}
+	}
+	
+	@Test
+	public void deleteCategory() throws Throwable{
+		Entity category = new Entity(Category.KIND);
+		
+		String categoryImageKey = createImage();
+		String categoryBackgroundKey = createImage();
+		
+		category.setProperty(Category.IMAGE_BLOB_KEY, categoryImageKey);
+		category.setProperty(Category.BACKGROUND_BLOB_KEY, categoryBackgroundKey);
+		
+		Key categoryKey = ds.put(category);
+		
+		String g1Image = createImage();
+		String g2Image = createImage();
+		Key goodKey = createGood(categoryKey, g1Image);
+		Key good2Key = createGood(categoryKey, g2Image);
+		
+		dh.deleteCategory(KeyFactory.keyToString(categoryKey), categoryImageKey, categoryBackgroundKey);
+		
+		assertEntityDoesNotExist(categoryKey);
+		assertEntityDoesNotExist(goodKey);
+		assertEntityDoesNotExist(good2Key);
+		
+		assertImageDoesNotExist()
 	}
 }

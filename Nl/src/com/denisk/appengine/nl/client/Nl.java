@@ -99,6 +99,36 @@ public class Nl implements EntryPoint {
 	// ==============================================
 	private EditGoodForm editGoodForm = new EditGoodForm();
 	private EditCategoryForm editCategoryForm = new EditCategoryForm();
+	
+	private AsyncCallback<Void> getRedrawingCallback(final Function<Void, Void> redrawing){
+		return new AsyncCallback<Void>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert("Error processing deletion of the item, exception is " + caught);
+			}
+
+			@Override
+			public void onSuccess(Void result) {
+				redrawing.apply(null);
+			}
+		};
+	}
+
+	private Function<CategoryJavascriptObject, Void> categoryDeletion = new Function<CategoryJavascriptObject, Void>() {
+		@Override
+		public Void apply(CategoryJavascriptObject input) {
+			dtoService.deleteCategory(input.getKeyStr(), input.getImageBlobKey(), input.getBackgroundBlobKey(), getRedrawingCallback(redrawCategoriesCallback));
+			return null;
+		}
+	};
+	
+	private Function<GoodJavascriptObject, Void> goodDeletion = new Function<GoodJavascriptObject, Void>() {
+		@Override
+		public Void apply(GoodJavascriptObject input) {
+			dtoService.deleteGood(input.getKeyStr(), input.getImageBlobKey(), getRedrawingCallback(redrawGoodsCallback));
+			return null;
+		}
+	};
 
 	private Function<CategoryJavascriptObject, LayoutPanel> categoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
 		@Override
@@ -112,7 +142,7 @@ public class Nl implements EntryPoint {
 		public LayoutPanel apply(final CategoryJavascriptObject category) {
 			LayoutPanel panel = categoryPanelCreation.apply(category);
 			buildEditButton(category, panel, editCategoryForm);
-			buildDeleteButton(category, panel, redrawCategoriesCallback);
+			buildDeleteButton(category, panel, categoryDeletion);
 			return panel;
 		}
 	};
@@ -129,6 +159,7 @@ public class Nl implements EntryPoint {
 		public LayoutPanel apply(GoodJavascriptObject input) {
 			LayoutPanel panel = goodPanelCreation.apply(input);
 			buildEditButton(input, panel, editGoodForm);
+			buildDeleteButton(input, panel, goodDeletion);
 			return panel;
 		}
 	};
@@ -152,24 +183,13 @@ public class Nl implements EntryPoint {
 	/**
 	 * Deletes an item and redraws the panel
 	 */
-	private <T extends ShopItem> void buildDeleteButton(final T item, LayoutPanel panel, final Function<Void, Void> redrawCallback){
-		HTML delete = new HTML("<a href='javascript://'</a>");
+	private <T extends ShopItem> void buildDeleteButton(final T item, LayoutPanel panel, final Function<T, Void> deletion){
+		HTML delete = new HTML("<a href='javascript://'>Delete</a>");
+
 		delete.addClickHandler(new ClickHandler() {
-			
 			@Override
 			public void onClick(ClickEvent event) {
-				dtoService.deleteItem(item, new AsyncCallback<Void>() {
-
-					@Override
-					public void onFailure(Throwable caught) {
-						Window.alert("Error processing deletion of the item, exception is " + caught);
-					}
-
-					@Override
-					public void onSuccess(Void result) {
-						redrawCallback.apply(null);
-					}
-				});
+				deletion.apply(item);
 			}
 		});
 		

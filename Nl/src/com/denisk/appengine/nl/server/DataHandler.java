@@ -23,6 +23,7 @@ import org.codehaus.jettison.json.JSONStringer;
 import org.codehaus.jettison.json.JSONWriter;
 
 import com.denisk.appengine.nl.client.overlay.ShopItem;
+import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.server.data.Category;
 import com.denisk.appengine.nl.server.data.Good;
 import com.denisk.appengine.nl.server.data.Jsonable;
@@ -290,13 +291,26 @@ public class DataHandler {
 	
 	//todo unit test
 	public void deleteCategory(String key, String imageKey, String backgroundKey){
+		if(key == null || key.isEmpty()){
+			return;
+		}
 		Transaction tx = ds.beginTransaction();
-		deleteChildren(key, tx);
+		for(Entity good: getGoodEntities(KeyFactory.stringToKey(key))){
+			String goodImageKey = (String) good.getProperty(Good.IMAGE_BLOB_KEY);
+			if(goodImageKey != null && ! goodImageKey.isEmpty()){
+				deleteImage(goodImageKey);
+			}
+			ds.delete(tx, good.getKey());
+		}
 		delete(key, tx);
 		
 		tx.commit();
-		deleteImage(imageKey);
-		deleteImage(backgroundKey);
+		if (imageKey != null && ! imageKey.isEmpty()) {
+			deleteImage(imageKey);
+		}
+		if (backgroundKey != null && ! backgroundKey.isEmpty()) {
+			deleteImage(backgroundKey);
+		}
 	}
 	
 	private void delete(String key, Transaction tx) {
@@ -308,19 +322,6 @@ public class DataHandler {
 	private void deleteImage(String imageKey) {
 		if(imageKey != null && !imageKey.isEmpty()){
 			bs.delete(new BlobKey(imageKey));
-		}
-	}
-	
-	private void deleteChildren(String keyString, Transaction tx){
-		if(keyString != null && ! keyString.isEmpty()){
-			Query q = new Query();
-			q.setKeysOnly();
-			q.setAncestor(KeyFactory.stringToKey(keyString));
-			
-			Iterable<Entity> iterable = ds.prepare(tx, q).asIterable();
-			for(Entity e: iterable){
-				ds.delete(tx, e.getKey());
-			}
 		}
 	}
 }

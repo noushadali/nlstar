@@ -189,7 +189,10 @@ public class Nl implements EntryPoint {
 		delete.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				deletion.apply(item);
+				event.stopPropagation();
+				if(Window.confirm("Are you sure you want to delete " + item.getName() + "?")){
+					deletion.apply(item);
+				}
 			}
 		});
 		

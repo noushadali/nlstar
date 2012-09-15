@@ -16,6 +16,7 @@ import java.util.List;
 import org.codehaus.jettison.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.denisk.appengine.nl.server.DataHandler;
@@ -370,6 +371,7 @@ public class DatastoreTest {
 	}
 
 	@Test
+	@Ignore
 	public void testAncestors() {
 		Entity p = new Entity("p");
 		Key pk = ds.put(p);

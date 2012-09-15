@@ -6,3 +6,4 @@ gwt-unitCache/
 Nl/war/WEB-INF/appengine-generated/
 Nl/WEB-INF/appengine-generated/
 test-classes/
+appengine*.jar

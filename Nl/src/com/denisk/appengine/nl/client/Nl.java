@@ -176,7 +176,7 @@ public class Nl implements EntryPoint {
 		});
 		panel.add(edit);
 
-		panel.setWidgetRightWidth(edit, 5, Style.Unit.PX, 30, Style.Unit.PX);
+		panel.setWidgetRightWidth(edit, 60, Style.Unit.PX, 30, Style.Unit.PX);
 		panel.setWidgetTopHeight(edit, 10, Style.Unit.PX, 20, Style.Unit.PX);
 	}
 
@@ -193,7 +193,9 @@ public class Nl implements EntryPoint {
 			}
 		});
 		
-		panel.setWidgetRightWidth(delete, 40, Style.Unit.PX, 30, Style.Unit.PX);
+		panel.add(delete);
+		
+		panel.setWidgetRightWidth(delete, 15, Style.Unit.PX, 40, Style.Unit.PX);
 		panel.setWidgetTopHeight(delete, 10, Style.Unit.PX, 20, Style.Unit.PX);
 		
 	}
@@ -395,18 +397,18 @@ public class Nl implements EntryPoint {
 				outputPanel.clear();
 				JsArray<GoodJavascriptObject> goods = GoodJavascriptObject.getArrayFromJson(json);
 				if(goods.length()> 0) {
-					outputPanel.add(carousel);
-					ArrayList<Photo> photos = new ArrayList<Photo>();
-					for(int i = 0; i < goods.length(); i++){
-						GoodJavascriptObject good = goods.get(i);
-						String imageUrl = getImageUrl(good, "500", "500");
-						System.out.println("Adding photo: " + imageUrl);
-						Photo photo = new Photo(imageUrl);
-						photos.add(photo);
-					}
-					System.out.println("Setting photos: " + photos.toString());
-					carousel.setPhotos(photos);
-					
+//					outputPanel.add(carousel);
+//					ArrayList<Photo> photos = new ArrayList<Photo>();
+//					for(int i = 0; i < goods.length(); i++){
+//						GoodJavascriptObject good = goods.get(i);
+//						String imageUrl = getImageUrl(good, "500", "500");
+//						System.out.println("Adding photo: " + imageUrl);
+//						Photo photo = new Photo(imageUrl);
+//						photos.add(photo);
+//					}
+//					System.out.println("Setting photos: " + photos.toString());
+//					carousel.setPhotos(photos);
+					createShopItemsFromJson(outputPanel, goodPanelCreation, editableCeation, json);
 				}
 			}
 

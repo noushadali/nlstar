@@ -32,6 +32,4 @@ public abstract class ShopItem extends JavaScriptObject {
 	}-*/;
 
 	public final native String toJson() /*-{return JSON.stringify(this)}-*/;
-
-	public abstract String getKind();
 }

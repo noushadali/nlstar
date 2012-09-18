@@ -365,13 +365,16 @@ public class Carousel extends Composite {
 
 			if (acceleration == 1.0) {
 				setRotation(currentRotation + ticks * velocity);
+				System.out.println("acceleration == 1");
 			} else {
 				double newVelocity = velocity * Math.pow(acceleration, ticks);
 				if (newVelocity < velocityThreshold && newVelocity > -velocityThreshold) {
+					System.out.println("velocity between velocityThreshold");
 					setRotation(currentRotation
 							+ Utils.distanceFromStartingVelocity(velocity, acceleration, velocityThreshold));
 					setVelocity(0.0);
 				} else {
+					System.out.println("Velocity NOT between velocity threshold");
 					setRotation(currentRotation + Utils.distanceForXTicks(velocity, acceleration, ticks));
 					setVelocity(velocity * Math.pow(acceleration, ticks));
 				}
@@ -427,6 +430,8 @@ public class Carousel extends Composite {
 			event.setPhoto(photos.get(getPhotoIndex()));
 			event.setPhotoIndex(getPhotoIndex());
 			fireEvent(event);
+		} else {
+			//System.out.println("Photo index" + getPhotoIndex());
 		}
 		placeImages();
 	}

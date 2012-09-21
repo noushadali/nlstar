@@ -29,7 +29,6 @@ public class FocusBehavior {
 	protected Carousel target;
 	protected HandlerManager handlerManager;
 
-	protected Element lightbox;
 	protected PopupPanel popup;
 	protected DockPanel dockPanel = new DockPanel();
 	protected Image popupImage;
@@ -63,15 +62,7 @@ public class FocusBehavior {
 		
 		eventHandlers.add(addPhotoFocusHandler(new PhotoFocusHandler() {
 			public void photoFocused(PhotoFocusEvent event) {
-			    
 				if (popup == null) {
-					lightbox = DOM.createDiv();
-				    lightbox.setClassName("lightbox");
-				    if (Utils.getUserAgent().contains("MSIE")) {
-				    	lightbox.setClassName("lightbox lightboxIE");
-				    }
-				    lightbox.getStyle().setProperty("zIndex", "100");
-				    RootPanel.getBodyElement().appendChild(lightbox);
 				    popup = new PopupPanel(true,true);
 					popupImage = new Image();
 					dockPanel.add(popupImage, DockPanel.CENTER);
@@ -80,17 +71,18 @@ public class FocusBehavior {
 					popup.addCloseHandler(new CloseHandler<PopupPanel>(){
 						public void onClose(CloseEvent<PopupPanel> event) {
 							popup.hide();
-							lightbox.getStyle().setProperty("display", "none");
 							PhotoUnfocusEvent evt = new PhotoUnfocusEvent();
 							evt.setPhotoIndex(lastFocusEvent.getPhotoIndex());
 							evt.setPhoto(lastFocusEvent.getPhoto());
 							handlerManager.fireEvent(evt);
 						}
 					});
+					popup.addStyleName("good");
+					popup.setGlassEnabled(true);
+					popup.setAnimationEnabled(true);
 				}
 				
 				popupImage.setUrl(event.getPhoto().getUrl());
-				lightbox.getStyle().setProperty("display", "block");
 				popup.center();
 			}
 		}));		

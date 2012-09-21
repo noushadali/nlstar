@@ -64,3 +64,7 @@
 .gwt-PopupPanel {
 	z-index: 999;
 }
+.good {
+	padding: 10px;
+	border: 1px solid;
+}

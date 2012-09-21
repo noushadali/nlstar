@@ -92,6 +92,7 @@ public class Carousel extends Composite {
 					Image img = (Image) event.getSource();
 					for (int i = 0; i < carouselSize; i++) {
 						if (images[i + preLoadSize] == img) {
+							System.out.println("In Click Handler");
 							int pIndex = i - 4 + currentPhotoIndex;
 							pIndex = Utils.modulus(pIndex, photos.size());
 							// fire off photo clicked event
@@ -120,6 +121,7 @@ public class Carousel extends Composite {
 		addPhotoToFrontHandler(new PhotoToFrontHandler() {
 			public void photoToFront(PhotoToFrontEvent event) {
 				caption.setText(event.getPhoto().getCaption());
+				System.out.println("Photo brought to front: " + event.getPhotoIndex());
 			}
 		});
 
@@ -129,8 +131,10 @@ public class Carousel extends Composite {
 			mouseBehavior.start();
 		// Focus when current photo clicked
 		focusBehavior = new FocusBehavior(this);
-		if (useDefaultFocusBehavior)
+		if (useDefaultFocusBehavior) {
 			focusBehavior.start();
+			System.out.println("Photo focused");
+		}
 
 		// These are used to help make sure a photo click is not registered when
 		// the mouse is dragged.
@@ -369,12 +373,10 @@ public class Carousel extends Composite {
 			} else {
 				double newVelocity = velocity * Math.pow(acceleration, ticks);
 				if (newVelocity < velocityThreshold && newVelocity > -velocityThreshold) {
-					System.out.println("velocity between velocityThreshold");
 					setRotation(currentRotation
 							+ Utils.distanceFromStartingVelocity(velocity, acceleration, velocityThreshold));
 					setVelocity(0.0);
 				} else {
-					System.out.println("Velocity NOT between velocity threshold");
 					setRotation(currentRotation + Utils.distanceForXTicks(velocity, acceleration, ticks));
 					setVelocity(velocity * Math.pow(acceleration, ticks));
 				}

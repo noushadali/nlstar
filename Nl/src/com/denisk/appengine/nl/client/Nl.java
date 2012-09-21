@@ -404,9 +404,9 @@ public class Nl implements EntryPoint {
 					ArrayList<Photo> photos = new ArrayList<Photo>();
 					for(int i = 0; i < goods.length(); i++){
 						GoodJavascriptObject good = goods.get(i);
-						String imageUrl = getImageUrl(good, "500", "500");
+						String imageUrl = getImageUrl(good, "200", "200");
 						System.out.println("Adding photo: " + imageUrl);
-						Photo photo = new Photo(imageUrl);
+						Photo photo = new Photo(imageUrl, imageUrl);
 						photos.add(photo);
 					}
 					System.out.println("Setting photos: " + photos.toString());

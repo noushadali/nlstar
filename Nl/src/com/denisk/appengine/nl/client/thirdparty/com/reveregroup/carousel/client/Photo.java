@@ -6,6 +6,7 @@ package com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.clien
 public class Photo{
 	private String url;
 	private String caption;
+	private String text;
 	
 	public Photo() {
 	}
@@ -14,8 +15,12 @@ public class Photo{
 		this.url = url;
 	}
 	public Photo(String url,String caption){
-		this.url = url;
+		this(url);
 		this.caption = caption;
+	}
+	public Photo(String url, String caption, String text){
+		this(url, caption);
+		this.text = text;
 	}
 	public String getCaption() {
 		return caption;
@@ -29,4 +34,13 @@ public class Photo{
 	public void setUrl(String url) {
 		this.url = url;
 	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+	
 }

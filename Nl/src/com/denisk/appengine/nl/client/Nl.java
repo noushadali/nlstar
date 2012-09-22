@@ -406,7 +406,7 @@ public class Nl implements EntryPoint {
 						GoodJavascriptObject good = goods.get(i);
 						String imageUrl = getImageUrl(good, "200", "200");
 						System.out.println("Adding photo: " + imageUrl);
-						Photo photo = new Photo(imageUrl, imageUrl);
+						Photo photo = new Photo(imageUrl, good.getName(), good.getDescription());
 						photos.add(photo);
 					}
 					System.out.println("Setting photos: " + photos.toString());

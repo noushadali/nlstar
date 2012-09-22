@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.DockPanel.DockLayoutConstant;
+import com.denisk.appengine.nl.client.SingleGoodPanel;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickEvent;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickHandler;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoFocusEvent;
@@ -30,8 +31,7 @@ public class FocusBehavior {
 	protected HandlerManager handlerManager;
 
 	protected PopupPanel popup;
-	protected DockPanel dockPanel = new DockPanel();
-	protected Image popupImage;
+	protected SingleGoodPanel panel;
 
 	protected Widget focusDecoratorWidget = null;
 	
@@ -64,9 +64,8 @@ public class FocusBehavior {
 			public void photoFocused(PhotoFocusEvent event) {
 				if (popup == null) {
 				    popup = new PopupPanel(true,true);
-					popupImage = new Image();
-					dockPanel.add(popupImage, DockPanel.CENTER);
-				    popup.add(dockPanel);
+					panel = new SingleGoodPanel();
+				    popup.add(panel);
 				    popup.getElement().getStyle().setProperty("zIndex", "150");
 					popup.addCloseHandler(new CloseHandler<PopupPanel>(){
 						public void onClose(CloseEvent<PopupPanel> event) {
@@ -82,7 +81,11 @@ public class FocusBehavior {
 					popup.setAnimationEnabled(true);
 				}
 				
-				popupImage.setUrl(event.getPhoto().getUrl());
+				Photo photo = event.getPhoto();
+				panel.setPanelTitle(photo.getTitle());
+				panel.setImageUrl(photo.getUrl());
+				panel.setContent(photo.getText());
+				
 				popup.center();
 			}
 		}));		
@@ -103,11 +106,4 @@ public class FocusBehavior {
 		return handlerManager.addHandler(PhotoUnfocusEvent.getType(), handler);
 	}
 	
-	public void setFocusDecoratorWidget(Widget widget, DockLayoutConstant position) {
-		if (focusDecoratorWidget != null && focusDecoratorWidget.getParent() == dockPanel) {
-			focusDecoratorWidget.removeFromParent();
-		}
-		focusDecoratorWidget = widget;
-		dockPanel.add(widget, position);
-	}
 }

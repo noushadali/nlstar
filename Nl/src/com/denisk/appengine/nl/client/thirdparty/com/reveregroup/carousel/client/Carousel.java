@@ -120,7 +120,7 @@ public class Carousel extends Composite {
 		// Sync caption with front-most photo.
 		addPhotoToFrontHandler(new PhotoToFrontHandler() {
 			public void photoToFront(PhotoToFrontEvent event) {
-				caption.setText(event.getPhoto().getCaption());
+				caption.setText(event.getPhoto().getTitle());
 				System.out.println("Photo brought to front: " + event.getPhotoIndex());
 			}
 		});
@@ -164,20 +164,6 @@ public class Carousel extends Composite {
 		} else {
 			focusBehavior.stop();
 		}
-	}
-
-	/**
-	 * If a focus decorator widget is set, the widget is displayed with the
-	 * image popup when an image is brought into focus. The position parameter
-	 * determines whether it shows up above, below, on the left or on the right
-	 * of the image.
-	 * 
-	 * Use the PhotoFocus event to update the widget with information or options
-	 * for the currently focused photo.
-	 */
-	public void setFocusDecoratorWidget(Widget widget, DockLayoutConstant position) {
-		if (focusBehavior != null)
-			focusBehavior.setFocusDecoratorWidget(widget, position);
 	}
 
 	/**

@@ -68,3 +68,6 @@
 	padding: 10px;
 	border: 1px solid;
 }
+.good-description {
+	max-width: 800px;
+}

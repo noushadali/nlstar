@@ -37,6 +37,7 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.appengine.api.files.AppEngineFile;
@@ -111,7 +112,7 @@ public class DataHandler {
 	private void setCommonJsonableProperties(Entity e, Jsonable c) {
 		c.setKey(e.getKey());
 		c.setName((String) e.getProperty(Jsonable.NAME));
-		c.setDescription((String) e.getProperty(Jsonable.DESCRIPTION));
+		c.setDescription(((Text) e.getProperty(Jsonable.DESCRIPTION)).getValue());
 		c.setImageBlobKey((String) e.getProperty(Jsonable.IMAGE_BLOB_KEY));
 	}
 
@@ -228,7 +229,11 @@ public class DataHandler {
 
 	public void setProperties(Entity e, Map<String, String> properties) {
 		for(String name: properties.keySet()){
-			e.setProperty(name, properties.get(name));
+			if (! name.equals("description")) {
+				e.setProperty(name, properties.get(name));
+			} else {
+				e.setProperty(name, new Text(properties.get(name)));
+			}
 		}
 	}
 

@@ -9,7 +9,9 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -39,6 +41,12 @@ public class FocusBehavior {
 	
 	protected List<HandlerRegistration> eventHandlers = new ArrayList<HandlerRegistration>(2);
 
+	protected Button edit;
+	protected Button delete;
+	
+	protected HandlerRegistration editRegistration;
+	protected HandlerRegistration deleteRegistration;
+	
 	public FocusBehavior(Carousel carousel) {
 		this.target = carousel;
 		handlerManager = new HandlerManager(this);
@@ -65,6 +73,13 @@ public class FocusBehavior {
 				if (popup == null) {
 				    popup = new PopupPanel(true,true);
 					panel = new SingleGoodPanel();
+					FlowPanel buttonsPanel = new FlowPanel();
+					popup.add(buttonsPanel);
+					edit = new Button("Edit");
+					delete = new Button("Delete");
+					buttonsPanel.add(edit);
+					buttonsPanel.add(delete);
+					//todo
 				    popup.add(panel);
 				    popup.getElement().getStyle().setProperty("zIndex", "150");
 					popup.addCloseHandler(new CloseHandler<PopupPanel>(){
@@ -85,6 +100,26 @@ public class FocusBehavior {
 				panel.setPanelTitle(photo.getTitle());
 				panel.setImageUrl(photo.getUrl());
 				panel.setContent(photo.getText());
+				
+				if(photo.getDeleteClickHandler() != null){
+					delete.setEnabled(true);
+					if(deleteRegistration != null){
+						deleteRegistration.removeHandler();
+					}
+					deleteRegistration = delete.addClickHandler(photo.getDeleteClickHandler());
+				} else {
+					delete.setEnabled(false);
+				}
+				
+				if(photo.getEditClickHandler() != null){
+					edit.setEnabled(true);
+					if(editRegistration != null){
+						editRegistration.removeHandler();
+					}
+					editRegistration = edit.addClickHandler(photo.getEditClickHandler());
+				} else {
+					edit.setEnabled(false);
+				}
 				
 				popup.center();
 			}

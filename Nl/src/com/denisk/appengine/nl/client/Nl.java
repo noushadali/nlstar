@@ -167,13 +167,7 @@ public class Nl implements EntryPoint {
 	private <T extends ShopItem> void buildEditButton(final T item,
 			LayoutPanel panel, final EditForm<T> editForm) {
 		HTML edit = new HTML("<a href=#>Edit</a>");
-		edit.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				event.stopPropagation();
-				editForm.showForEdit(item);
-			}
-		});
+		edit.addClickHandler(getEditClickHandler(item, editForm));
 		panel.add(edit);
 
 		panel.setWidgetRightWidth(edit, 60, Style.Unit.PX, 30, Style.Unit.PX);
@@ -186,15 +180,7 @@ public class Nl implements EntryPoint {
 	private <T extends ShopItem> void buildDeleteButton(final T item, LayoutPanel panel, final Function<T, Void> deletion){
 		HTML delete = new HTML("<a href='javascript://'>Delete</a>");
 
-		delete.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				event.stopPropagation();
-				if(Window.confirm("Are you sure you want to delete " + item.getName() + "?")){
-					deletion.apply(item);
-				}
-			}
-		});
+		delete.addClickHandler(getDeleteClickHandler(item, deletion));
 		
 		panel.add(delete);
 		
@@ -202,6 +188,31 @@ public class Nl implements EntryPoint {
 		panel.setWidgetTopHeight(delete, 10, Style.Unit.PX, 20, Style.Unit.PX);
 		
 	}
+
+	private <T extends ShopItem> ClickHandler getDeleteClickHandler(
+			final T item, final Function<T, Void> deletion) {
+		return new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+				if(Window.confirm("Are you sure you want to delete " + item.getName() + "?")){
+					deletion.apply(item);
+				}
+			}
+		};
+	}
+
+	private <T extends ShopItem> ClickHandler getEditClickHandler(final T item,
+			final EditForm<T> editForm) {
+		return new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+				editForm.showForEdit(item);
+			}
+		};
+	}
+
 	/**
 	 * This is the entry point method.
 	 */
@@ -394,6 +405,7 @@ public class Nl implements EntryPoint {
 			final FlowPanel panel) {
 		final Function<GoodJavascriptObject, LayoutPanel> creation = goodPanelCreation;
 		final Function<GoodJavascriptObject, LayoutPanel> editableCeation = editableGoodPanelCreation;
+		
 		dtoService.getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {
@@ -407,6 +419,7 @@ public class Nl implements EntryPoint {
 						String imageUrl = getImageUrl(good, "600", "600");
 						System.out.println("Adding photo: " + imageUrl);
 						Photo photo = new Photo(imageUrl, good.getName(), good.getDescription());
+						photo.setEditClickHandler(getEditClickHandler(good, editGoodForm));
 						photos.add(photo);
 					}
 					System.out.println("Setting photos: " + photos.toString());

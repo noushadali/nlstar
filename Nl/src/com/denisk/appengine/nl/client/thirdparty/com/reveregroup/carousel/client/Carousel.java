@@ -59,7 +59,7 @@ public class Carousel extends Composite {
 	public Carousel() {
 		this(true, true);
 	}
-
+CarouselImage trackingImage;
 	public Carousel(boolean useDefaultMouseBehavior, boolean useDefaultFocusBehavior) {
 		// Set up UI structure
 		carouselDock = new DockPanel();
@@ -80,6 +80,9 @@ public class Carousel extends Composite {
 		images = new CarouselImage[this.carouselSize + (this.preLoadSize * 2)];
 		for (int i = 0; i < images.length; i++) {
 			images[i] = new CarouselImage();
+			if(i == 0){
+				trackingImage = images[i];
+			}
 			images[i].setSize("1", "1");
 			Utils.preventDrag(images[i]);
 			Utils.preventSelection(images[i].getElement());

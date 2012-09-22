@@ -11,7 +11,6 @@ import com.google.gwt.user.client.ui.Image;
 public class CarouselImage extends Image{
 	private int originalHeight = 0;
 	private int originalWidth = 0;
-	
 	private static Map<String, int[]> sizeCache = new HashMap<String, int[]>();
 	
 	@Override
@@ -26,7 +25,11 @@ public class CarouselImage extends Image{
 			originalHeight = dimension[1];
 		}
 	}
-	
+	@Override
+	public void setSize(String width, String height){
+		getElement().setAttribute("width", width);
+		getElement().setAttribute("height", height);
+	}
 	public void sizeToBounds(int maxWidth, int maxHeight) {
 		if (originalWidth == 0) {
 			setSize("", "");

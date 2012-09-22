@@ -108,14 +108,6 @@ CarouselImage trackingImage;
 					}
 				}
 			});
-			images[i].addLoadHandler(new LoadHandler() {
-				public void onLoad(LoadEvent event) {
-					if (!"none".equals(((CarouselImage) event.getSource()).getElement().getStyle().getProperty(
-							"display"))) {
-						placeImages();
-					}
-				}
-			});
 			imagePanel.add(images[i]);
 		}
 		this.initWidget(carouselDock);
@@ -124,7 +116,6 @@ CarouselImage trackingImage;
 		addPhotoToFrontHandler(new PhotoToFrontHandler() {
 			public void photoToFront(PhotoToFrontEvent event) {
 				caption.setText(event.getPhoto().getTitle());
-				System.out.println("Photo brought to front: " + event.getPhotoIndex());
 			}
 		});
 
@@ -136,7 +127,6 @@ CarouselImage trackingImage;
 		focusBehavior = new FocusBehavior(this);
 		if (useDefaultFocusBehavior) {
 			focusBehavior.start();
-			System.out.println("Photo focused");
 		}
 
 		// These are used to help make sure a photo click is not registered when
@@ -358,7 +348,6 @@ CarouselImage trackingImage;
 
 			if (acceleration == 1.0) {
 				setRotation(currentRotation + ticks * velocity);
-				System.out.println("acceleration == 1");
 			} else {
 				double newVelocity = velocity * Math.pow(acceleration, ticks);
 				if (newVelocity < velocityThreshold && newVelocity > -velocityThreshold) {
@@ -386,7 +375,7 @@ CarouselImage trackingImage;
 			this.velocity = 0;
 		} else if (!timerOn) {
 			lastTime = System.currentTimeMillis();
-			timer.scheduleRepeating(33);
+			timer.scheduleRepeating(20);
 			timerOn = true;
 			timer.run();
 		}

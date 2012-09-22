@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.shared.HandlerManager;
@@ -73,14 +75,26 @@ public class FocusBehavior {
 				if (popup == null) {
 				    popup = new PopupPanel(true,true);
 					panel = new SingleGoodPanel();
-					FlowPanel buttonsPanel = new FlowPanel();
-					popup.add(buttonsPanel);
+					DockPanel dockPanel = new DockPanel();
 					edit = new Button("Edit");
 					delete = new Button("Delete");
+					edit.setVisible(false);
+					delete.setVisible(false);
+					ClickHandler closeHandler = new ClickHandler() {
+						
+						@Override
+						public void onClick(ClickEvent event) {
+							popup.hide();
+						}
+					};
+					edit.addClickHandler(closeHandler);
+					delete.addClickHandler(closeHandler);
+					FlowPanel buttonsPanel = new FlowPanel();
 					buttonsPanel.add(edit);
 					buttonsPanel.add(delete);
-					//todo
-				    popup.add(panel);
+					dockPanel.add(buttonsPanel, DockPanel.NORTH);
+					dockPanel.add(panel, DockPanel.CENTER);
+				    popup.add(dockPanel);
 				    popup.getElement().getStyle().setProperty("zIndex", "150");
 					popup.addCloseHandler(new CloseHandler<PopupPanel>(){
 						public void onClose(CloseEvent<PopupPanel> event) {
@@ -102,23 +116,23 @@ public class FocusBehavior {
 				panel.setContent(photo.getText());
 				
 				if(photo.getDeleteClickHandler() != null){
-					delete.setEnabled(true);
+					delete.setVisible(true);
 					if(deleteRegistration != null){
 						deleteRegistration.removeHandler();
 					}
 					deleteRegistration = delete.addClickHandler(photo.getDeleteClickHandler());
 				} else {
-					delete.setEnabled(false);
+					delete.setVisible(false);
 				}
 				
 				if(photo.getEditClickHandler() != null){
-					edit.setEnabled(true);
+					edit.setVisible(true);
 					if(editRegistration != null){
 						editRegistration.removeHandler();
 					}
 					editRegistration = edit.addClickHandler(photo.getEditClickHandler());
 				} else {
-					edit.setEnabled(false);
+					edit.setVisible(false);
 				}
 				
 				popup.center();

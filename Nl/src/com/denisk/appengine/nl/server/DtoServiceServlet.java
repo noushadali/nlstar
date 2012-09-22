@@ -26,7 +26,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class DtoServiceServlet extends RemoteServiceServlet implements DtoService {
 	private static final long serialVersionUID = 3021789825605473063L;
 	private static DataHandler dh = new DataHandler();
-	private UserService us = UserServiceFactory.getUserService(); 
+	private static UserService us = UserServiceFactory.getUserService(); 
 
 	@Override
 	public String countEntities() {
@@ -76,7 +76,7 @@ public class DtoServiceServlet extends RemoteServiceServlet implements DtoServic
 	}
 
 
-	private void checkCredentials() throws IllegalAccessError {
+	public static void checkCredentials() throws IllegalAccessError {
 		if(us.getCurrentUser() == null || ! us.isUserAdmin()){
 			throw new IllegalAccessError("User is not allowed to perform this operation: " + us.getCurrentUser());
 		}

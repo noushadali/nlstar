@@ -410,21 +410,38 @@ public class Nl implements EntryPoint {
 			@Override
 			public void onSuccess(String json) {
 				outputPanel.clear();
-				JsArray<GoodJavascriptObject> goods = GoodJavascriptObject.getArrayFromJson(json);
+				final JsArray<GoodJavascriptObject> goods = GoodJavascriptObject.getArrayFromJson(json);
 				if(goods.length()> 0) {
 					outputPanel.add(carousel);
-					ArrayList<Photo> photos = new ArrayList<Photo>();
+					final ArrayList<Photo> photos = new ArrayList<Photo>(goods.length());
 					for(int i = 0; i < goods.length(); i++){
 						GoodJavascriptObject good = goods.get(i);
 						String imageUrl = getImageUrl(good, "600", "600");
 						System.out.println("Adding photo: " + imageUrl);
 						Photo photo = new Photo(imageUrl, good.getName(), good.getDescription());
-						photo.setEditClickHandler(getEditClickHandler(good, editGoodForm));
 						photos.add(photo);
 					}
-					System.out.println("Setting photos: " + photos.toString());
+					dtoService.isAdmin(new AsyncCallback<UserStatus>() {
+						
+						@Override
+						public void onSuccess(UserStatus result) {
+							if(UserStatus.ADMIN == result){
+								for(int i = 0; i < photos.size(); i++){
+									Photo photo = photos.get(i);
+									GoodJavascriptObject good = goods.get(i);
+
+									photo.setEditClickHandler(getEditClickHandler(good, editGoodForm));
+									photo.setDeleteClickHandler(getDeleteClickHandler(good, goodDeletion));
+								}
+							}
+						}
+						
+						@Override
+						public void onFailure(Throwable caught) {
+							Window.alert("Can't determine credentials for user");
+						}
+					});
 					carousel.setPhotos(photos);
-					//createShopItemsFromJson(outputPanel, goodPanelCreation, editableCeation, json);
 				}
 			}
 

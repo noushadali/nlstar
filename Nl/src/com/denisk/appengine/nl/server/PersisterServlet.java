@@ -29,6 +29,7 @@ public class PersisterServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
+		DtoServiceServlet.checkCredentials();
 		
 		if(! ServletFileUpload.isMultipartContent(req)) {
 			System.out.println("Request to Persister was not multipart/form request");

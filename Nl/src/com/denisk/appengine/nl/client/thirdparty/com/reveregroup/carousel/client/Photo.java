@@ -13,6 +13,7 @@ public class Photo{
 	private String text;
 	private ClickHandler editClickHandler;
 	private ClickHandler deleteClickHandler;
+	
 	public Photo() {
 	}
 	

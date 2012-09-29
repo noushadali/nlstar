@@ -49,17 +49,19 @@ public class Nl implements EntryPoint {
 	private ClickHandler categoriesClearButtonClickHandler = new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
-			dtoService.clearData(new AsyncCallback<Void>() {
-				@Override
-				public void onSuccess(Void result) {
-					updateLabel(status);
-					outputCategories(outputPanel);
-				}
+			if(Window.confirm("Are you sure you want to delete all categories and items in these categories?")){
+				dtoService.clearData(new AsyncCallback<Void>() {
+					@Override
+					public void onSuccess(Void result) {
+						updateLabel(status);
+						outputCategories(outputPanel);
+					}
 
-				@Override
-				public void onFailure(Throwable caught) {
-				}
-			});
+					@Override
+					public void onFailure(Throwable caught) {
+					}
+				});
+			}
 		}
 	};
 	// redraw callbacks==============================

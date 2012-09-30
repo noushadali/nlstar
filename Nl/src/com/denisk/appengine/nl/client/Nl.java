@@ -1,6 +1,9 @@
 package com.denisk.appengine.nl.client;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
@@ -12,7 +15,9 @@ import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -26,9 +31,10 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class Nl implements EntryPoint {
-	public static final String THUMB_WIDTH = "200"   ;
+	public static final String THUMB_WIDTH = "200";
 	public static final String THUMB_HEIGHT = "100";
 
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
@@ -43,7 +49,7 @@ public class Nl implements EntryPoint {
 	private Button clearButton;
 	private Button newButton;
 	private Button backButton;
-
+	private Button moveToTopButton;
 	private String selectedCategoryKeyStr;
 
 	private ClickHandler categoriesClearButtonClickHandler = new ClickHandler() {
@@ -250,9 +256,15 @@ public class Nl implements EntryPoint {
 		});
 
 		outputCategories(outputPanel);
-
 		outputCategoriesControls();
-
+		moveToTopButton = new Button("Move to top");
+moveToTopButton.addClickHandler(new ClickHandler() {
+	
+	@Override
+	public void onClick(ClickEvent event) {
+		animateCategories(outputPanel);
+	}
+});
 	}
 
 	private void outputCategoriesControls() {
@@ -294,6 +306,7 @@ public class Nl implements EntryPoint {
 					createLogoutUrl();
 					break;
 				}
+				rootPanel.add(moveToTopButton);
 			}
 
 			@Override
@@ -468,6 +481,7 @@ public class Nl implements EntryPoint {
 				default:
 					createTiles(panel, arrayFromJson, creation);
 				}
+				animateCategories(outputPanel);
 			}
 
 			@Override
@@ -559,4 +573,187 @@ public class Nl implements EntryPoint {
 		return itemPanel;
 	}
 
+	private void setTransition(Style style, String params) {
+		style.setProperty("WebkitTransition", params);
+		style.setProperty("MozTransition", params);
+		style.setProperty("OTransition", params);
+		style.setProperty("MsTransition", params);
+		style.setProperty("Transition", params);
+	}
+
+	private void animateCategories(FlowPanel outputPanel) {
+		int clientWidth = Window.getClientWidth();
+		int clientHeight = Window.getClientHeight();
+		int itemWidth = 300;
+		int itemHeight = 200;
+		//We use the same amount of margin for top, bottom, left and right values
+		int margin = 10;
+		//todo calculate topOffset based on top panel height
+		int topOffset = 100;
+		int delay = 1;//seconds between waves of items
+		int animationSpeed = 2;//seconds for each wave
+		
+		int widgetCount = outputPanel.getWidgetCount();
+		if(widgetCount == 0){
+			return;
+		}
+		
+		int currentX = margin;
+		int currentY = topOffset + margin;
+		
+		ArrayList<ArrayList<Widget>> widgetMatrix = new ArrayList<ArrayList<Widget>>();
+		HashMap<Widget, Dimention> destinationDimentions = new HashMap<Widget, Dimention>();
+		//init first row
+		ArrayList<Widget> currentRowList = new ArrayList<Widget>();
+		currentRowList.add(outputPanel.getWidget(0));
+		widgetMatrix.add(currentRowList);
+
+		for(int i = 0; i < widgetCount; i++){
+			Widget widget = outputPanel.getWidget(i);
+			widget.setWidth(itemWidth + "px");
+			widget.setHeight(itemHeight + "px");
+			Style style = widget.getElement().getStyle();
+			style.setMargin(margin, Unit.PX);
+
+			destinationDimentions.put(widget,  new Dimention(currentX, currentY));
+			
+			style.setLeft(currentX, Unit.PX);
+			style.setTop(currentY, Unit.PX);
+			
+			int nextX = currentX + margin*2 + itemWidth;
+			if(nextX + itemWidth + margin > clientWidth){
+				//next one will be new line
+				currentX = margin;
+				currentY += itemHeight + margin*2;
+				if(i+1 < widgetCount){
+					//push next widget (if any) into the matrix, on a new row
+					ArrayList<Widget> nextRow = new ArrayList<Widget>();
+					nextRow.add(outputPanel.getWidget(i+1));
+					widgetMatrix.add(nextRow);
+				}
+			} else {
+				//line continues, will increment row
+				currentX = nextX;
+				if(i+1 < widgetCount){
+					//push next widget into same row
+					widgetMatrix.get(widgetMatrix.size() - 1).add(outputPanel.getWidget(i + 1));
+				}
+			}
+			
+		}
+		//move widgets out the screen
+		moveWidgetsOutOfTheScreen(clientWidth, clientHeight, widgetMatrix);
+		//=============================
+		//set animation delays on widgets
+		int diagonalLength = getDiagonalLength(widgetMatrix);
+
+		setTransitionTimeouts(animationSpeed, widgetMatrix, diagonalLength);
+		//===================================
+		//set destination dimentions
+		animate(destinationDimentions);
+	}
+
+	private void animate(HashMap<Widget, Dimention> destinationDimentions) {
+		for(Map.Entry<Widget, Dimention> entry: destinationDimentions.entrySet()){
+			Style style = entry.getKey().getElement().getStyle();
+			Dimention dimention = entry.getValue();
+			style.setLeft(dimention.getX(), Unit.PX);
+			style.setTop(dimention.getY(), Unit.PX);
+		}
+	}
+
+	private void setTransitionTimeouts(int animationSpeed,
+			ArrayList<ArrayList<Widget>> widgetMatrix, int diagonalLength) {
+		int currentDiagonalIndex = 0;
+		while(currentDiagonalIndex < diagonalLength){
+			ArrayList<Widget> currentRow = widgetMatrix.get(currentDiagonalIndex);
+			Style style = currentRow.get(currentDiagonalIndex).getElement().getStyle();
+			String diagonalTransitionParams = getTransitionParams(animationSpeed, 0);
+			setTransition(style, diagonalTransitionParams);
+
+			int derivation = 1;
+			while(true){
+				boolean hitMatrix = false;
+				if(currentRow.size() > currentDiagonalIndex + derivation){
+					Style derivedStyle = currentRow.get(currentDiagonalIndex + derivation).getElement().getStyle();
+					setTransition(derivedStyle, getTransitionParams(animationSpeed, derivation));
+					hitMatrix = true;
+				}
+				if(widgetMatrix.size() > currentDiagonalIndex + derivation){
+					ArrayList<Widget> derivedRow = widgetMatrix.get(currentDiagonalIndex + derivation);
+					if(derivedRow.size() > currentDiagonalIndex){
+						Style derivedStyle = derivedRow.get(currentDiagonalIndex).getElement().getStyle();
+						setTransition(derivedStyle, getTransitionParams(animationSpeed, derivation));
+						hitMatrix = true;
+					}
+				}
+				if(hitMatrix){
+					derivation++;
+				} else {
+					break;
+				}
+			}
+			currentDiagonalIndex ++;
+		}
+	}
+
+	private int getDiagonalLength(ArrayList<ArrayList<Widget>> widgetMatrix) {
+		int diagonalLength = 0;
+		while(true){
+			if(widgetMatrix.size() > diagonalLength && widgetMatrix.get(diagonalLength).size() > diagonalLength){
+				diagonalLength++;
+			} else {
+				break;
+			}
+		}
+		return diagonalLength;
+	}
+
+	private void moveWidgetsOutOfTheScreen(int clientWidth, int clientHeight,
+			ArrayList<ArrayList<Widget>> widgetMatrix) {
+		int widgetsToMoveToBottom = 1;
+		for(int r = 0; r < widgetMatrix.size(); r++){
+			ArrayList<Widget> rows = widgetMatrix.get(r);
+			for(int i = 0; i < rows.size(); i++){
+				Style style = rows.get(i).getElement().getStyle();
+				if(i < widgetsToMoveToBottom){
+					style.setTop(clientHeight, Unit.PX);
+				} else {
+					style.setLeft(clientWidth, Unit.PX);
+				}
+			}
+			if(r+1 > 1 && (r+1)%2 == 0){
+				widgetsToMoveToBottom += 2;
+			}
+		}
+	}
+
+	private String getTransitionParams(int animationSpeed, int delay) {
+		return "all " + animationSpeed + "s ease-in-out " + delay + "s";
+	}
+
+	private static class Dimention {
+		private int x;
+		private int y;
+		protected Dimention(int x, int y) {
+			super();
+			this.x = x;
+			this.y = y;
+		}
+		public int getX() {
+			return x;
+		}
+		public int getY() {
+			return y;
+		}
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("Dimention [x=").append(x).append(", y=").append(y)
+					.append("]");
+			return builder.toString();
+		}
+		
+		
+	}
 }

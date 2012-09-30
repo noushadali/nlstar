@@ -1,11 +1,8 @@
 .category {
-	width: 300px;
-	height: 200px;
-	margin: 10px;
 	border: solid 1px black;
-	float: left;	
+	position: absolute !important;
+	top:-220px;
 }
-
 .categoryEditRoot {
 	position: relative;
 	padding: 7px;

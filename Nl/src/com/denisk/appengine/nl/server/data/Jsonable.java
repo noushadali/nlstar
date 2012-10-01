@@ -8,7 +8,7 @@ import org.codehaus.jettison.json.JSONWriter;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 
-public abstract class Jsonable<T extends Jsonable> {
+public abstract class Jsonable<T extends Jsonable<?>> {
 
 	public static final String DESCRIPTION = "description";
 	public static final String NAME = "name";

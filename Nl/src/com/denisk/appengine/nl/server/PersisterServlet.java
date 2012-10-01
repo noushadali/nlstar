@@ -2,7 +2,6 @@ package com.denisk.appengine.nl.server;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
@@ -21,6 +20,10 @@ import com.denisk.appengine.nl.shared.UploadStatus;
 import com.google.appengine.api.datastore.Entity;
 
 public class PersisterServlet extends HttpServlet {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final static String KIND_FIELD = "kind";
 	private final static String KEY_FIELD = "key";
 	private final static String PARENT_KEY_FIELD = "parentKey";

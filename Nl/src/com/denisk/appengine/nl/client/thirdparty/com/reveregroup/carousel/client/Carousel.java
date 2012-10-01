@@ -2,10 +2,14 @@ package com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.clien
 
 import java.util.List;
 
+import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickEvent;
+import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickHandler;
+import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoFocusHandler;
+import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoToFrontEvent;
+import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoToFrontHandler;
+import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoUnfocusHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.LoadEvent;
-import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
@@ -19,14 +23,6 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.DockPanel.DockLayoutConstant;
-import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickEvent;
-import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickHandler;
-import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoFocusHandler;
-import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoToFrontEvent;
-import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoToFrontHandler;
-import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoUnfocusHandler;
 /**
  * Copied from http://code.google.com/p/spiral-carousel-gwt/
  */

@@ -16,6 +16,11 @@ import com.google.appengine.api.images.Image;
 
 public class ThumbnailServlet extends HttpServlet {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static final int BUFFER_SIZE = 10240;
 
 	private ImageCacheService imageCacheService = new ImageCacheService();

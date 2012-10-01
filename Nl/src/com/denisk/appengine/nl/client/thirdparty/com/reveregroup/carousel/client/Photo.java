@@ -1,7 +1,6 @@
 package com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client;
 
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.Button;
 
 /**
  * Copied from http://code.google.com/p/spiral-carousel-gwt/

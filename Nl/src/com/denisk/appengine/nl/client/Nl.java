@@ -2,7 +2,6 @@ package com.denisk.appengine.nl.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
@@ -15,7 +14,6 @@ import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -418,8 +416,6 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 
 	private void outputGoodsForCategory(String categoryKeyStr,
 			final FlowPanel panel) {
-		final Function<GoodJavascriptObject, LayoutPanel> creation = goodPanelCreation;
-		final Function<GoodJavascriptObject, LayoutPanel> editableCeation = editableGoodPanelCreation;
 		
 		dtoService.getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
 			@Override

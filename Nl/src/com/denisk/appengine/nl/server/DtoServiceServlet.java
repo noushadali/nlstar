@@ -3,9 +3,6 @@ package com.denisk.appengine.nl.server;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
-
 import org.codehaus.jettison.json.JSONException;
 
 import com.denisk.appengine.nl.client.DtoService;
@@ -14,7 +11,6 @@ import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.blobstore.BlobInfoFactory;
 import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;

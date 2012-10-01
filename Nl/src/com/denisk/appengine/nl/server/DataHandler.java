@@ -2,28 +2,20 @@ package com.denisk.appengine.nl.server;
 
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.nio.channels.Channels;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.ServletException;
 
-import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.codehaus.jettison.json.JSONStringer;
 import org.codehaus.jettison.json.JSONWriter;
 
-import com.denisk.appengine.nl.client.overlay.ShopItem;
-import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.server.data.Category;
 import com.denisk.appengine.nl.server.data.Good;
 import com.denisk.appengine.nl.server.data.Jsonable;
@@ -39,14 +31,10 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Transaction;
-import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileService;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
-import com.google.appengine.api.files.FinalizationException;
-import com.google.appengine.api.files.LockException;
-import com.google.gwt.dev.GetJreEmulation;
 
 public class DataHandler {
 	private DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
@@ -66,7 +54,7 @@ public class DataHandler {
 		Key key = ds.put(categoryEntity);
 		
 		
-		for(Jsonable good: category.getGoods()) {
+		for(Jsonable<?> good: category.getGoods()) {
 			doPersistGood(ds, key, good);
 		}
 		
@@ -76,7 +64,7 @@ public class DataHandler {
 		return key;
 	}
 
-	private Key doPersistGood(DatastoreService ds, Key parentKey, Jsonable good) {
+	private Key doPersistGood(DatastoreService ds, Key parentKey, Jsonable<?> good) {
 		Entity g = new Entity(Good.KIND, parentKey);
 
 		g.setProperty(Jsonable.NAME, good.getName());
@@ -109,7 +97,7 @@ public class DataHandler {
 		return result;
 	}
 
-	private void setCommonJsonableProperties(Entity e, Jsonable c) {
+	private void setCommonJsonableProperties(Entity e, Jsonable<?> c) {
 		c.setKey(e.getKey());
 		c.setName((String) e.getProperty(Jsonable.NAME));
 		c.setDescription(((Text) e.getProperty(Jsonable.DESCRIPTION)).getValue());
@@ -143,11 +131,11 @@ public class DataHandler {
 		return getItemsJson(categories);
 	}
 
-	private String getItemsJson(Iterable<? extends Jsonable> categories)
+	private String getItemsJson(Iterable<? extends Jsonable<?>> categories)
 			throws JSONException {
 		JSONStringer st = new JSONStringer();
 		JSONWriter writer = st.array();
-		for(Jsonable c: categories) {
+		for(Jsonable<?> c: categories) {
 			writer = writer.value(new JSONObject(c.toJson()));
 		}
 		writer = writer.endArray();

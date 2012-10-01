@@ -10,11 +10,6 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 
 public class ImageCacheService {
 	public static final String KEY_DELIM = "#";
-	private static final int DEFAULT_WIDTH = 200;
-	private static final int DEFAULT_HEIGHT = 115;
-	private static final int MAX_WIDTH = 500;
-	private static final int MAX_HEIGHT = 300;
-
 	private static MemcacheService memcacheService = MemcacheServiceFactory.getMemcacheService();
 	private static ImagesService imageService = ImagesServiceFactory.getImagesService();
 	

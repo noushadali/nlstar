@@ -1,7 +1,7 @@
 package com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events;
 
-import com.google.gwt.event.shared.GwtEvent;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Photo;
+import com.google.gwt.event.shared.GwtEvent;
 
 /**
  * Copied from http://code.google.com/p/spiral-carousel-gwt/

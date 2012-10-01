@@ -3,13 +3,9 @@ package com.denisk.appengine.nl.server.data;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.servlet.ServletException;
-
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.codehaus.jettison.json.JSONWriter;
-
-import com.google.appengine.api.blobstore.BlobKey;
 
 public class Category extends Jsonable<Category> {
 	public static final String KIND = "c";

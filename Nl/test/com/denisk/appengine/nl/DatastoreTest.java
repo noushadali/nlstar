@@ -1,16 +1,17 @@
 package com.denisk.appengine.nl;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static com.google.appengine.api.datastore.FetchOptions.Builder.withLimit;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.channels.Channels;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import org.codehaus.jettison.json.JSONException;
@@ -29,7 +30,6 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
@@ -137,8 +137,8 @@ public class DatastoreTest {
 		c.getGoods().add(g1);
 		c.getGoods().add(g2);
 
-		Key key1 = dh.saveCategoryWithGoods(c);
-		Key key2 = dh.saveCategoryWithGoods(c1);
+		dh.saveCategoryWithGoods(c);
+		dh.saveCategoryWithGoods(c1);
 
 		ArrayList<Category> categories = dh.getCategories();
 
@@ -169,8 +169,8 @@ public class DatastoreTest {
 		c.getGoods().add(g1);
 		c.getGoods().add(g2);
 
-		Key key1 = dh.saveCategoryWithGoods(c);
-		Key key2 = dh.saveCategoryWithGoods(c1);
+		dh.saveCategoryWithGoods(c);
+		dh.saveCategoryWithGoods(c1);
 
 		final String categoriesJson = dh.getCategoriesJson();
 		System.out.println(categoriesJson);
@@ -207,7 +207,7 @@ public class DatastoreTest {
 		c1.getGoods().add(g3);
 
 		Key key1 = dh.saveCategoryWithGoods(c);
-		Key key2 = dh.saveCategoryWithGoods(c1);
+		dh.saveCategoryWithGoods(c1);
 
 		String json = dh.getGoodsJson(KeyFactory.keyToString(key1));
 
@@ -278,7 +278,7 @@ public class DatastoreTest {
 		g.setImageBlobKey(imageKey);
 		g.setParentKeyStr(KeyFactory.keyToString(categoryKey));
 
-		Key key = dh.persistGood(g.toJson());
+		dh.persistGood(g.toJson());
 
 		assertEquals(1,
 				ds.prepare(new Query(Good.KIND)).countEntities(withLimit(10)));

@@ -2,6 +2,7 @@ package com.denisk.appengine.nl.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
@@ -19,6 +20,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
@@ -47,7 +49,6 @@ public class Nl implements EntryPoint {
 	private Button clearButton;
 	private Button newButton;
 	private Button backButton;
-	private Button moveToTopButton;
 	private String selectedCategoryKeyStr;
 
 	private ClickHandler categoriesClearButtonClickHandler = new ClickHandler() {
@@ -229,7 +230,6 @@ public class Nl implements EntryPoint {
 				.setRedrawAfterItemCreatedCallback(redrawCategoriesCallback);
 
 		updateLabel(status);
-
 		rootPanel.add(status);
 		rootPanel.add(categoriesInfo);
 		rootPanel.add(outputPanel);
@@ -255,14 +255,6 @@ public class Nl implements EntryPoint {
 
 		outputCategories(outputPanel);
 		outputCategoriesControls();
-		moveToTopButton = new Button("Move to top");
-moveToTopButton.addClickHandler(new ClickHandler() {
-	
-	@Override
-	public void onClick(ClickEvent event) {
-		animateCategories(outputPanel);
-	}
-});
 	}
 
 	private void outputCategoriesControls() {
@@ -304,7 +296,6 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 					createLogoutUrl();
 					break;
 				}
-				rootPanel.add(moveToTopButton);
 			}
 
 			@Override
@@ -470,14 +461,15 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 			public void onSuccess(UserStatus result) {
 				final JsArray<T> arrayFromJson = ShopItem.getArrayFromJson(json);
 				panel.clear();
+				ArrayList<LayoutPanel> categories;
 				switch (result) {
 				case ADMIN:
-					createTiles(panel, arrayFromJson, editableCeation);
+					categories = createTiles(arrayFromJson, editableCeation);
 					break;
 				default:
-					createTiles(panel, arrayFromJson, creation);
+					categories = createTiles(arrayFromJson, creation);
 				}
-				animateCategories(outputPanel);
+				animateWidgetAppearenceAndAddToPanel(categories, panel);
 			}
 
 			@Override
@@ -537,13 +529,15 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 				+ "&w=" + width + "&h=" + height;
 	}
 
-	private <T extends ShopItem> void createTiles(final Panel panel,
-			JsArray<T> arrayFromJson, Function<T, LayoutPanel> panelCreation) {
+	private <T extends ShopItem> ArrayList<LayoutPanel> createTiles(JsArray<T> arrayFromJson, Function<T, LayoutPanel> panelCreation) {
+		ArrayList<LayoutPanel> result = new ArrayList<LayoutPanel>();
 		for (int i = 0; i < arrayFromJson.length(); i++) {
 			final T categoryJson = arrayFromJson.get(i);
 			LayoutPanel itemPanel = panelCreation.apply(categoryJson);
-			panel.add(itemPanel);
+			result.add(itemPanel);
 		}
+		
+		return result;
 	}
 
 	private LayoutPanel createCategoryPanel(
@@ -577,7 +571,7 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 		style.setProperty("Transition", params);
 	}
 
-	private void animateCategories(FlowPanel outputPanel) {
+	private void animateWidgetAppearenceAndAddToPanel(List<? extends Widget> widgets, Panel panel) {
 		int clientWidth = Window.getClientWidth();
 		int clientHeight = Window.getClientHeight();
 		int itemWidth = 300;
@@ -586,10 +580,10 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 		int margin = 10;
 		//todo calculate topOffset based on top panel height
 		int topOffset = 100;
-		int delay = 1;//seconds between waves of items
-		int animationSpeed = 2;//seconds for each wave
+		double delay = 0.3;//seconds between waves of items
+		double animationSpeed = 1;//seconds for each wave
 		
-		int widgetCount = outputPanel.getWidgetCount();
+		int widgetCount = widgets.size();
 		if(widgetCount == 0){
 			return;
 		}
@@ -598,14 +592,14 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 		int currentY = topOffset + margin;
 		
 		ArrayList<ArrayList<Widget>> widgetMatrix = new ArrayList<ArrayList<Widget>>();
-		HashMap<Widget, Dimention> destinationDimentions = new HashMap<Widget, Dimention>();
+		final HashMap<Widget, Dimention> destinationDimentions = new HashMap<Widget, Dimention>();
 		//init first row
 		ArrayList<Widget> currentRowList = new ArrayList<Widget>();
-		currentRowList.add(outputPanel.getWidget(0));
+		currentRowList.add(widgets.get(0));
 		widgetMatrix.add(currentRowList);
 
 		for(int i = 0; i < widgetCount; i++){
-			Widget widget = outputPanel.getWidget(i);
+			Widget widget = widgets.get(i);
 			widget.setWidth(itemWidth + "px");
 			widget.setHeight(itemHeight + "px");
 			Style style = widget.getElement().getStyle();
@@ -624,7 +618,7 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 				if(i+1 < widgetCount){
 					//push next widget (if any) into the matrix, on a new row
 					ArrayList<Widget> nextRow = new ArrayList<Widget>();
-					nextRow.add(outputPanel.getWidget(i+1));
+					nextRow.add(widgets.get(i+1));
 					widgetMatrix.add(nextRow);
 				}
 			} else {
@@ -632,21 +626,37 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 				currentX = nextX;
 				if(i+1 < widgetCount){
 					//push next widget into same row
-					widgetMatrix.get(widgetMatrix.size() - 1).add(outputPanel.getWidget(i + 1));
+					widgetMatrix.get(widgetMatrix.size() - 1).add(widgets.get(i + 1));
 				}
 			}
 			
 		}
+		addWidgetsToPanel(widgets, panel);
+
 		//move widgets out the screen
 		moveWidgetsOutOfTheScreen(clientWidth, clientHeight, widgetMatrix);
 		//=============================
 		//set animation delays on widgets
 		int diagonalLength = getDiagonalLength(widgetMatrix);
 
-		setTransitionTimeouts(animationSpeed, widgetMatrix, diagonalLength);
+		setTransitionTimeouts(animationSpeed, delay, widgetMatrix, diagonalLength);
+		
 		//===================================
-		//set destination dimentions
-		animate(destinationDimentions);
+		//set destination dementions
+		Timer timer = new Timer() {
+			@Override
+			public void run() {
+				animate(destinationDimentions);
+			}
+		};
+		//it seems that DOM needs some time to add object appropriately, so we schedule animation to 1 second in the future
+		timer.schedule(1000);
+	}
+
+	private void addWidgetsToPanel(List<? extends Widget> widgets, Panel panel) {
+		for(Widget w: widgets){
+			panel.add(w);
+		}
 	}
 
 	private void animate(HashMap<Widget, Dimention> destinationDimentions) {
@@ -658,7 +668,7 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 		}
 	}
 
-	private void setTransitionTimeouts(int animationSpeed,
+	private void setTransitionTimeouts(double animationSpeed, double delay,
 			ArrayList<ArrayList<Widget>> widgetMatrix, int diagonalLength) {
 		int currentDiagonalIndex = 0;
 		while(currentDiagonalIndex < diagonalLength){
@@ -668,23 +678,25 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 			setTransition(style, diagonalTransitionParams);
 
 			int derivation = 1;
+			double currentDelay = delay;
 			while(true){
 				boolean hitMatrix = false;
 				if(currentRow.size() > currentDiagonalIndex + derivation){
 					Style derivedStyle = currentRow.get(currentDiagonalIndex + derivation).getElement().getStyle();
-					setTransition(derivedStyle, getTransitionParams(animationSpeed, derivation));
+					setTransition(derivedStyle, getTransitionParams(animationSpeed, currentDelay));
 					hitMatrix = true;
 				}
 				if(widgetMatrix.size() > currentDiagonalIndex + derivation){
 					ArrayList<Widget> derivedRow = widgetMatrix.get(currentDiagonalIndex + derivation);
 					if(derivedRow.size() > currentDiagonalIndex){
 						Style derivedStyle = derivedRow.get(currentDiagonalIndex).getElement().getStyle();
-						setTransition(derivedStyle, getTransitionParams(animationSpeed, derivation));
+						setTransition(derivedStyle, getTransitionParams(animationSpeed, currentDelay));
 						hitMatrix = true;
 					}
 				}
 				if(hitMatrix){
 					derivation++;
+					currentDelay += delay;
 				} else {
 					break;
 				}
@@ -724,7 +736,7 @@ moveToTopButton.addClickHandler(new ClickHandler() {
 		}
 	}
 
-	private String getTransitionParams(int animationSpeed, int delay) {
+	private String getTransitionParams(double animationSpeed, double delay) {
 		return "all " + animationSpeed + "s ease-in-out " + delay + "s";
 	}
 

@@ -165,6 +165,9 @@ public class Nl implements EntryPoint {
 		}
 	};
 
+	/**
+	 * This is not used anymore, since we use Carousel
+	 */
 	private Function<GoodJavascriptObject, LayoutPanel> editableGoodPanelCreation = new Function<GoodJavascriptObject, LayoutPanel>() {
 		@Override
 		public LayoutPanel apply(GoodJavascriptObject input) {
@@ -560,21 +563,22 @@ public class Nl implements EntryPoint {
 		ClickHandler clickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				backButton.setVisible(true);
 				final String keyStr = categoryJson.getKeyStr();
 				//animate categories here
 				 Timer t = new Timer() {
 					@Override
 					public void run() {
 						if(true) {
-							outputGoodsForCategory(keyStr, outputPanel);
-							outputControlsForGoods();
-							
+//							outputGoodsForCategory(keyStr, outputPanel);
+//							outputControlsForGoods();
+							moveWidgetsOutOfTheScreen(Window.getClientWidth(), Window.getClientHeight(), widgetMatrix);
 							this.cancel();
 						}
 					}
 				};
 				t.schedule(100);
+
+				backButton.setVisible(true);
 				selectedCategoryKeyStr = keyStr;
 			}
 		};
@@ -613,7 +617,7 @@ public class Nl implements EntryPoint {
 			return;
 		}
 		
-		//getting widget matrix. This will set left and top properties of widgets as they were put on grid
+		//getting and caching a widget matrix. This will set left and top properties of widgets as they were put on grid
 		widgetMatrix = gitWidgetMatrix(widgets, clientWidth, itemWidth, itemHeight, margin, topOffset);
 		
 		//at this point, widgets have their left and top values set to destination values (put on grid). Persisting them in destinationDimentions
@@ -631,9 +635,8 @@ public class Nl implements EntryPoint {
 		moveWidgetsOutOfTheScreen(clientWidth, clientHeight, widgetMatrix);
 		//=============================
 		//set animation delays on widgets
-		int diagonalLength = getDiagonalLength(widgetMatrix);
 
-		setTransitionTimeouts(animationSpeed, delay, widgetMatrix, diagonalLength);
+		setTransitionTimeouts(animationSpeed, delay, widgetMatrix, true);
 		
 		//===================================
 		//set destination dementions
@@ -647,6 +650,16 @@ public class Nl implements EntryPoint {
 		timer.schedule(1000);
 	}
 
+	/**
+	 * This takes an array of widgets and converts builds a grid (matrix) from them. It sets left and top properties widgets as
+	 * if they were put on a grid
+	 * @param widgets array of widgets, not added to any parent
+	 * @param clientWidth - screen width
+	 * @param itemWidth widget width - will be set
+	 * @param itemHeight widget height - will be set
+	 * @param margin margin top-bottom-left-right of widgets
+	 * @param topOffset offset from the top of the screen
+	 */
 	private ArrayList<ArrayList<Widget>> gitWidgetMatrix(
 			List<? extends Widget> widgets, int clientWidth, int itemWidth,
 			int itemHeight, int margin, int topOffset) {
@@ -712,9 +725,19 @@ public class Nl implements EntryPoint {
 		}
 	}
 
+	/**
+	 * Sets CSS3 transition timeouts for grid of widgets
+	 * @param animationSpeed
+	 * @param delay amount of delay to execute animation with
+	 * @param widgetMatrix
+	 * @param in true if widgets should appear, false - if they should disappear
+	 */
 	private void setTransitionTimeouts(double animationSpeed, double delay,
-			ArrayList<ArrayList<Widget>> widgetMatrix, int diagonalLength) {
+			ArrayList<ArrayList<Widget>> widgetMatrix, boolean in) {
 		int currentDiagonalIndex = 0;
+		int diagonalLength = getDiagonalLength(widgetMatrix);
+
+		//do for every row/column of the diagonal
 		while(currentDiagonalIndex < diagonalLength){
 			ArrayList<Widget> currentRow = widgetMatrix.get(currentDiagonalIndex);
 			Style style = currentRow.get(currentDiagonalIndex).getElement().getStyle();
@@ -723,6 +746,8 @@ public class Nl implements EntryPoint {
 
 			int derivation = 1;
 			double currentDelay = delay;
+			//do for every row and column simultaneously. If one finishes, the other will still be executed.
+			//Finishes when both row and column are finished
 			while(true){
 				boolean hitMatrix = false;
 				if(currentRow.size() > currentDiagonalIndex + derivation){
@@ -739,9 +764,11 @@ public class Nl implements EntryPoint {
 					}
 				}
 				if(hitMatrix){
+					//there are still cells in row/column
 					derivation++;
 					currentDelay += delay;
 				} else {
+					//there are no cells in row/column. Proceed to the next diagonal cell and its row/column
 					break;
 				}
 			}

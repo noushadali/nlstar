@@ -1,7 +1,9 @@
 package com.denisk.appengine.nl.client;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +38,13 @@ import com.google.gwt.user.client.ui.Widget;
 public class Nl implements EntryPoint {
 	public static final String THUMB_WIDTH = "200";
 	public static final String THUMB_HEIGHT = "100";
+
+	private static final int ITEM_WIDTH = 300;
+	private static final int ITEM_HEIGHT = 200;
+	private static final double ANIMATION_DELAY = 0.3;
+	private static final double ANIMATION_SPEED = 1;
+	private static final int CATEGORIES_MARGIN = 10;
+	private static final int TOP_OFFSET = 100;
 
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
 	private Label categoriesInfo = new Label();
@@ -564,19 +573,24 @@ public class Nl implements EntryPoint {
 			@Override
 			public void onClick(ClickEvent event) {
 				final String keyStr = categoryJson.getKeyStr();
+				setTransitionTimeouts(ANIMATION_SPEED, ANIMATION_DELAY, widgetMatrix, false);
+				moveWidgetsOutOfTheScreen(Window.getClientWidth(), Window.getClientHeight(), widgetMatrix);
+				final HashSet<Widget> allWidgets = new HashSet<Widget>();
+				for(List<Widget> l: widgetMatrix){
+					allWidgets.addAll(l);
+				}
 				//animate categories here
 				 Timer t = new Timer() {
 					@Override
 					public void run() {
-						if(true) {
-//							outputGoodsForCategory(keyStr, outputPanel);
-//							outputControlsForGoods();
-							moveWidgetsOutOfTheScreen(Window.getClientWidth(), Window.getClientHeight(), widgetMatrix);
+						if(allWidgetsOutsideTheScreen(allWidgets)) {
+							outputGoodsForCategory(keyStr, outputPanel);
+							outputControlsForGoods();
 							this.cancel();
 						}
 					}
 				};
-				t.schedule(100);
+				t.scheduleRepeating(300);
 
 				backButton.setVisible(true);
 				selectedCategoryKeyStr = keyStr;
@@ -587,6 +601,17 @@ public class Nl implements EntryPoint {
 		return itemPanel;
 	}
 
+	private boolean allWidgetsOutsideTheScreen(Collection<? extends Widget> widgets){
+		int clientWidth = Window.getClientWidth();
+		int clientHeight = Window.getClientHeight();
+		for(Widget w: widgets){
+			if(w.getElement().getAbsoluteLeft() < clientWidth && w.getElement().getAbsoluteTop() < clientHeight){
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	private void setTransition(Style style, String params) {
 		style.setProperty("WebkitTransition", params);
 		style.setProperty("MozTransition", params);
@@ -603,22 +628,13 @@ public class Nl implements EntryPoint {
 	private void animateWidgetGridAppearenceAndAddToPanel(List<? extends Widget> widgets, Panel panel) {
 		int clientWidth = Window.getClientWidth();
 		int clientHeight = Window.getClientHeight();
-		int itemWidth = 300;
-		int itemHeight = 200;
-		//We use the same amount of margin for top, bottom, left and right values
-		int margin = 10;
-		//todo calculate topOffset based on top panel height
-		int topOffset = 100;
-		double delay = 0.3;//seconds between waves of items
-		double animationSpeed = 1;//seconds for each wave
-		
 		int widgetCount = widgets.size();
 		if(widgetCount == 0){
 			return;
 		}
 		
 		//getting and caching a widget matrix. This will set left and top properties of widgets as they were put on grid
-		widgetMatrix = gitWidgetMatrix(widgets, clientWidth, itemWidth, itemHeight, margin, topOffset);
+		widgetMatrix = gitWidgetMatrix(widgets, clientWidth, ITEM_WIDTH, ITEM_HEIGHT, CATEGORIES_MARGIN, TOP_OFFSET);
 		
 		//at this point, widgets have their left and top values set to destination values (put on grid). Persisting them in destinationDimentions
 		final HashMap<Widget, Dimention> destinationDimentions = new HashMap<Widget, Dimention>();
@@ -626,7 +642,7 @@ public class Nl implements EntryPoint {
 			Style style = w.getElement().getStyle();
 			String top = style.getTop();
 			String left = style.getLeft();
-			destinationDimentions.put(w, new Dimention(Integer.parseInt(left.substring(0, left.length() - 2)), Integer.parseInt(top.substring(0, top.length() - 2))));
+			destinationDimentions.put(w, new Dimention(getAmount(left), getAmount(top)));
 		}
 		
 		addWidgetsToPanel(widgets, panel);
@@ -636,7 +652,7 @@ public class Nl implements EntryPoint {
 		//=============================
 		//set animation delays on widgets
 
-		setTransitionTimeouts(animationSpeed, delay, widgetMatrix, true);
+		setTransitionTimeouts(ANIMATION_SPEED, ANIMATION_DELAY, widgetMatrix, true);
 		
 		//===================================
 		//set destination dementions
@@ -648,6 +664,13 @@ public class Nl implements EntryPoint {
 		};
 		//it seems that DOM needs some time to add object appropriately, so we schedule animation to 1 second in the future
 		timer.schedule(1000);
+	}
+
+	/**
+	 * This cuts 'px' suffix from given string and returns int amount of the value
+	 */
+	private int getAmount(String style) {
+		return Integer.parseInt(style.substring(0, style.length() - 2));
 	}
 
 	/**
@@ -737,15 +760,30 @@ public class Nl implements EntryPoint {
 		int currentDiagonalIndex = 0;
 		int diagonalLength = getDiagonalLength(widgetMatrix);
 
+		//this is used only when in == false
+		int longestSide = Math.max(widgetMatrix.size(), widgetMatrix.get(0).size());
+		double maxDelay = delay * longestSide;
+		
 		//do for every row/column of the diagonal
 		while(currentDiagonalIndex < diagonalLength){
 			ArrayList<Widget> currentRow = widgetMatrix.get(currentDiagonalIndex);
 			Style style = currentRow.get(currentDiagonalIndex).getElement().getStyle();
-			String diagonalTransitionParams = getTransitionParams(animationSpeed, 0);
+			double diagonalCellDelay;
+			if(in){
+				diagonalCellDelay = 0;
+			} else {
+				diagonalCellDelay = maxDelay;
+			}
+			String diagonalTransitionParams = getTransitionParams(animationSpeed, diagonalCellDelay);
 			setTransition(style, diagonalTransitionParams);
 
 			int derivation = 1;
-			double currentDelay = delay;
+			double currentDelay;
+			if(in){
+				currentDelay = delay;
+			} else {
+				currentDelay = maxDelay - delay;
+			}
 			//do for every row and column simultaneously. If one finishes, the other will still be executed.
 			//Finishes when both row and column are finished
 			while(true){
@@ -766,7 +804,11 @@ public class Nl implements EntryPoint {
 				if(hitMatrix){
 					//there are still cells in row/column
 					derivation++;
-					currentDelay += delay;
+					if (in) {
+						currentDelay += delay;
+					} else {
+						currentDelay -= delay;
+					}
 				} else {
 					//there are no cells in row/column. Proceed to the next diagonal cell and its row/column
 					break;

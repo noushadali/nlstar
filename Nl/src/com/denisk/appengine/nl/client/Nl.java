@@ -49,7 +49,11 @@ public class Nl implements EntryPoint {
 	private Button clearButton;
 	private Button newButton;
 	private Button backButton;
+	
+	//state fields
 	private String selectedCategoryKeyStr;
+	private ArrayList<ArrayList<Widget>> widgetMatrix;
+	
 
 	private ClickHandler categoriesClearButtonClickHandler = new ClickHandler() {
 		@Override
@@ -405,21 +409,23 @@ public class Nl implements EntryPoint {
 		});
 	}
 
+	/**
+	 * This method creates fills carousel with good items and adds carousel to outputPanel
+	 */
 	private void outputGoodsForCategory(String categoryKeyStr,
 			final FlowPanel panel) {
 		
 		dtoService.getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {
-				outputPanel.clear();
+				panel.clear();
 				final JsArray<GoodJavascriptObject> goods = GoodJavascriptObject.getArrayFromJson(json);
 				if(goods.length()> 0) {
-					outputPanel.add(carousel);
+					panel.add(carousel);
 					final ArrayList<Photo> photos = new ArrayList<Photo>(goods.length());
 					for(int i = 0; i < goods.length(); i++){
 						GoodJavascriptObject good = goods.get(i);
 						String imageUrl = getImageUrl(good, "600", "600");
-						System.out.println("Adding photo: " + imageUrl);
 						Photo photo = new Photo(imageUrl, good.getName(), good.getDescription());
 						photos.add(photo);
 					}
@@ -469,7 +475,7 @@ public class Nl implements EntryPoint {
 				default:
 					categories = createTiles(arrayFromJson, creation);
 				}
-				animateWidgetAppearenceAndAddToPanel(categories, panel);
+				animateWidgetGridAppearenceAndAddToPanel(categories, panel);
 			}
 
 			@Override
@@ -540,6 +546,9 @@ public class Nl implements EntryPoint {
 		return result;
 	}
 
+	/**
+	 * Creates panel for category from json
+	 */
 	private LayoutPanel createCategoryPanel(
 			final CategoryJavascriptObject categoryJson) {
 		LayoutPanel itemPanel = createShopItemPanel(categoryJson);
@@ -552,9 +561,20 @@ public class Nl implements EntryPoint {
 			@Override
 			public void onClick(ClickEvent event) {
 				backButton.setVisible(true);
-				String keyStr = categoryJson.getKeyStr();
-				outputGoodsForCategory(keyStr, outputPanel);
-				outputControlsForGoods();
+				final String keyStr = categoryJson.getKeyStr();
+				//animate categories here
+				 Timer t = new Timer() {
+					@Override
+					public void run() {
+						if(true) {
+							outputGoodsForCategory(keyStr, outputPanel);
+							outputControlsForGoods();
+							
+							this.cancel();
+						}
+					}
+				};
+				t.schedule(100);
 				selectedCategoryKeyStr = keyStr;
 			}
 		};
@@ -571,7 +591,12 @@ public class Nl implements EntryPoint {
 		style.setProperty("Transition", params);
 	}
 
-	private void animateWidgetAppearenceAndAddToPanel(List<? extends Widget> widgets, Panel panel) {
+	/**
+	 * This is called when categories are appeared on the screen
+	 * @param widgets - categories wigdets, are not yet added to panel
+	 * @param panel - future parent of Widgets
+	 */
+	private void animateWidgetGridAppearenceAndAddToPanel(List<? extends Widget> widgets, Panel panel) {
 		int clientWidth = Window.getClientWidth();
 		int clientHeight = Window.getClientHeight();
 		int itemWidth = 300;
@@ -588,49 +613,18 @@ public class Nl implements EntryPoint {
 			return;
 		}
 		
-		int currentX = margin;
-		int currentY = topOffset + margin;
+		//getting widget matrix. This will set left and top properties of widgets as they were put on grid
+		widgetMatrix = gitWidgetMatrix(widgets, clientWidth, itemWidth, itemHeight, margin, topOffset);
 		
-		ArrayList<ArrayList<Widget>> widgetMatrix = new ArrayList<ArrayList<Widget>>();
+		//at this point, widgets have their left and top values set to destination values (put on grid). Persisting them in destinationDimentions
 		final HashMap<Widget, Dimention> destinationDimentions = new HashMap<Widget, Dimention>();
-		//init first row
-		ArrayList<Widget> currentRowList = new ArrayList<Widget>();
-		currentRowList.add(widgets.get(0));
-		widgetMatrix.add(currentRowList);
-
-		for(int i = 0; i < widgetCount; i++){
-			Widget widget = widgets.get(i);
-			widget.setWidth(itemWidth + "px");
-			widget.setHeight(itemHeight + "px");
-			Style style = widget.getElement().getStyle();
-			style.setMargin(margin, Unit.PX);
-
-			destinationDimentions.put(widget,  new Dimention(currentX, currentY));
-			
-			style.setLeft(currentX, Unit.PX);
-			style.setTop(currentY, Unit.PX);
-			
-			int nextX = currentX + margin*2 + itemWidth;
-			if(nextX + itemWidth + margin > clientWidth){
-				//next one will be new line
-				currentX = margin;
-				currentY += itemHeight + margin*2;
-				if(i+1 < widgetCount){
-					//push next widget (if any) into the matrix, on a new row
-					ArrayList<Widget> nextRow = new ArrayList<Widget>();
-					nextRow.add(widgets.get(i+1));
-					widgetMatrix.add(nextRow);
-				}
-			} else {
-				//line continues, will increment row
-				currentX = nextX;
-				if(i+1 < widgetCount){
-					//push next widget into same row
-					widgetMatrix.get(widgetMatrix.size() - 1).add(widgets.get(i + 1));
-				}
-			}
-			
+		for(Widget w: widgets){
+			Style style = w.getElement().getStyle();
+			String top = style.getTop();
+			String left = style.getLeft();
+			destinationDimentions.put(w, new Dimention(Integer.parseInt(left.substring(0, left.length() - 2)), Integer.parseInt(top.substring(0, top.length() - 2))));
 		}
+		
 		addWidgetsToPanel(widgets, panel);
 
 		//move widgets out the screen
@@ -651,6 +645,56 @@ public class Nl implements EntryPoint {
 		};
 		//it seems that DOM needs some time to add object appropriately, so we schedule animation to 1 second in the future
 		timer.schedule(1000);
+	}
+
+	private ArrayList<ArrayList<Widget>> gitWidgetMatrix(
+			List<? extends Widget> widgets, int clientWidth, int itemWidth,
+			int itemHeight, int margin, int topOffset) {
+		/**
+		 * A list of list of widgets in appropriate 'matrix' order
+		 */
+		int currentX = margin;
+		int currentY = topOffset + margin;
+		ArrayList<ArrayList<Widget>> widgetMatrix = new ArrayList<ArrayList<Widget>>();
+		//init first row
+		ArrayList<Widget> currentRowList = new ArrayList<Widget>();
+		currentRowList.add(widgets.get(0));
+		widgetMatrix.add(currentRowList);
+		
+		int wCount = widgets.size();
+		for(int i = 0; i < wCount; i++){
+			Widget widget = widgets.get(i);
+			widget.setWidth(itemWidth + "px");
+			widget.setHeight(itemHeight + "px");
+			Style style = widget.getElement().getStyle();
+			style.setMargin(margin, Unit.PX);
+
+			//one of this will be overridden later
+			style.setLeft(currentX, Unit.PX);
+			style.setTop(currentY, Unit.PX);
+			
+			int nextX = currentX + margin*2 + itemWidth;
+			if(nextX + itemWidth + margin > clientWidth){
+				//next one will be new line
+				currentX = margin;
+				currentY += itemHeight + margin*2;
+				if(i+1 < wCount){
+					//push next widget (if any) into the matrix, on a new row
+					ArrayList<Widget> nextRow = new ArrayList<Widget>();
+					nextRow.add(widgets.get(i+1));
+					widgetMatrix.add(nextRow);
+				}
+			} else {
+				//line continues, will increment row
+				currentX = nextX;
+				if(i+1 < wCount){
+					//push next widget into same row
+					widgetMatrix.get(widgetMatrix.size() - 1).add(widgets.get(i + 1));
+				}
+			}
+			
+		}
+		return widgetMatrix;
 	}
 
 	private void addWidgetsToPanel(List<? extends Widget> widgets, Panel panel) {

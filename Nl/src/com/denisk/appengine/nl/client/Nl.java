@@ -256,16 +256,28 @@ public class Nl implements EntryPoint {
 		backButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				setCategoriesControlsIfNeeded();
-				outputCategories(outputPanel);
-				if (newButtonClickHandlerRegistration != null) {
-					newButtonClickHandlerRegistration.removeHandler();
-				}
-
-				if (newButton != null) {
-					newButtonClickHandlerRegistration = newButton
-							.addClickHandler(categoriesNewButtonHandler);
-				}
+				//set transitioned style to the carousel
+				carousel.removeStyleName("carouselAnimated");
+				carousel.addStyleName("carouselDownAnimated");
+				Timer t = new Timer() {
+					
+					@Override
+					public void run() {
+						//move carousel far down
+						//this will last 2 seconds
+						carousel.getElement().getStyle().setTop(Window.getClientHeight(), Unit.PX);	
+					}
+				};
+				t.schedule(500);
+				
+				Timer t1 = new Timer() {
+					@Override
+					public void run() {
+						setCategoriesButtonHandlers();
+						outputCategories(outputPanel);
+					}
+				};
+				t1.schedule(2000 + 500 + 100/*just in case*/);
 			}
 		});
 
@@ -283,15 +295,9 @@ public class Nl implements EntryPoint {
 					newButton = new Button("New item");
 					rootPanel.add(clearButton);
 					rootPanel.add(newButton);
-					if (newButtonClickHandlerRegistration != null) {
-						newButtonClickHandlerRegistration.removeHandler();
-					}
-
-					newButtonClickHandlerRegistration = newButton
-							.addClickHandler(categoriesNewButtonHandler);
 					createLogoutUrl();
 
-					setCategoriesControlsIfNeeded();
+					setCategoriesButtonHandlers();
 					break;
 				case NOT_LOGGED_IN:
 					dtoService.getLoginUrl(new AsyncCallback<String>() {
@@ -320,7 +326,14 @@ public class Nl implements EntryPoint {
 		});
 	}
 
-	private void setCategoriesControlsIfNeeded() {
+	private void setCategoriesButtonHandlers() {
+		if (newButtonClickHandlerRegistration != null) {
+			newButtonClickHandlerRegistration.removeHandler();
+		}
+
+		newButtonClickHandlerRegistration = newButton
+				.addClickHandler(categoriesNewButtonHandler);
+
 		if (clearButtonHandlerRegistration != null) {
 			clearButtonHandlerRegistration.removeHandler();
 		}
@@ -471,6 +484,7 @@ public class Nl implements EntryPoint {
 						
 						@Override
 						public void run() {
+							carousel.removeStyleName("carouselDownAnimated");
 							carousel.addStyleName("carouselAnimated");
 						}
 					};

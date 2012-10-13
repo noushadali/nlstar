@@ -430,6 +430,9 @@ public class Nl implements EntryPoint {
 		dtoService.getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {
+				//move carousel far down
+				carousel.getElement().getStyle().setTop(Window.getClientHeight(), Unit.PX);
+				
 				panel.clear();
 				final JsArray<GoodJavascriptObject> goods = GoodJavascriptObject.getArrayFromJson(json);
 				if(goods.length()> 0) {
@@ -462,6 +465,16 @@ public class Nl implements EntryPoint {
 						}
 					});
 					carousel.setPhotos(photos);
+					
+					//Slide the carousel from the bottom
+					Timer t = new Timer() {
+						
+						@Override
+						public void run() {
+							carousel.addStyleName("carouselAnimated");
+						}
+					};
+					t.schedule(500);
 				}
 			}
 
@@ -573,20 +586,22 @@ public class Nl implements EntryPoint {
 			@Override
 			public void onClick(ClickEvent event) {
 				final String keyStr = categoryJson.getKeyStr();
+				//categories disappearance animation goes here
 				setTransitionTimeouts(ANIMATION_SPEED, ANIMATION_DELAY, widgetMatrix, false);
 				moveWidgetsOutOfTheScreen(Window.getClientWidth(), Window.getClientHeight(), widgetMatrix);
 				final HashSet<Widget> allWidgets = new HashSet<Widget>();
 				for(List<Widget> l: widgetMatrix){
 					allWidgets.addAll(l);
 				}
-				//animate categories here
+
 				 Timer t = new Timer() {
 					@Override
 					public void run() {
 						if(allWidgetsOutsideTheScreen(allWidgets)) {
+							//at this point, all categories are outside the screen
 							outputGoodsForCategory(keyStr, outputPanel);
 							outputControlsForGoods();
-							this.cancel();
+							cancel();
 						}
 					}
 				};

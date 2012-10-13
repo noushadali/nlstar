@@ -57,6 +57,7 @@
 .photoCarousel {
 	width: 100%;
 	height: 600px;
+	position: absolute;
 }
 .gwt-PopupPanel {
 	z-index: 999;
@@ -67,4 +68,36 @@
 }
 .good-description {
 	max-width: 800px;
+}
+
+/**********************ANIMATIONS********************/
+@-moz-keyframes slideFromBottom {
+	0% {}
+	70% {top: 10px;}
+	100% {top: 100px;}
+}
+
+@-webkit-keyframes slideFromBottom {
+	0% {}
+	70% {top: 10px;}
+	100% {top: 100px;}
+}
+
+@-o-keyframes slideFromBottom {
+	0% {}
+	70% {top: 10px;}
+	100% {top: 100px;}
+}
+
+@keyframes slideFromBottom {
+	0% {}
+	70% {top: 10px;}
+	100% {top: 100px;}
+}
+
+.carouselAnimated {
+	-moz-animation: slideFromBottom 2s forwards;
+	-webkit-animation: slideFromBottom 2s forwards;
+	-o-animation: slideFromBottom 2s forwards;
+	animation: slideFromBottom 2s forwards;
 }

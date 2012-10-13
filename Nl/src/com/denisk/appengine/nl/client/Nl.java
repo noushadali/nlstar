@@ -331,9 +331,10 @@ public class Nl implements EntryPoint {
 			newButtonClickHandlerRegistration.removeHandler();
 		}
 
-		newButtonClickHandlerRegistration = newButton
-				.addClickHandler(categoriesNewButtonHandler);
-
+		if (newButton != null) {
+			newButtonClickHandlerRegistration = newButton
+					.addClickHandler(categoriesNewButtonHandler);
+		}
 		if (clearButtonHandlerRegistration != null) {
 			clearButtonHandlerRegistration.removeHandler();
 		}
@@ -341,6 +342,21 @@ public class Nl implements EntryPoint {
 			clearButtonHandlerRegistration = clearButton
 					.addClickHandler(categoriesClearButtonClickHandler);
 		}
+	}
+
+	private void setGoodsButtonsHandlers(
+			ClickHandler goodsClearButtonClickHandler) {
+		clearButtonHandlerRegistration = clearButton
+				.addClickHandler(goodsClearButtonClickHandler);
+		editGoodForm
+				.setParentCategoryItemKeyStr(selectedCategoryKeyStr);
+
+		if (newButtonClickHandlerRegistration != null) {
+			newButtonClickHandlerRegistration.removeHandler();
+		}
+
+		newButtonClickHandlerRegistration = newButton
+				.addClickHandler(goodsNewButtonHandler);
 	}
 
 	private void outputCategories(final Panel panel) {
@@ -408,17 +424,7 @@ public class Nl implements EntryPoint {
 							}
 						};
 
-						clearButtonHandlerRegistration = clearButton
-								.addClickHandler(goodsClearButtonClickHandler);
-						editGoodForm
-								.setParentCategoryItemKeyStr(selectedCategoryKeyStr);
-
-						if (newButtonClickHandlerRegistration != null) {
-							newButtonClickHandlerRegistration.removeHandler();
-						}
-
-						newButtonClickHandlerRegistration = newButton
-								.addClickHandler(goodsNewButtonHandler);
+						setGoodsButtonsHandlers(goodsClearButtonClickHandler);
 					}
 					break;
 				case NOT_ADMIN:

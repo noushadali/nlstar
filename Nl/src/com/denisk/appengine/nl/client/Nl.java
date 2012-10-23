@@ -257,7 +257,7 @@ public class Nl implements EntryPoint {
 			@Override
 			public void onClick(ClickEvent event) {
 				//set transitioned style to the carousel
-				carousel.removeStyleName("carouselAnimated");
+				
 				carousel.addStyleName("carouselDownAnimated");
 				Timer t = new Timer() {
 					
@@ -275,6 +275,7 @@ public class Nl implements EntryPoint {
 					public void run() {
 						setCategoriesButtonHandlers();
 						outputCategories(outputPanel);
+						
 					}
 				};
 				t1.schedule(2000 + 500 + 100/*just in case*/);
@@ -495,6 +496,17 @@ public class Nl implements EntryPoint {
 						}
 					};
 					t.schedule(500);
+					//remove 'top' style after the carousel has arrived
+					Timer t1 = new Timer() {
+						
+						@Override
+						public void run() {
+							//remove 'top' property from the carousel
+							carousel.getElement().getStyle().setTop(100, Unit.PX);
+							carousel.removeStyleName("carouselAnimated");
+						}
+					};
+					t1.schedule(2000+500);
 				}
 			}
 

@@ -58,16 +58,16 @@ public class Nl implements EntryPoint {
 	private Button clearButton;
 	private Button newButton;
 	private Button backButton;
-	
-	//state fields
+
+	// state fields
 	private String selectedCategoryKeyStr;
 	private ArrayList<ArrayList<Widget>> widgetMatrix;
-	
 
 	private ClickHandler categoriesClearButtonClickHandler = new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
-			if(Window.confirm("Are you sure you want to delete all categories and items in these categories?")){
+			if (Window
+					.confirm("Are you sure you want to delete all categories and items in these categories?")) {
 				dtoService.clearData(new AsyncCallback<Void>() {
 					@Override
 					public void onSuccess(Void result) {
@@ -119,12 +119,14 @@ public class Nl implements EntryPoint {
 	// ==============================================
 	private EditGoodForm editGoodForm = new EditGoodForm();
 	private EditCategoryForm editCategoryForm = new EditCategoryForm();
-	
-	private AsyncCallback<Void> getRedrawingCallback(final Function<Void, Void> redrawing){
+
+	private AsyncCallback<Void> getRedrawingCallback(
+			final Function<Void, Void> redrawing) {
 		return new AsyncCallback<Void>() {
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert("Error processing deletion of the item, exception is " + caught);
+				Window.alert("Error processing deletion of the item, exception is "
+						+ caught);
 			}
 
 			@Override
@@ -137,15 +139,18 @@ public class Nl implements EntryPoint {
 	private Function<CategoryJavascriptObject, Void> categoryDeletion = new Function<CategoryJavascriptObject, Void>() {
 		@Override
 		public Void apply(CategoryJavascriptObject input) {
-			dtoService.deleteCategory(input.getKeyStr(), input.getImageBlobKey(), input.getBackgroundBlobKey(), getRedrawingCallback(redrawCategoriesCallback));
+			dtoService.deleteCategory(input.getKeyStr(),
+					input.getImageBlobKey(), input.getBackgroundBlobKey(),
+					getRedrawingCallback(redrawCategoriesCallback));
 			return null;
 		}
 	};
-	
+
 	private Function<GoodJavascriptObject, Void> goodDeletion = new Function<GoodJavascriptObject, Void>() {
 		@Override
 		public Void apply(GoodJavascriptObject input) {
-			dtoService.deleteGood(input.getKeyStr(), input.getImageBlobKey(), getRedrawingCallback(redrawGoodsCallback));
+			dtoService.deleteGood(input.getKeyStr(), input.getImageBlobKey(),
+					getRedrawingCallback(redrawGoodsCallback));
 			return null;
 		}
 	};
@@ -200,16 +205,17 @@ public class Nl implements EntryPoint {
 	/**
 	 * Deletes an item and redraws the panel
 	 */
-	private <T extends ShopItem> void buildDeleteButton(final T item, LayoutPanel panel, final Function<T, Void> deletion){
+	private <T extends ShopItem> void buildDeleteButton(final T item,
+			LayoutPanel panel, final Function<T, Void> deletion) {
 		HTML delete = new HTML("<a href='javascript://'>Delete</a>");
 
 		delete.addClickHandler(getDeleteClickHandler(item, deletion));
-		
+
 		panel.add(delete);
-		
+
 		panel.setWidgetRightWidth(delete, 15, Style.Unit.PX, 40, Style.Unit.PX);
 		panel.setWidgetTopHeight(delete, 10, Style.Unit.PX, 20, Style.Unit.PX);
-		
+
 	}
 
 	private <T extends ShopItem> ClickHandler getDeleteClickHandler(
@@ -218,7 +224,8 @@ public class Nl implements EntryPoint {
 			@Override
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
-				if(Window.confirm("Are you sure you want to delete " + item.getName() + "?")){
+				if (Window.confirm("Are you sure you want to delete "
+						+ item.getName() + "?")) {
 					deletion.apply(item);
 				}
 			}
@@ -240,8 +247,7 @@ public class Nl implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		editGoodForm
-				.setRedrawAfterItemCreatedCallback(redrawGoodsCallback);
+		editGoodForm.setRedrawAfterItemCreatedCallback(redrawGoodsCallback);
 		editCategoryForm
 				.setRedrawAfterItemCreatedCallback(redrawCategoriesCallback);
 
@@ -256,29 +262,30 @@ public class Nl implements EntryPoint {
 		backButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				//set transitioned style to the carousel
-				
+				// set transitioned style to the carousel
+
 				carousel.addStyleName("carouselDownAnimated");
 				Timer t = new Timer() {
-					
+
 					@Override
 					public void run() {
-						//move carousel far down
-						//this will last 2 seconds
-						carousel.getElement().getStyle().setTop(Window.getClientHeight(), Unit.PX);	
+						// move carousel far down
+						// this will last 2 seconds
+						carousel.getElement().getStyle()
+								.setTop(Window.getClientHeight(), Unit.PX);
 					}
 				};
 				t.schedule(500);
-				
+
 				Timer t1 = new Timer() {
 					@Override
 					public void run() {
 						setCategoriesButtonHandlers();
 						outputCategories(outputPanel);
-						
+
 					}
 				};
-				t1.schedule(2000 + 500 + 100/*just in case*/);
+				t1.schedule(2000 + 500 + 100/* just in case */);
 			}
 		});
 
@@ -349,8 +356,7 @@ public class Nl implements EntryPoint {
 			ClickHandler goodsClearButtonClickHandler) {
 		clearButtonHandlerRegistration = clearButton
 				.addClickHandler(goodsClearButtonClickHandler);
-		editGoodForm
-				.setParentCategoryItemKeyStr(selectedCategoryKeyStr);
+		editGoodForm.setParentCategoryItemKeyStr(selectedCategoryKeyStr);
 
 		if (newButtonClickHandlerRegistration != null) {
 			newButtonClickHandlerRegistration.removeHandler();
@@ -362,12 +368,11 @@ public class Nl implements EntryPoint {
 
 	private void outputCategories(final Panel panel) {
 		backButton.setVisible(false);
-		final Function<CategoryJavascriptObject, LayoutPanel> editableCreation = editableCategoryPanelCreation;
-		final Function<CategoryJavascriptObject, LayoutPanel> creation = categoryPanelCreation;
 		dtoService.getCategoriesJson(new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {
-				createShopItemsFromJson(panel, creation, editableCreation, json);
+				createShopItemsFromJson(panel, categoryPanelCreation,
+						editableCategoryPanelCreation, json);
 			}
 
 			@Override
@@ -376,6 +381,9 @@ public class Nl implements EntryPoint {
 		});
 	}
 
+	/**
+	 * Calculates total items count and updates corresponding label
+	 */
 	private void updateLabel(final Label status) {
 		dtoService.countEntities(new AsyncCallback<String>() {
 			@Override
@@ -442,53 +450,60 @@ public class Nl implements EntryPoint {
 	}
 
 	/**
-	 * This method creates fills carousel with good items and adds carousel to outputPanel
+	 * This method creates fills carousel with good items and adds carousel to
+	 * outputPanel
 	 */
 	private void outputGoodsForCategory(String categoryKeyStr,
 			final FlowPanel panel) {
-		
+
 		dtoService.getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {
-				//move carousel far down
-				carousel.getElement().getStyle().setTop(Window.getClientHeight(), Unit.PX);
-				
+				// move carousel far down
+				carousel.getElement().getStyle()
+						.setTop(Window.getClientHeight(), Unit.PX);
+
 				panel.clear();
-				final JsArray<GoodJavascriptObject> goods = GoodJavascriptObject.getArrayFromJson(json);
-				if(goods.length()> 0) {
+				final JsArray<GoodJavascriptObject> goods = GoodJavascriptObject
+						.getArrayFromJson(json);
+				if (goods.length() > 0) {
 					panel.add(carousel);
-					final ArrayList<Photo> photos = new ArrayList<Photo>(goods.length());
-					for(int i = 0; i < goods.length(); i++){
+					final ArrayList<Photo> photos = new ArrayList<Photo>(goods
+							.length());
+					for (int i = 0; i < goods.length(); i++) {
 						GoodJavascriptObject good = goods.get(i);
 						String imageUrl = getImageUrl(good, "600", "600");
-						Photo photo = new Photo(imageUrl, good.getName(), good.getDescription());
+						Photo photo = new Photo(imageUrl, good.getName(), good
+								.getDescription());
 						photos.add(photo);
 					}
 					dtoService.isAdmin(new AsyncCallback<UserStatus>() {
-						
+
 						@Override
 						public void onSuccess(UserStatus result) {
-							if(UserStatus.ADMIN == result){
-								for(int i = 0; i < photos.size(); i++){
+							if (UserStatus.ADMIN == result) {
+								for (int i = 0; i < photos.size(); i++) {
 									Photo photo = photos.get(i);
 									GoodJavascriptObject good = goods.get(i);
 
-									photo.setEditClickHandler(getEditClickHandler(good, editGoodForm));
-									photo.setDeleteClickHandler(getDeleteClickHandler(good, goodDeletion));
+									photo.setEditClickHandler(getEditClickHandler(
+											good, editGoodForm));
+									photo.setDeleteClickHandler(getDeleteClickHandler(
+											good, goodDeletion));
 								}
 							}
 						}
-						
+
 						@Override
 						public void onFailure(Throwable caught) {
 							Window.alert("Can't determine credentials for user");
 						}
 					});
 					carousel.setPhotos(photos);
-					
-					//Slide the carousel from the bottom
+
+					// Slide the carousel from the bottom
 					Timer t = new Timer() {
-						
+
 						@Override
 						public void run() {
 							carousel.removeStyleName("carouselDownAnimated");
@@ -496,17 +511,18 @@ public class Nl implements EntryPoint {
 						}
 					};
 					t.schedule(500);
-					//remove 'top' style after the carousel has arrived
+					// remove 'top' style after the carousel has arrived
 					Timer t1 = new Timer() {
-						
+
 						@Override
 						public void run() {
-							//remove 'top' property from the carousel
-							carousel.getElement().getStyle().setTop(100, Unit.PX);
+							// remove 'top' property from the carousel
+							carousel.getElement().getStyle()
+									.setTop(100, Unit.PX);
 							carousel.removeStyleName("carouselAnimated");
 						}
 					};
-					t1.schedule(2000+500);
+					t1.schedule(2000 + 500);
 				}
 			}
 
@@ -522,7 +538,8 @@ public class Nl implements EntryPoint {
 		dtoService.isAdmin(new AsyncCallback<UserStatus>() {
 			@Override
 			public void onSuccess(UserStatus result) {
-				final JsArray<T> arrayFromJson = ShopItem.getArrayFromJson(json);
+				final JsArray<T> arrayFromJson = ShopItem
+						.getArrayFromJson(json);
 				panel.clear();
 				ArrayList<LayoutPanel> categories;
 				switch (result) {
@@ -560,7 +577,8 @@ public class Nl implements EntryPoint {
 	protected LayoutPanel createShopItemPanel(final ShopItem itemJson) {
 		final Label name = new Label(itemJson.getName());
 		Label description = new Label(itemJson.getDescription());
-		Image image = new Image(getImageUrl(itemJson, THUMB_WIDTH, THUMB_HEIGHT));
+		Image image = new Image(
+				getImageUrl(itemJson, THUMB_WIDTH, THUMB_HEIGHT));
 
 		LayoutPanel itemPanel = new LayoutPanel();
 
@@ -587,19 +605,21 @@ public class Nl implements EntryPoint {
 		return itemPanel;
 	}
 
-	private String getImageUrl(final ShopItem itemJson, String width, String height) {
-		return "/nl/thumb?key=" + itemJson.getImageBlobKey()
-				+ "&w=" + width + "&h=" + height;
+	private String getImageUrl(final ShopItem itemJson, String width,
+			String height) {
+		return "/nl/thumb?key=" + itemJson.getImageBlobKey() + "&w=" + width
+				+ "&h=" + height;
 	}
 
-	private <T extends ShopItem> ArrayList<LayoutPanel> createTiles(JsArray<T> arrayFromJson, Function<T, LayoutPanel> panelCreation) {
+	private <T extends ShopItem> ArrayList<LayoutPanel> createTiles(
+			JsArray<T> arrayFromJson, Function<T, LayoutPanel> panelCreation) {
 		ArrayList<LayoutPanel> result = new ArrayList<LayoutPanel>();
 		for (int i = 0; i < arrayFromJson.length(); i++) {
 			final T categoryJson = arrayFromJson.get(i);
 			LayoutPanel itemPanel = panelCreation.apply(categoryJson);
 			result.add(itemPanel);
 		}
-		
+
 		return result;
 	}
 
@@ -614,23 +634,26 @@ public class Nl implements EntryPoint {
 		itemPanel.add(backgroundLabel);
 		itemPanel.setWidgetTopHeight(backgroundLabel, 40, Style.Unit.PX, 20,
 				Style.Unit.PX);
-		ClickHandler clickHandler = new ClickHandler() {
+		ClickHandler categoryClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				final String keyStr = categoryJson.getKeyStr();
-				//categories disappearance animation goes here
-				setTransitionTimeouts(ANIMATION_SPEED, ANIMATION_DELAY, widgetMatrix, false);
-				moveWidgetsOutOfTheScreen(Window.getClientWidth(), Window.getClientHeight(), widgetMatrix);
+				// categories disappearance animation goes here
+				setTransitionTimeouts(ANIMATION_SPEED, ANIMATION_DELAY,
+						widgetMatrix, false);
+				moveWidgetsOutOfTheScreen(Window.getClientWidth(),
+						Window.getClientHeight(), widgetMatrix);
 				final HashSet<Widget> allWidgets = new HashSet<Widget>();
-				for(List<Widget> l: widgetMatrix){
+				for (List<Widget> l : widgetMatrix) {
 					allWidgets.addAll(l);
 				}
 
-				 Timer t = new Timer() {
+				Timer t = new Timer() {
 					@Override
 					public void run() {
-						if(allWidgetsOutsideTheScreen(allWidgets)) {
-							//at this point, all categories are outside the screen
+						if (allWidgetsOutsideTheScreen(allWidgets)) {
+							// at this point, all categories are outside the
+							// screen
 							outputGoodsForCategory(keyStr, outputPanel);
 							outputControlsForGoods();
 							cancel();
@@ -644,21 +667,23 @@ public class Nl implements EntryPoint {
 			}
 		};
 
-		itemPanel.addDomHandler(clickHandler, ClickEvent.getType());
+		itemPanel.addDomHandler(categoryClickHandler, ClickEvent.getType());
 		return itemPanel;
 	}
 
-	private boolean allWidgetsOutsideTheScreen(Collection<? extends Widget> widgets){
+	private boolean allWidgetsOutsideTheScreen(
+			Collection<? extends Widget> widgets) {
 		int clientWidth = Window.getClientWidth();
 		int clientHeight = Window.getClientHeight();
-		for(Widget w: widgets){
-			if(w.getElement().getAbsoluteLeft() < clientWidth && w.getElement().getAbsoluteTop() < clientHeight){
+		for (Widget w : widgets) {
+			if (w.getElement().getAbsoluteLeft() < clientWidth
+					&& w.getElement().getAbsoluteTop() < clientHeight) {
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	private void setTransition(Style style, String params) {
 		style.setProperty("WebkitTransition", params);
 		style.setProperty("MozTransition", params);
@@ -669,66 +694,86 @@ public class Nl implements EntryPoint {
 
 	/**
 	 * This is called when categories are appeared on the screen
-	 * @param widgets - categories wigdets, are not yet added to panel
-	 * @param panel - future parent of Widgets
+	 * 
+	 * @param widgets
+	 *            - categories wigdets, are not yet added to panel
+	 * @param panel
+	 *            - future parent of Widgets
 	 */
-	private void animateWidgetGridAppearenceAndAddToPanel(List<? extends Widget> widgets, Panel panel) {
+	private void animateWidgetGridAppearenceAndAddToPanel(
+			List<? extends Widget> widgets, Panel panel) {
 		int clientWidth = Window.getClientWidth();
 		int clientHeight = Window.getClientHeight();
 		int widgetCount = widgets.size();
-		if(widgetCount == 0){
+		if (widgetCount == 0) {
 			return;
 		}
-		
-		//getting and caching a widget matrix. This will set left and top properties of widgets as they were put on grid
-		widgetMatrix = gitWidgetMatrix(widgets, clientWidth, ITEM_WIDTH, ITEM_HEIGHT, CATEGORIES_MARGIN, TOP_OFFSET);
-		
-		//at this point, widgets have their left and top values set to destination values (put on grid). Persisting them in destinationDimentions
+
+		// getting and caching a widget matrix. This will set left and top
+		// properties of widgets as they were put on grid
+		widgetMatrix = gitWidgetMatrix(widgets, clientWidth, ITEM_WIDTH,
+				ITEM_HEIGHT, CATEGORIES_MARGIN, TOP_OFFSET);
+
+		// at this point, widgets have their left and top values set to
+		// destination values (put on grid). Persisting them in
+		// destinationDimentions
 		final HashMap<Widget, Dimention> destinationDimentions = new HashMap<Widget, Dimention>();
-		for(Widget w: widgets){
+		for (Widget w : widgets) {
 			Style style = w.getElement().getStyle();
 			String top = style.getTop();
 			String left = style.getLeft();
-			destinationDimentions.put(w, new Dimention(getAmount(left), getAmount(top)));
+			destinationDimentions.put(w, new Dimention(getAmount(left),
+					getAmount(top)));
 		}
-		
+
 		addWidgetsToPanel(widgets, panel);
 
-		//move widgets out the screen
+		// move widgets out the screen
 		moveWidgetsOutOfTheScreen(clientWidth, clientHeight, widgetMatrix);
-		//=============================
-		//set animation delays on widgets
+		// =============================
+		// set animation delays on widgets
 
-		setTransitionTimeouts(ANIMATION_SPEED, ANIMATION_DELAY, widgetMatrix, true);
-		
-		//===================================
-		//set destination dementions
+		setTransitionTimeouts(ANIMATION_SPEED, ANIMATION_DELAY, widgetMatrix,
+				true);
+
+		// ===================================
+		// set destination dementions
 		Timer timer = new Timer() {
 			@Override
 			public void run() {
 				animate(destinationDimentions);
 			}
 		};
-		//it seems that DOM needs some time to add object appropriately, so we schedule animation to 1 second in the future
+		// it seems that DOM needs some time to add object appropriately, so we
+		// schedule animation to 1 second in the future
 		timer.schedule(1000);
 	}
 
 	/**
-	 * This cuts 'px' suffix from given string and returns int amount of the value
+	 * This cuts 'px' suffix from given string and returns int amount of the
+	 * value
 	 */
 	private int getAmount(String style) {
 		return Integer.parseInt(style.substring(0, style.length() - 2));
 	}
 
 	/**
-	 * This takes an array of widgets and converts builds a grid (matrix) from them. It sets left and top properties widgets as
-	 * if they were put on a grid
-	 * @param widgets array of widgets, not added to any parent
-	 * @param clientWidth - screen width
-	 * @param itemWidth widget width - will be set
-	 * @param itemHeight widget height - will be set
-	 * @param margin margin top-bottom-left-right of widgets
-	 * @param topOffset offset from the top of the screen
+	 * This takes an array of widgets and converts builds a grid (matrix) from
+	 * them. It sets left and top properties widgets as if they were put on a
+	 * grid
+	 * 
+	 * @param widgets
+	 *            array of widgets, not added to any parent
+	 * @param clientWidth
+	 *            - screen width
+	 * @param itemWidth
+	 *            widget width - will be set
+	 * @param itemHeight
+	 *            widget height - will be set
+	 * @param margin
+	 *            margin top-bottom-left-right of widgets
+	 * @param topOffset
+	 *            offset from the top of the screen
 	 */
 	private ArrayList<ArrayList<Widget>> gitWidgetMatrix(
 			List<? extends Widget> widgets, int clientWidth, int itemWidth,
@@ -739,55 +784,57 @@ public class Nl implements EntryPoint {
 		int currentX = margin;
 		int currentY = topOffset + margin;
 		ArrayList<ArrayList<Widget>> widgetMatrix = new ArrayList<ArrayList<Widget>>();
-		//init first row
+		// init first row
 		ArrayList<Widget> currentRowList = new ArrayList<Widget>();
 		currentRowList.add(widgets.get(0));
 		widgetMatrix.add(currentRowList);
-		
+
 		int wCount = widgets.size();
-		for(int i = 0; i < wCount; i++){
+		for (int i = 0; i < wCount; i++) {
 			Widget widget = widgets.get(i);
 			widget.setWidth(itemWidth + "px");
 			widget.setHeight(itemHeight + "px");
 			Style style = widget.getElement().getStyle();
 			style.setMargin(margin, Unit.PX);
 
-			//one of this will be overridden later
+			// one of this will be overridden later
 			style.setLeft(currentX, Unit.PX);
 			style.setTop(currentY, Unit.PX);
-			
-			int nextX = currentX + margin*2 + itemWidth;
-			if(nextX + itemWidth + margin > clientWidth){
-				//next one will be new line
+
+			int nextX = currentX + margin * 2 + itemWidth;
+			if (nextX + itemWidth + margin > clientWidth) {
+				// next one will be new line
 				currentX = margin;
-				currentY += itemHeight + margin*2;
-				if(i+1 < wCount){
-					//push next widget (if any) into the matrix, on a new row
+				currentY += itemHeight + margin * 2;
+				if (i + 1 < wCount) {
+					// push next widget (if any) into the matrix, on a new row
 					ArrayList<Widget> nextRow = new ArrayList<Widget>();
-					nextRow.add(widgets.get(i+1));
+					nextRow.add(widgets.get(i + 1));
 					widgetMatrix.add(nextRow);
 				}
 			} else {
-				//line continues, will increment row
+				// line continues, will increment row
 				currentX = nextX;
-				if(i+1 < wCount){
-					//push next widget into same row
-					widgetMatrix.get(widgetMatrix.size() - 1).add(widgets.get(i + 1));
+				if (i + 1 < wCount) {
+					// push next widget into same row
+					widgetMatrix.get(widgetMatrix.size() - 1).add(
+							widgets.get(i + 1));
 				}
 			}
-			
+
 		}
 		return widgetMatrix;
 	}
 
 	private void addWidgetsToPanel(List<? extends Widget> widgets, Panel panel) {
-		for(Widget w: widgets){
+		for (Widget w : widgets) {
 			panel.add(w);
 		}
 	}
 
 	private void animate(HashMap<Widget, Dimention> destinationDimentions) {
-		for(Map.Entry<Widget, Dimention> entry: destinationDimentions.entrySet()){
+		for (Map.Entry<Widget, Dimention> entry : destinationDimentions
+				.entrySet()) {
 			Style style = entry.getKey().getElement().getStyle();
 			Dimention dimention = entry.getValue();
 			style.setLeft(dimention.getX(), Unit.PX);
@@ -797,59 +844,77 @@ public class Nl implements EntryPoint {
 
 	/**
 	 * Sets CSS3 transition timeouts for grid of widgets
+	 * 
 	 * @param animationSpeed
-	 * @param delay amount of delay to execute animation with
+	 * @param delay
+	 *            amount of delay to execute animation with
 	 * @param widgetMatrix
-	 * @param in true if widgets should appear, false - if they should disappear
+	 * @param in
+	 *            true if widgets should appear, false - if they should
+	 *            disappear
 	 */
 	private void setTransitionTimeouts(double animationSpeed, double delay,
 			ArrayList<ArrayList<Widget>> widgetMatrix, boolean in) {
 		int currentDiagonalIndex = 0;
 		int diagonalLength = getDiagonalLength(widgetMatrix);
 
-		//this is used only when in == false
-		int longestSide = Math.max(widgetMatrix.size(), widgetMatrix.get(0).size());
+		// this is used only when in == false
+		int longestSide = Math.max(widgetMatrix.size(), widgetMatrix.get(0)
+				.size());
 		double maxDelay = delay * longestSide;
-		
-		//do for every row/column of the diagonal
-		while(currentDiagonalIndex < diagonalLength){
-			ArrayList<Widget> currentRow = widgetMatrix.get(currentDiagonalIndex);
-			Style style = currentRow.get(currentDiagonalIndex).getElement().getStyle();
+
+		// do for every row/column of the diagonal
+		while (currentDiagonalIndex < diagonalLength) {
+			ArrayList<Widget> currentRow = widgetMatrix
+					.get(currentDiagonalIndex);
+			Style style = currentRow.get(currentDiagonalIndex).getElement()
+					.getStyle();
 			double diagonalCellDelay;
-			if(in){
+			if (in) {
 				diagonalCellDelay = 0;
 			} else {
 				diagonalCellDelay = maxDelay;
 			}
-			String diagonalTransitionParams = getTransitionParams(animationSpeed, diagonalCellDelay);
+			String diagonalTransitionParams = getTransitionParams(
+					animationSpeed, diagonalCellDelay);
 			setTransition(style, diagonalTransitionParams);
 
 			int derivation = 1;
 			double currentDelay;
-			if(in){
+			if (in) {
 				currentDelay = delay;
 			} else {
 				currentDelay = maxDelay - delay;
 			}
-			//do for every row and column simultaneously. If one finishes, the other will still be executed.
-			//Finishes when both row and column are finished
-			while(true){
+			// do for every row and column simultaneously. If one finishes, the
+			// other will still be executed.
+			// Finishes when both row and column are finished
+			while (true) {
 				boolean hitMatrix = false;
-				if(currentRow.size() > currentDiagonalIndex + derivation){
-					Style derivedStyle = currentRow.get(currentDiagonalIndex + derivation).getElement().getStyle();
-					setTransition(derivedStyle, getTransitionParams(animationSpeed, currentDelay));
+				if (currentRow.size() > currentDiagonalIndex + derivation) {
+					Style derivedStyle = currentRow
+							.get(currentDiagonalIndex + derivation)
+							.getElement().getStyle();
+					setTransition(derivedStyle,
+							getTransitionParams(animationSpeed, currentDelay));
 					hitMatrix = true;
 				}
-				if(widgetMatrix.size() > currentDiagonalIndex + derivation){
-					ArrayList<Widget> derivedRow = widgetMatrix.get(currentDiagonalIndex + derivation);
-					if(derivedRow.size() > currentDiagonalIndex){
-						Style derivedStyle = derivedRow.get(currentDiagonalIndex).getElement().getStyle();
-						setTransition(derivedStyle, getTransitionParams(animationSpeed, currentDelay));
+				if (widgetMatrix.size() > currentDiagonalIndex + derivation) {
+					ArrayList<Widget> derivedRow = widgetMatrix
+							.get(currentDiagonalIndex + derivation);
+					if (derivedRow.size() > currentDiagonalIndex) {
+						Style derivedStyle = derivedRow
+								.get(currentDiagonalIndex).getElement()
+								.getStyle();
+						setTransition(
+								derivedStyle,
+								getTransitionParams(animationSpeed,
+										currentDelay));
 						hitMatrix = true;
 					}
 				}
-				if(hitMatrix){
-					//there are still cells in row/column
+				if (hitMatrix) {
+					// there are still cells in row/column
 					derivation++;
 					if (in) {
 						currentDelay += delay;
@@ -857,18 +922,20 @@ public class Nl implements EntryPoint {
 						currentDelay -= delay;
 					}
 				} else {
-					//there are no cells in row/column. Proceed to the next diagonal cell and its row/column
+					// there are no cells in row/column. Proceed to the next
+					// diagonal cell and its row/column
 					break;
 				}
 			}
-			currentDiagonalIndex ++;
+			currentDiagonalIndex++;
 		}
 	}
 
 	private int getDiagonalLength(ArrayList<ArrayList<Widget>> widgetMatrix) {
 		int diagonalLength = 0;
-		while(true){
-			if(widgetMatrix.size() > diagonalLength && widgetMatrix.get(diagonalLength).size() > diagonalLength){
+		while (true) {
+			if (widgetMatrix.size() > diagonalLength
+					&& widgetMatrix.get(diagonalLength).size() > diagonalLength) {
 				diagonalLength++;
 			} else {
 				break;
@@ -880,17 +947,17 @@ public class Nl implements EntryPoint {
 	private void moveWidgetsOutOfTheScreen(int clientWidth, int clientHeight,
 			ArrayList<ArrayList<Widget>> widgetMatrix) {
 		int widgetsToMoveToBottom = 1;
-		for(int r = 0; r < widgetMatrix.size(); r++){
+		for (int r = 0; r < widgetMatrix.size(); r++) {
 			ArrayList<Widget> rows = widgetMatrix.get(r);
-			for(int i = 0; i < rows.size(); i++){
+			for (int i = 0; i < rows.size(); i++) {
 				Style style = rows.get(i).getElement().getStyle();
-				if(i < widgetsToMoveToBottom){
+				if (i < widgetsToMoveToBottom) {
 					style.setTop(clientHeight, Unit.PX);
 				} else {
 					style.setLeft(clientWidth, Unit.PX);
 				}
 			}
-			if(r+1 > 1 && (r+1)%2 == 0){
+			if (r + 1 > 1 && (r + 1) % 2 == 0) {
 				widgetsToMoveToBottom += 2;
 			}
 		}
@@ -903,17 +970,21 @@ public class Nl implements EntryPoint {
 	private static class Dimention {
 		private int x;
 		private int y;
+
 		protected Dimention(int x, int y) {
 			super();
 			this.x = x;
 			this.y = y;
 		}
+
 		public int getX() {
 			return x;
 		}
+
 		public int getY() {
 			return y;
 		}
+
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
@@ -921,7 +992,6 @@ public class Nl implements EntryPoint {
 					.append("]");
 			return builder.toString();
 		}
-		
-		
+
 	}
 }

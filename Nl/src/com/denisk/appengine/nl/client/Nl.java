@@ -27,7 +27,6 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.HistoryListener;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -52,6 +51,9 @@ public class Nl implements EntryPoint {
 	private static final int CATEGORIES_MARGIN = 10;
 	private static final int TOP_OFFSET = 100;
 
+	private static final String CATEGORY_URL_PREFIX = "category/";
+	private static final String GOOD_URL_PREFIX = "good/";
+	
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
 	private Label categoriesInfo = new Label();
 
@@ -88,6 +90,31 @@ public class Nl implements EntryPoint {
 			}
 		}
 	};
+	ClickHandler goodsClearButtonClickHandler = new ClickHandler() {
+		@Override
+		public void onClick(ClickEvent event) {
+			if (selectedCategoryKeyStr != null) {
+				dtoService.clearGoodsForCategory(
+						selectedCategoryKeyStr,
+						new AsyncCallback<Void>() {
+							@Override
+							public void onSuccess(
+									Void result) {
+								outputGoodsForCategory(
+										selectedCategoryKeyStr,
+										outputPanel);
+								updateLabel(status);
+							}
+
+							@Override
+							public void onFailure(
+									Throwable caught) {
+							}
+						});
+			}
+		}
+	};
+
 	// redraw callbacks==============================
 	private Function<Void, Void> redrawCategoriesCallback = new Function<Void, Void>() {
 		@Override
@@ -303,24 +330,57 @@ public class Nl implements EntryPoint {
 			public void onValueChange(ValueChangeEvent<String> event) {
 				String token = event.getValue();
 				if(token == null || token.isEmpty()){
-					outputCategories(outputPanel);
-					outputControlsForCategories();
+					renderAllCategories();
 					return;
 				}
 				
-				String categoryPrefix = "category/";
-				if(token.startsWith(categoryPrefix)){
-					String categoryKeyRegexp = categoryPrefix + "(.+)/";
+				if(token.startsWith(CATEGORY_URL_PREFIX)){
+					String categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/";
 					RegExp p = RegExp.compile(categoryKeyRegexp);
 					MatchResult m = p.exec(token);
 					if(m == null){
-						Window.alert("There is no '" + categoryPrefix + " in the URL provided");
+						Window.alert("There is no '" + CATEGORY_URL_PREFIX + " in the URL provided");
+						renderAllCategories();
 						return;
 					}
 					String categoryKey = m.getGroup(1);
-					outputGoodsForCategory(categoryKey, outputPanel);
+					
+					Function<List<Photo>, Void> callback;
+					
+					if(token.contains(GOOD_URL_PREFIX)){
+						//we need to render good
+						RegExp goodRegexp = RegExp.compile("+." + GOOD_URL_PREFIX + "(.+)/");
+						MatchResult goodMatch = goodRegexp.exec(token);
+						if(goodMatch == null){
+							Window.alert("Wrong format for good in URL, should be '" + GOOD_URL_PREFIX + "'");
+							renderAllCategories();
+							return;
+						}
+						String goodKey = goodMatch.getGroup(1);
+						callback = new Function<List<Photo>, Void>(){
+							@Override
+							public Void apply(List<Photo> input) {
+								//todo do it
+								return null;
+							}
+						};
+					} else {
+						callback = new Function<List<Photo>, Void>(){
+							@Override
+							public Void apply(List<Photo> input) {
+								//do nothing
+								return null;
+							}
+						};
+					}
+					//render goods and execute a callback which will be empty if '/good/' part is absent
+					//and will pop single good menu otherwise
+					renderGoods(categoryKey, callback);
+
 				} else {
-					Window.alert("URL must start with 'category/id' token");
+					Window.alert("URL must start with '" + CATEGORY_URL_PREFIX + "' token");
+					renderAllCategories();
+					return;
 				}
 			}
 		});
@@ -387,8 +447,8 @@ public class Nl implements EntryPoint {
 		}
 	}
 
-	private void setGoodsButtonsHandlers(
-			ClickHandler goodsClearButtonClickHandler) {
+	private void setGoodsButtonsHandlers() {
+
 		clearButtonHandlerRegistration = clearButton
 				.addClickHandler(goodsClearButtonClickHandler);
 		editGoodForm.setParentCategoryItemKeyStr(selectedCategoryKeyStr);
@@ -443,32 +503,8 @@ public class Nl implements EntryPoint {
 						clearButtonHandlerRegistration.removeHandler();
 					}
 					if (clearButton != null) {
-						ClickHandler goodsClearButtonClickHandler = new ClickHandler() {
-							@Override
-							public void onClick(ClickEvent event) {
-								if (selectedCategoryKeyStr != null) {
-									dtoService.clearGoodsForCategory(
-											selectedCategoryKeyStr,
-											new AsyncCallback<Void>() {
-												@Override
-												public void onSuccess(
-														Void result) {
-													outputGoodsForCategory(
-															selectedCategoryKeyStr,
-															outputPanel);
-													updateLabel(status);
-												}
 
-												@Override
-												public void onFailure(
-														Throwable caught) {
-												}
-											});
-								}
-							}
-						};
-
-						setGoodsButtonsHandlers(goodsClearButtonClickHandler);
+						setGoodsButtonsHandlers();
 					}
 					break;
 				case NOT_ADMIN:
@@ -487,9 +523,10 @@ public class Nl implements EntryPoint {
 	/**
 	 * This method creates fills carousel with good items and adds carousel to
 	 * outputPanel
+	 * @param callbacks 
 	 */
-	private void outputGoodsForCategory(String categoryKeyStr,
-			final FlowPanel panel) {
+	private void outputGoodsForCategory(final String categoryKeyStr,
+			final FlowPanel panel, final Function<List<Photo>, Void>... callbacks) {
 
 		dtoService.getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
 			@Override
@@ -535,7 +572,11 @@ public class Nl implements EntryPoint {
 						}
 					});
 					carousel.setPhotos(photos);
-
+					
+					for(Function<List<Photo>, Void> callback: callbacks){
+						callback.apply(photos);
+					}
+					
 					// Slide the carousel from the bottom
 					Timer t = new Timer() {
 
@@ -563,6 +604,7 @@ public class Nl implements EntryPoint {
 
 			@Override
 			public void onFailure(Throwable caught) {
+				Window.alert("There is no category with identifier " + categoryKeyStr);
 			}
 		});
 	}
@@ -693,8 +735,7 @@ public class Nl implements EntryPoint {
 							//Append /category/id/ to the URL
 							History.newItem(getCategoryURLPart(keyStr));
 							
-							outputGoodsForCategory(keyStr, outputPanel);
-							outputControlsForGoods();
+							renderGoods(keyStr);
 							
 							cancel();
 						}
@@ -703,7 +744,6 @@ public class Nl implements EntryPoint {
 				t.scheduleRepeating(300);
 
 				backButton.setVisible(true);
-				selectedCategoryKeyStr = keyStr;
 			}
 		};
 
@@ -1010,12 +1050,28 @@ public class Nl implements EntryPoint {
 		return "all " + animationSpeed + "s ease-in-out " + delay + "s";
 	}
 
+	/**
+	 * @param callbacks list of callbacks to call when carousel photos are retrieved
+	 */
+	private void renderGoods(String categoryKey, Function<List<Photo>, Void>... callbacks) {
+		this.selectedCategoryKeyStr = categoryKey;
+		setGoodsButtonsHandlers();
+		outputGoodsForCategory(categoryKey, outputPanel, callbacks);
+		outputControlsForGoods();
+	}
+
+	private void renderAllCategories() {
+		setCategoriesButtonHandlers();
+		outputCategories(outputPanel);
+		outputControlsForCategories();
+	}
+
 	public static String getCategoryURLPart(String categoryKeyStr) {
-		return "category/" + categoryKeyStr + "/";
+		return CATEGORY_URL_PREFIX + categoryKeyStr + "/";
 	}
 	
 	public static String getGoodURLPart(String goodKeyStr){
-		return "good/" + goodKeyStr;
+		return GOOD_URL_PREFIX + goodKeyStr + "/";
 	}
 	
 	private static class Dimention {

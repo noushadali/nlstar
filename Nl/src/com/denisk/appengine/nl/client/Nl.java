@@ -21,8 +21,13 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.HistoryListener;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -292,8 +297,35 @@ public class Nl implements EntryPoint {
 			}
 		});
 
-		outputCategories(outputPanel);
-		outputControlsForCategories();
+		History.addValueChangeHandler(new ValueChangeHandler<String>() {
+			
+			@Override
+			public void onValueChange(ValueChangeEvent<String> event) {
+				String token = event.getValue();
+				if(token == null || token.isEmpty()){
+					outputCategories(outputPanel);
+					outputControlsForCategories();
+					return;
+				}
+				
+				String categoryPrefix = "category/";
+				if(token.startsWith(categoryPrefix)){
+					String categoryKeyRegexp = categoryPrefix + "(.+)/";
+					RegExp p = RegExp.compile(categoryKeyRegexp);
+					MatchResult m = p.exec(token);
+					if(m == null){
+						Window.alert("There is no '" + categoryPrefix + " in the URL provided");
+						return;
+					}
+					String categoryKey = m.getGroup(1);
+					outputGoodsForCategory(categoryKey, outputPanel);
+				} else {
+					Window.alert("URL must start with 'category/id' token");
+				}
+			}
+		});
+		
+		History.fireCurrentHistoryState();
 	}
 
 	private void outputControlsForCategories() {
@@ -979,7 +1011,7 @@ public class Nl implements EntryPoint {
 	}
 
 	public static String getCategoryURLPart(String categoryKeyStr) {
-		return "category/" + categoryKeyStr;
+		return "category/" + categoryKeyStr + "/";
 	}
 	
 	public static String getGoodURLPart(String goodKeyStr){

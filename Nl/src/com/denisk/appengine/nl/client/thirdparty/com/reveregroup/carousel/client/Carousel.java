@@ -55,7 +55,8 @@ public class Carousel extends Composite {
 	public Carousel() {
 		this(true, true);
 	}
-CarouselImage trackingImage;
+	CarouselImage trackingImage;
+	
 	public Carousel(boolean useDefaultMouseBehavior, boolean useDefaultFocusBehavior) {
 		// Set up UI structure
 		carouselDock = new DockPanel();

@@ -22,6 +22,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -41,8 +42,8 @@ public class Nl implements EntryPoint {
 
 	private static final int ITEM_WIDTH = 300;
 	private static final int ITEM_HEIGHT = 200;
-	private static final double ANIMATION_DELAY = 0.3;
-	private static final double ANIMATION_SPEED = 1;
+	private static final double ANIMATION_DELAY = 0.1;
+	private static final double ANIMATION_SPEED = 0.5;
 	private static final int CATEGORIES_MARGIN = 10;
 	private static final int TOP_OFFSET = 100;
 
@@ -232,6 +233,7 @@ public class Nl implements EntryPoint {
 		};
 	}
 
+	
 	private <T extends ShopItem> ClickHandler getEditClickHandler(final T item,
 			final EditForm<T> editForm) {
 		return new ClickHandler() {
@@ -282,7 +284,8 @@ public class Nl implements EntryPoint {
 					public void run() {
 						setCategoriesButtonHandlers();
 						outputCategories(outputPanel);
-
+						//this clears everything in the URL starting from '#' inclusive
+						History.newItem("");
 					}
 				};
 				t1.schedule(2000 + 500 + 100/* just in case */);
@@ -290,10 +293,10 @@ public class Nl implements EntryPoint {
 		});
 
 		outputCategories(outputPanel);
-		outputCategoriesControls();
+		outputControlsForCategories();
 	}
 
-	private void outputCategoriesControls() {
+	private void outputControlsForCategories() {
 		dtoService.isAdmin(new AsyncCallback<UserStatus>() {
 			@Override
 			public void onSuccess(UserStatus userStatus) {
@@ -474,7 +477,7 @@ public class Nl implements EntryPoint {
 						GoodJavascriptObject good = goods.get(i);
 						String imageUrl = getImageUrl(good, "600", "600");
 						Photo photo = new Photo(imageUrl, good.getName(), good
-								.getDescription());
+								.getDescription(), good.getKeyStr());
 						photos.add(photo);
 					}
 					dtoService.isAdmin(new AsyncCallback<UserStatus>() {
@@ -605,7 +608,7 @@ public class Nl implements EntryPoint {
 		return itemPanel;
 	}
 
-	private String getImageUrl(final ShopItem itemJson, String width,
+	public static String getImageUrl(final ShopItem itemJson, String width,
 			String height) {
 		return "/nl/thumb?key=" + itemJson.getImageBlobKey() + "&w=" + width
 				+ "&h=" + height;
@@ -654,8 +657,13 @@ public class Nl implements EntryPoint {
 						if (allWidgetsOutsideTheScreen(allWidgets)) {
 							// at this point, all categories are outside the
 							// screen
+							
+							//Append /category/id/ to the URL
+							History.newItem(getCategoryURLPart(keyStr));
+							
 							outputGoodsForCategory(keyStr, outputPanel);
 							outputControlsForGoods();
+							
 							cancel();
 						}
 					}
@@ -671,6 +679,9 @@ public class Nl implements EntryPoint {
 		return itemPanel;
 	}
 
+	/**
+	 * Determines whether all widgets are completely outside the screen (beyond the left side or the bottom)  
+	 */
 	private boolean allWidgetsOutsideTheScreen(
 			Collection<? extends Widget> widgets) {
 		int clientWidth = Window.getClientWidth();
@@ -967,6 +978,14 @@ public class Nl implements EntryPoint {
 		return "all " + animationSpeed + "s ease-in-out " + delay + "s";
 	}
 
+	public static String getCategoryURLPart(String categoryKeyStr) {
+		return "category/" + categoryKeyStr;
+	}
+	
+	public static String getGoodURLPart(String goodKeyStr){
+		return "good/" + goodKeyStr;
+	}
+	
 	private static class Dimention {
 		private int x;
 		private int y;

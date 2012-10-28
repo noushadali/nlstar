@@ -28,7 +28,6 @@ public class PhotoClickEvent extends GwtEvent<PhotoClickHandler> {
 	
 	@Override
 	protected void dispatch(PhotoClickHandler handler) {
-		System.out.println("Photo clicked: " + photoIndex);
 		handler.photoClicked(this);
 	}
 	@Override

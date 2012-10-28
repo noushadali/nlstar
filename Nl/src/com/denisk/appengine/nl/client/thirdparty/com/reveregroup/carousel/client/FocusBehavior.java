@@ -3,6 +3,7 @@ package com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.clien
 import java.util.ArrayList;
 import java.util.List;
 
+import com.denisk.appengine.nl.client.Nl;
 import com.denisk.appengine.nl.client.SingleGoodPanel;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickEvent;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickHandler;
@@ -16,6 +17,7 @@ import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -60,6 +62,10 @@ public class FocusBehavior {
 					evt.setPhoto(event.getPhoto());
 					evt.setPhotoIndex(event.getPhotoIndex());
 					lastFocusEvent = evt;
+					//put URL into the history
+					String goodURLPart = Nl.getGoodURLPart(event.getPhoto().getId());
+					History.newItem(History.getToken() + "/" + goodURLPart);
+
 					handlerManager.fireEvent(evt);
 				}
 			}
@@ -97,6 +103,9 @@ public class FocusBehavior {
 							PhotoUnfocusEvent evt = new PhotoUnfocusEvent();
 							evt.setPhotoIndex(lastFocusEvent.getPhotoIndex());
 							evt.setPhoto(lastFocusEvent.getPhoto());
+							//cut the good from the URL
+							cutOutGoodHistory();
+							
 							handlerManager.fireEvent(evt);
 						}
 					});
@@ -148,6 +157,13 @@ public class FocusBehavior {
 	
 	public HandlerRegistration addPhotoUnfocusHandler(PhotoUnfocusHandler handler) {
 		return handlerManager.addHandler(PhotoUnfocusEvent.getType(), handler);
+	}
+
+	private void cutOutGoodHistory() {
+		String token = History.getToken();
+		int goodStarts = token.indexOf("/good");
+		String cutToken = token.substring(0, goodStarts);
+		History.newItem(cutToken);
 	}
 	
 }

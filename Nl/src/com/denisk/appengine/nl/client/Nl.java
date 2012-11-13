@@ -289,6 +289,12 @@ public class Nl implements EntryPoint {
 		rootPanel.add(status);
 		rootPanel.add(categoriesInfo);
 		rootPanel.add(outputPanel);
+
+		clearButton = new Button("Clear all");
+		newButton = new Button("New item");
+		rootPanel.add(clearButton);
+		rootPanel.add(newButton);
+
 		outputPanel.addStyleName("outputPanel");
 		backButton = new Button("Back");
 		backButton.setVisible(false);
@@ -314,7 +320,7 @@ public class Nl implements EntryPoint {
 				Timer t1 = new Timer() {
 					@Override
 					public void run() {
-						setCategoriesButtonHandlers();
+						setCategoriesAdminButtonHandlers();
 						outputCategories(outputPanel);
 						//this clears everything in the URL starting from '#' inclusive
 						History.newItem("");
@@ -356,11 +362,11 @@ public class Nl implements EntryPoint {
 							renderAllCategories();
 							return;
 						}
-						String goodKey = goodMatch.getGroup(1);
+						final String goodKey = goodMatch.getGroup(1);
 						callback = new Function<List<Photo>, Void>(){
 							@Override
 							public Void apply(List<Photo> input) {
-								//todo do it
+								//todo pop single good window
 								return null;
 							}
 						};
@@ -368,7 +374,7 @@ public class Nl implements EntryPoint {
 						callback = new Function<List<Photo>, Void>(){
 							@Override
 							public Void apply(List<Photo> input) {
-								//do nothing
+								//do nothing - we're just rendering a category and doing nothing afterwards
 								return null;
 							}
 						};
@@ -394,13 +400,9 @@ public class Nl implements EntryPoint {
 			public void onSuccess(UserStatus userStatus) {
 				switch (userStatus) {
 				case ADMIN:
-					clearButton = new Button("Clear all");
-					newButton = new Button("New item");
-					rootPanel.add(clearButton);
-					rootPanel.add(newButton);
 					createLogoutUrl();
 
-					setCategoriesButtonHandlers();
+					setCategoriesAdminButtonHandlers();
 					break;
 				case NOT_LOGGED_IN:
 					dtoService.getLoginUrl(new AsyncCallback<String>() {
@@ -429,7 +431,7 @@ public class Nl implements EntryPoint {
 		});
 	}
 
-	private void setCategoriesButtonHandlers() {
+	private void setCategoriesAdminButtonHandlers() {
 		if (newButtonClickHandlerRegistration != null) {
 			newButtonClickHandlerRegistration.removeHandler();
 		}
@@ -447,7 +449,10 @@ public class Nl implements EntryPoint {
 		}
 	}
 
-	private void setGoodsButtonsHandlers() {
+	private void setGoodsAdminButtonsHandlers() {
+		if (clearButtonHandlerRegistration != null) {
+			clearButtonHandlerRegistration.removeHandler();
+		}
 
 		clearButtonHandlerRegistration = clearButton
 				.addClickHandler(goodsClearButtonClickHandler);
@@ -494,17 +499,15 @@ public class Nl implements EntryPoint {
 	}
 
 	private void outputControlsForGoods() {
+		backButton.setVisible(true);
 		dtoService.isAdmin(new AsyncCallback<UserStatus>() {
 			@Override
 			public void onSuccess(UserStatus result) {
 				switch (result) {
 				case ADMIN:
-					if (clearButtonHandlerRegistration != null) {
-						clearButtonHandlerRegistration.removeHandler();
-					}
 					if (clearButton != null) {
 
-						setGoodsButtonsHandlers();
+						setGoodsAdminButtonsHandlers();
 					}
 					break;
 				case NOT_ADMIN:
@@ -516,6 +519,7 @@ public class Nl implements EntryPoint {
 
 			@Override
 			public void onFailure(Throwable caught) {
+				Window.alert("Cannot determine if a user is admin: " + caught.getMessage());
 			}
 		});
 	}
@@ -743,7 +747,7 @@ public class Nl implements EntryPoint {
 				};
 				t.scheduleRepeating(300);
 
-				backButton.setVisible(true);
+				
 			}
 		};
 
@@ -1055,13 +1059,12 @@ public class Nl implements EntryPoint {
 	 */
 	private void renderGoods(String categoryKey, Function<List<Photo>, Void>... callbacks) {
 		this.selectedCategoryKeyStr = categoryKey;
-		setGoodsButtonsHandlers();
 		outputGoodsForCategory(categoryKey, outputPanel, callbacks);
 		outputControlsForGoods();
 	}
 
 	private void renderAllCategories() {
-		setCategoriesButtonHandlers();
+		setCategoriesAdminButtonHandlers();
 		outputCategories(outputPanel);
 		outputControlsForCategories();
 	}

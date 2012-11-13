@@ -12,6 +12,7 @@ import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Carousel;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Photo;
+import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoFocusEvent;
 import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.EntryPoint;
@@ -355,7 +356,7 @@ public class Nl implements EntryPoint {
 					
 					if(token.contains(GOOD_URL_PREFIX)){
 						//we need to render good
-						RegExp goodRegexp = RegExp.compile("+." + GOOD_URL_PREFIX + "(.+)/");
+						RegExp goodRegexp = RegExp.compile(".+" + GOOD_URL_PREFIX + "(.+)/");
 						MatchResult goodMatch = goodRegexp.exec(token);
 						if(goodMatch == null){
 							Window.alert("Wrong format for good in URL, should be '" + GOOD_URL_PREFIX + "'");
@@ -366,7 +367,15 @@ public class Nl implements EntryPoint {
 						callback = new Function<List<Photo>, Void>(){
 							@Override
 							public Void apply(List<Photo> input) {
-								//todo pop single good window
+								//pop single good window
+								for(Photo photo: input){
+									if(photo.getId().equals(goodKey)){
+										PhotoFocusEvent event = new PhotoFocusEvent();
+										event.setPhoto(photo);
+										
+										carousel.fireEvent(event);
+									}
+								}
 								return null;
 							}
 						};
@@ -505,10 +514,7 @@ public class Nl implements EntryPoint {
 			public void onSuccess(UserStatus result) {
 				switch (result) {
 				case ADMIN:
-					if (clearButton != null) {
-
-						setGoodsAdminButtonsHandlers();
-					}
+					setGoodsAdminButtonsHandlers();
 					break;
 				case NOT_ADMIN:
 					break;

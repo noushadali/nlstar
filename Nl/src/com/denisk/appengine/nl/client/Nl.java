@@ -12,6 +12,7 @@ import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Carousel;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Photo;
+import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickEvent;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoFocusEvent;
 import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.shared.UserStatus;
@@ -340,63 +341,62 @@ public class Nl implements EntryPoint {
 					renderAllCategories();
 					return;
 				}
+				String categoryKeyRegexp;
+				Function<List<Photo>, Void> callback; 
+				if(token.startsWith(CATEGORY_URL_PREFIX) && !token.contains(GOOD_URL_PREFIX)){
+					categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/";
+					callback = new Function<List<Photo>, Void>() {
+						@Override
+						public Void apply(List<Photo> input) {
+							return null;
+						}
+					};
+				} else if(token.startsWith(CATEGORY_URL_PREFIX) && token.contains(GOOD_URL_PREFIX)){
+					categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/good";
 				
-				if(token.startsWith(CATEGORY_URL_PREFIX)){
-					String categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/";
-					RegExp p = RegExp.compile(categoryKeyRegexp);
-					MatchResult m = p.exec(token);
-					if(m == null){
-						Window.alert("There is no '" + CATEGORY_URL_PREFIX + " in the URL provided");
+					RegExp goodRegexp = RegExp.compile(".+" + GOOD_URL_PREFIX + "(.+)/");
+					MatchResult goodMatch = goodRegexp.exec(token);
+					if(goodMatch == null){
+						Window.alert("Wrong format for good in URL, should be '" + GOOD_URL_PREFIX + "'");
+						History.newItem("", false);
 						renderAllCategories();
 						return;
 					}
-					String categoryKey = m.getGroup(1);
+					final String goodKey = goodMatch.getGroup(1);
 					
-					Function<List<Photo>, Void> callback;
-					
-					if(token.contains(GOOD_URL_PREFIX)){
-						//we need to render good
-						RegExp goodRegexp = RegExp.compile(".+" + GOOD_URL_PREFIX + "(.+)/");
-						MatchResult goodMatch = goodRegexp.exec(token);
-						if(goodMatch == null){
-							Window.alert("Wrong format for good in URL, should be '" + GOOD_URL_PREFIX + "'");
-							renderAllCategories();
-							return;
-						}
-						final String goodKey = goodMatch.getGroup(1);
-						callback = new Function<List<Photo>, Void>(){
-							@Override
-							public Void apply(List<Photo> input) {
-								//pop single good window
-								for(Photo photo: input){
-									if(photo.getId().equals(goodKey)){
-										PhotoFocusEvent event = new PhotoFocusEvent();
-										event.setPhoto(photo);
-										
-										carousel.fireEvent(event);
-									}
+					callback = new Function<List<Photo>, Void>(){
+						@Override
+						public Void apply(List<Photo> input) {
+							//pop single good window
+							for(Photo photo: input){
+								if(photo.getId().equals(goodKey)){
+									PhotoClickEvent event = new PhotoClickEvent();
+									event.setPhoto(photo);
+									event.setShouldChangeURL(false);
+									
+									carousel.fireEvent(event);
 								}
-								return null;
 							}
-						};
-					} else {
-						callback = new Function<List<Photo>, Void>(){
-							@Override
-							public Void apply(List<Photo> input) {
-								//do nothing - we're just rendering a category and doing nothing afterwards
-								return null;
-							}
-						};
-					}
-					//render goods and execute a callback which will be empty if '/good/' part is absent
-					//and will pop single good menu otherwise
-					renderGoods(categoryKey, callback);
-
-				} else {
+							return null;
+						}
+					};
+				}else {
 					Window.alert("URL must start with '" + CATEGORY_URL_PREFIX + "' token");
+					History.newItem("", false);
 					renderAllCategories();
 					return;
 				}
+				
+				RegExp p = RegExp.compile(categoryKeyRegexp);
+				MatchResult m = p.exec(token);
+				if(m == null){
+					Window.alert("There is no '" + CATEGORY_URL_PREFIX + " in the URL provided");
+					renderAllCategories();
+					return;
+				}
+				String categoryKey = m.getGroup(1);
+				
+				renderGoods(categoryKey, callback);
 			}
 		});
 		
@@ -743,7 +743,7 @@ public class Nl implements EntryPoint {
 							// screen
 							
 							//Append /category/id/ to the URL
-							History.newItem(getCategoryURLPart(keyStr));
+							History.newItem(getCategoryURLPart(keyStr), false);
 							
 							renderGoods(keyStr);
 							

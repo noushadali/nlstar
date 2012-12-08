@@ -12,6 +12,7 @@ public class PhotoClickEvent extends GwtEvent<PhotoClickHandler> {
 	
 	private Photo photo;
 	private int photoIndex;
+	boolean shouldChangeURL = true;
 	
 	public Photo getPhoto() {
 		return photo;
@@ -37,4 +38,11 @@ public class PhotoClickEvent extends GwtEvent<PhotoClickHandler> {
 	public static Type<PhotoClickHandler> getType(){
 		return TYPE;
 	}
+	public boolean isShouldChangeURL() {
+		return shouldChangeURL;
+	}
+	public void setShouldChangeURL(boolean shouldChangeURL) {
+		this.shouldChangeURL = shouldChangeURL;
+	}
+	
 }

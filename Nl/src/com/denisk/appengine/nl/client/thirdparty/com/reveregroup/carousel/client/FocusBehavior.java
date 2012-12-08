@@ -62,10 +62,13 @@ public class FocusBehavior {
 					evt.setPhoto(event.getPhoto());
 					evt.setPhotoIndex(event.getPhotoIndex());
 					lastFocusEvent = evt;
-					//put URL into the history
-					String goodURLPart = Nl.getGoodURLPart(event.getPhoto().getId());
-					History.newItem(History.getToken() + "/" + goodURLPart);
-
+					if (event.isShouldChangeURL()) {
+						//put URL into the history
+						String goodURLPart = Nl.getGoodURLPart(event.getPhoto()
+								.getId());
+						History.newItem(History.getToken() + goodURLPart, false);
+					}
+					//this will be fired from History.onValueChange handler
 					handlerManager.fireEvent(evt);
 				}
 			}
@@ -162,8 +165,8 @@ public class FocusBehavior {
 	private void cutOutGoodHistory() {
 		String token = History.getToken();
 		int goodStarts = token.indexOf("/good");
-		String cutToken = token.substring(0, goodStarts);
-		History.newItem(cutToken);
+		String cutToken = token.substring(0, goodStarts + 1);
+		History.newItem(cutToken, false);
 	}
 	
 }

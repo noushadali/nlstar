@@ -23,17 +23,6 @@ public class ImageCacheService {
 		if(h <= 0){
 			throw new IllegalArgumentException("height should be positive, was " + h);
 		}
-
-//		if (w > MAX_WIDTH) {
-//			System.out.println("Width " + w + " exceeded limit " + MAX_WIDTH + ", setting to " + DEFAULT_WIDTH);
-//			w = DEFAULT_WIDTH;
-//		}
-//
-//		if (h > MAX_HEIGHT) {
-//			System.out.println("Height " + h + " exceeded limit " + MAX_HEIGHT + ", setting to " + DEFAULT_HEIGHT);
-//			h = DEFAULT_HEIGHT;
-//		}
-
 		String combinedKey = buildCombinedKey(key, w, h);
 		
 		Image resizedImage = (Image) memcacheService.get(combinedKey);

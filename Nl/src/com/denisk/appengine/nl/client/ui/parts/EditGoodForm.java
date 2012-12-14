@@ -1,4 +1,4 @@
-package com.denisk.appengine.nl.client;
+package com.denisk.appengine.nl.client.ui.parts;
 
 import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
 import com.denisk.appengine.nl.server.data.Good;

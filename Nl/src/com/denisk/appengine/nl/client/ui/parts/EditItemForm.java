@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.denisk.appengine.nl.client;
+package com.denisk.appengine.nl.client.ui.parts;
 
 import java.util.HashMap;
 import java.util.Iterator;

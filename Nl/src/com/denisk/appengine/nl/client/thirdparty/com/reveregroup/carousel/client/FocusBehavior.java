@@ -3,14 +3,14 @@ package com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.clien
 import java.util.ArrayList;
 import java.util.List;
 
-import com.denisk.appengine.nl.client.Nl;
-import com.denisk.appengine.nl.client.SingleGoodPanel;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickEvent;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickHandler;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoFocusEvent;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoFocusHandler;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoUnfocusEvent;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoUnfocusHandler;
+import com.denisk.appengine.nl.client.ui.parts.SingleGoodPanel;
+import com.denisk.appengine.nl.client.ui.views.Nl;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;

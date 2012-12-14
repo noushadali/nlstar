@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import org.codehaus.jettison.json.JSONException;
 
-import com.denisk.appengine.nl.client.DtoService;
+import com.denisk.appengine.nl.client.service.DtoService;
 import com.denisk.appengine.nl.server.data.Category;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.appengine.api.blobstore.BlobInfo;

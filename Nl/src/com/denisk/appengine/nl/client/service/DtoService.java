@@ -1,4 +1,4 @@
-package com.denisk.appengine.nl.client;
+package com.denisk.appengine.nl.client.service;
 
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.user.client.rpc.RemoteService;

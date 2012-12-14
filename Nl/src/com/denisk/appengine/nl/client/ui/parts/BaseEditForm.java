@@ -1,4 +1,4 @@
-package com.denisk.appengine.nl.client;
+package com.denisk.appengine.nl.client.ui.parts;
 
 import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.client.util.Function;

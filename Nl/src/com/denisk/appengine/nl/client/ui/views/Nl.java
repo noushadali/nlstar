@@ -1,4 +1,4 @@
-package com.denisk.appengine.nl.client;
+package com.denisk.appengine.nl.client.ui.views;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,10 +10,14 @@ import java.util.Map;
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
+import com.denisk.appengine.nl.client.service.DtoService;
+import com.denisk.appengine.nl.client.service.DtoServiceAsync;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Carousel;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Photo;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickEvent;
-import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoFocusEvent;
+import com.denisk.appengine.nl.client.ui.parts.EditCategoryForm;
+import com.denisk.appengine.nl.client.ui.parts.EditForm;
+import com.denisk.appengine.nl.client.ui.parts.EditGoodForm;
 import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.EntryPoint;

@@ -115,6 +115,7 @@ public class GoodsView extends AbstractItemsView {
 					@Override
 					public void run() {
 						p.switchToCategoriesView();
+						p.renderView(null);
 					}
 				};
 				t1.schedule(2000 + 500 + 100/* just in case */);
@@ -127,7 +128,7 @@ public class GoodsView extends AbstractItemsView {
 	 * This method fills carousel with good items and adds carousel to
 	 * outputPanel
 	 */
-	private void outputGoodsForCategory(final Function<?, ?> callback) {
+	private void outputGoodsForCategory(final Function<List<Photo>, ?> callback) {
 		final Panel panel = parent.getOutputPanel();
 		final String categoryKeyStr = parent.getSelectedCategoryKeyStr();
 		
@@ -177,7 +178,7 @@ public class GoodsView extends AbstractItemsView {
 					carousel.setPhotos(photos);
 					
 					if(callback != null){
-						callback.apply(null);
+						callback.apply(photos);
 					}
 					
 					// Slide the carousel from the bottom
@@ -220,11 +221,7 @@ public class GoodsView extends AbstractItemsView {
 	}
 
 	@Override
-	public void init() {
-	}
-
-	@Override
-	public void render(Panel panel, Function<?, ?> callback) {
+	public void render(Panel panel, Function callback) {
 		outputGoodsForCategory(callback);
 	}
 

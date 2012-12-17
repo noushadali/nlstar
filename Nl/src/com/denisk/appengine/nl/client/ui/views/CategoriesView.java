@@ -192,7 +192,7 @@ public class CategoriesView extends AbstractItemsView{
 	
 
 	@Override
-	public void render(final Panel panel, Function<?, ?> callback) {
+	public void render(final Panel panel, Function callback) {
 		
 		parent.getDtoService().getCategoriesJson(new AsyncCallback<String>() {
 			@Override

@@ -62,6 +62,8 @@ public class Nl implements EntryPoint {
 	private Button clearButton;
 	private Button newButton;
 	private Button backButton;
+	private HTML loginUrl;
+	private HTML logoutUrl;
 
 	// state fields
 	private String selectedCategoryKeyStr;
@@ -76,9 +78,10 @@ public class Nl implements EntryPoint {
 		dtoService.getLogoutUrl(new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String result) {
-				HTML link = new HTML();
-				link.setHTML("<a href='" + result + "'>Logout</a>");
-				rootPanel.add(link);
+				logoutUrl = new HTML();
+				logoutUrl.setHTML("<a href='" + result + "'>Logout</a>");
+				logoutUrl.setVisible(false);
+				rootPanel.add(logoutUrl);
 			}
 
 			@Override
@@ -87,6 +90,21 @@ public class Nl implements EntryPoint {
 		});
 	}
 
+	private void createLoginUrl() {
+		dtoService.getLoginUrl(new AsyncCallback<String>() {
+			@Override
+			public void onSuccess(String result) {
+				loginUrl = new HTML();
+				loginUrl.setHTML("<a href='" + result + "'>Login</a>");
+				loginUrl.setVisible(false);
+				rootPanel.add(loginUrl);
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+			}
+		});
+	}
 
 	private void setAdminButtonHandlers() {
 		if (newButtonClickHandlerRegistration != null) {
@@ -112,7 +130,6 @@ public class Nl implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-
 		updateLabel();
 		rootPanel.add(status);
 		rootPanel.add(categoriesInfo);
@@ -120,6 +137,8 @@ public class Nl implements EntryPoint {
 
 		clearButton = new Button("Clear all");
 		newButton = new Button("New item");
+		clearButton.setVisible(false);
+		newButton.setVisible(false);
 		rootPanel.add(clearButton);
 		rootPanel.add(newButton);
 
@@ -127,6 +146,12 @@ public class Nl implements EntryPoint {
 		backButton = new Button("Back");
 		backButton.setVisible(false);
 		rootPanel.add(backButton);
+
+		createLoginUrl();
+		createLogoutUrl();
+		
+		categoriesView = new CategoriesView(this);
+		goodsView = new GoodsView(this);
 		
 		History.addValueChangeHandler(new ValueChangeHandler<String>() {
 			
@@ -134,20 +159,17 @@ public class Nl implements EntryPoint {
 			public void onValueChange(ValueChangeEvent<String> event) {
 				String token = event.getValue();
 				if(token == null || token.isEmpty()){
+					switchToCategoriesView();
 					renderView(null);
 					return;
 				}
 				String categoryKeyRegexp;
 				Function<List<Photo>, Void> callback = null;
 				if(token.startsWith(CATEGORY_URL_PREFIX) && !token.contains(GOOD_URL_PREFIX)){
+					switchToGoodsView();
 					categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/";
-					callback = new Function<List<Photo>, Void>() {
-						@Override
-						public Void apply(List<Photo> input) {
-							return null;
-						}
-					};
 				} else if(token.startsWith(CATEGORY_URL_PREFIX) && token.contains(GOOD_URL_PREFIX)){
+					switchToGoodsView();
 					categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/good";
 				
 					RegExp goodRegexp = RegExp.compile(".+" + GOOD_URL_PREFIX + "(.+)/");
@@ -155,6 +177,7 @@ public class Nl implements EntryPoint {
 					if(goodMatch == null){
 						Window.alert("Wrong format for good in URL, should be '" + GOOD_URL_PREFIX + "'");
 						History.newItem("", false);
+						switchToCategoriesView();
 						renderView(callback);
 						return;
 					}
@@ -175,6 +198,7 @@ public class Nl implements EntryPoint {
 				}else {
 					Window.alert("URL must start with '" + CATEGORY_URL_PREFIX + "' token");
 					History.newItem("", false);
+					switchToCategoriesView();
 					renderView(callback);
 					return;
 				}
@@ -183,12 +207,12 @@ public class Nl implements EntryPoint {
 				MatchResult m = p.exec(token);
 				if(m == null){
 					Window.alert("There is no '" + CATEGORY_URL_PREFIX + " in the URL provided");
+					switchToCategoriesView();
 					renderView(callback);
 					return;
 				}
 				String categoryKey = m.getGroup(1);
 				setSelectedCategoryKeyStr(categoryKey);
-				switchToGoodsView();
 				renderView(callback);			}
 		});
 		
@@ -206,27 +230,27 @@ public class Nl implements EntryPoint {
 			public void onSuccess(UserStatus userStatus) {
 				switch (userStatus) {
 				case ADMIN:
-					createLogoutUrl();
+					logoutUrl.setVisible(true);
+					loginUrl.setVisible(false);
 
+					newButton.setVisible(true);
+					clearButton.setVisible(true);
+					
 					setAdminButtonHandlers();
 					break;
 				case NOT_LOGGED_IN:
-					dtoService.getLoginUrl(new AsyncCallback<String>() {
-						@Override
-						public void onSuccess(String result) {
-							HTML link = new HTML();
-							link.setHTML("<a href='" + result + "'>Login</a>");
-							rootPanel.add(link);
-						}
+					logoutUrl.setVisible(false);
+					loginUrl.setVisible(true);
 
-						@Override
-						public void onFailure(Throwable caught) {
-						}
-					});
-
+					newButton.setVisible(false);
+					newButton.setVisible(false);
 					break;
 				case NOT_ADMIN:
-					createLogoutUrl();
+					logoutUrl.setVisible(true);
+					loginUrl.setVisible(false);
+
+					newButton.setVisible(false);
+					newButton.setVisible(false);
 					break;
 				}
 			}
@@ -277,7 +301,6 @@ public class Nl implements EntryPoint {
 		currentView = categoriesView;
 		setAdminButtonHandlers();
 		backButton.setVisible(false);
-		renderView(null);
 		//this clears everything in the URL starting from '#' inclusive
 		History.newItem("");
 
@@ -285,6 +308,7 @@ public class Nl implements EntryPoint {
 	
 	public void switchToGoodsView() {
 		goodsView.getEditGoodForm().setParentCategoryItemKeyStr(selectedCategoryKeyStr);
+		backButton.setVisible(true);
 		this.currentView = goodsView;
 	}
 

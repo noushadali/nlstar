@@ -128,7 +128,7 @@ public abstract class AbstractItemsView {
 				+ "&h=" + height;
 	}
 
-	public abstract void render(Panel panel, Function<?, ?> callback);
+	public abstract void render(Panel panel, Function callback);
 	public abstract ClickHandler getNewItemHandler();
 	public abstract ClickHandler getClearAllHandler();
 }

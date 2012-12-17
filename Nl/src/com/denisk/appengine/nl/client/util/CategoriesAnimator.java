@@ -147,15 +147,15 @@ public class CategoriesAnimator {
 		// move widgets out the screen
 		moveWidgetsOutOfTheScreen();
 		// =============================
-		// set animation delays on widgets
-
-		setTransitionTimeouts(true);
 
 		// ===================================
 		// set destination dementions
 		Timer timer = new Timer() {
 			@Override
 			public void run() {
+				// set animation delays on widgets
+				setTransitionTimeouts(true);
+
 				animate(destinationDimentions);
 			}
 		};

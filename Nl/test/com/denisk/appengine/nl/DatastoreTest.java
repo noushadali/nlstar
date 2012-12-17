@@ -33,6 +33,7 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileService;
 import com.google.appengine.api.files.FileServiceFactory;
@@ -81,7 +82,7 @@ public class DatastoreTest {
 
 		Category c = new Category();
 		c.setName("hello");
-		c.setDescription("desc");
+		c.setDescription(new Text("desc"));
 
 		Good g1 = new Good();
 		Good g2 = new Good();
@@ -90,7 +91,7 @@ public class DatastoreTest {
 		g2.setName("g2_name");
 
 		g1.setName("g1_desc");
-		g2.setDescription("g2_desc");
+		g2.setDescription(new Text("g2_desc"));
 
 		c.getGoods().add(g1);
 		c.getGoods().add(g2);
@@ -119,11 +120,11 @@ public class DatastoreTest {
 
 		Category c = new Category();
 		c.setName("hello");
-		c.setDescription("desc");
+		c.setDescription(new Text("desc"));
 
 		Category c1 = new Category();
 		c1.setName("another");
-		c1.setDescription("desc");
+		c1.setDescription(new Text("desc"));
 
 		Good g1 = new Good();
 		Good g2 = new Good();
@@ -132,7 +133,7 @@ public class DatastoreTest {
 		g2.setName("g2_name");
 
 		g1.setName("g1_desc");
-		g2.setDescription("g2_desc");
+		g2.setDescription(new Text("g2_desc"));
 
 		c.getGoods().add(g1);
 		c.getGoods().add(g2);
@@ -151,11 +152,11 @@ public class DatastoreTest {
 	public void getCategoriesJson() throws JSONException {
 		Category c = new Category();
 		c.setName("hello");
-		c.setDescription("desc");
+		c.setDescription(new Text("desc"));
 
 		Category c1 = new Category();
 		c1.setName("another");
-		c1.setDescription("desc");
+		c1.setDescription(new Text("desc"));
 
 		Good g1 = new Good();
 		Good g2 = new Good();
@@ -163,8 +164,8 @@ public class DatastoreTest {
 		g1.setName("g1_name");
 		g2.setName("g2_name");
 
-		g1.setDescription("g1_desc");
-		g2.setDescription("g2_desc");
+		g1.setDescription(new Text("g1_desc"));
+		g2.setDescription(new Text("g2_desc"));
 
 		c.getGoods().add(g1);
 		c.getGoods().add(g2);
@@ -183,11 +184,11 @@ public class DatastoreTest {
 	public void getGoodsJson() {
 		Category c = new Category();
 		c.setName("hello");
-		c.setDescription("desc");
+		c.setDescription(new Text("desc"));
 
 		Category c1 = new Category();
 		c1.setName("another");
-		c1.setDescription("desc");
+		c1.setDescription(new Text("desc"));
 
 		Good g1 = new Good();
 		Good g2 = new Good();
@@ -197,9 +198,9 @@ public class DatastoreTest {
 		g2.setName("g2_name");
 		g3.setName("g3_name");
 
-		g1.setDescription("g1_desc");
-		g2.setDescription("g2_desc");
-		g3.setDescription("g3_desc");
+		g1.setDescription(new Text("g1_desc"));
+		g2.setDescription(new Text("g2_desc"));
+		g3.setDescription(new Text("g3_desc"));
 
 		c.getGoods().add(g1);
 		c.getGoods().add(g2);
@@ -224,11 +225,11 @@ public class DatastoreTest {
 	public void clearGoodsForCategory() {
 		Category c = new Category();
 		c.setName("hello");
-		c.setDescription("desc");
+		c.setDescription(new Text("desc"));
 
 		Category c1 = new Category();
 		c1.setName("another");
-		c1.setDescription("desc");
+		c1.setDescription(new Text("desc"));
 
 		Good g1 = new Good();
 		Good g2 = new Good();
@@ -238,9 +239,9 @@ public class DatastoreTest {
 		g2.setName("g2_name");
 		g3.setName("g3_name");
 
-		g1.setDescription("g1_desc");
-		g2.setDescription("g2_desc");
-		g3.setDescription("g3_desc");
+		g1.setDescription(new Text("g1_desc"));
+		g2.setDescription(new Text("g2_desc"));
+		g3.setDescription(new Text("g3_desc"));
 
 		c.getGoods().add(g1);
 		c.getGoods().add(g2);
@@ -274,7 +275,7 @@ public class DatastoreTest {
 		String imageKey = "otnuotenuh";
 
 		g.setName(name);
-		g.setDescription(descr);
+		g.setDescription(new Text(descr));
 		g.setImageBlobKey(imageKey);
 		g.setParentKeyStr(KeyFactory.keyToString(categoryKey));
 
@@ -290,7 +291,7 @@ public class DatastoreTest {
 		Entity saved = list.get(0);
 
 		assertEquals(name, saved.getProperty(Good.NAME));
-		assertEquals(descr, saved.getProperty(Good.DESCRIPTION));
+		assertEquals(descr, ((Text)saved.getProperty(Good.DESCRIPTION)).getValue());
 		assertEquals(imageKey, saved.getProperty(Good.IMAGE_BLOB_KEY));
 		assertEquals(name, saved.getProperty(Good.NAME));
 	}

@@ -100,7 +100,7 @@ public class DataHandler {
 	private void setCommonJsonableProperties(Entity e, Jsonable<?> c) {
 		c.setKey(e.getKey());
 		c.setName((String) e.getProperty(Jsonable.NAME));
-		c.setDescription(((Text) e.getProperty(Jsonable.DESCRIPTION)).getValue());
+		c.setDescription(((Text) e.getProperty(Jsonable.DESCRIPTION)));
 		c.setImageBlobKey((String) e.getProperty(Jsonable.IMAGE_BLOB_KEY));
 	}
 

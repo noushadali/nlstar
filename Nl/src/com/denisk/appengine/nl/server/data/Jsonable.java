@@ -7,6 +7,7 @@ import org.codehaus.jettison.json.JSONWriter;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Text;
 
 public abstract class Jsonable<T extends Jsonable<?>> {
 
@@ -17,7 +18,7 @@ public abstract class Jsonable<T extends Jsonable<?>> {
 	public static final String IMAGE_BLOB_KEY = "imageBlobKey";
 	
 	protected String name;
-	protected String description;
+	protected Text description;
 	
 	private Key key;
 	private String imageBlobKey;
@@ -31,11 +32,11 @@ public abstract class Jsonable<T extends Jsonable<?>> {
 		this.name = name;
 	}
 
-	public String getDescription() {
+	public Text getDescription() {
 		return description;
 	}
 
-	public void setDescription(String description) {
+	public void setDescription(Text description) {
 		this.description = description;
 	}
 
@@ -70,7 +71,7 @@ public abstract class Jsonable<T extends Jsonable<?>> {
 			
 			T jsonable = instance();
 			jsonable.setName(jsonObject.getString(NAME));
-			jsonable.setDescription(jsonObject.getString(DESCRIPTION));
+			jsonable.setDescription(new Text(jsonObject.getString(DESCRIPTION)));
 			jsonable.setImageBlobKey(jsonObject.getString(IMAGE_BLOB_KEY));
 			jsonable.setParentKeyStr(jsonObject.getString(PARENT_KEY_STR));
 			
@@ -89,7 +90,7 @@ public abstract class Jsonable<T extends Jsonable<?>> {
 			}
 			JSONWriter value = writer
 			.key(Category.NAME).value(getName())
-			.key(Category.DESCRIPTION).value(getDescription())
+			.key(Category.DESCRIPTION).value(getDescription().getValue())
 			.key(Category.PARENT_KEY_STR).value(getParentKeyStr())
 			.key(Category.IMAGE_BLOB_KEY).value(getImageBlobKey());
 			

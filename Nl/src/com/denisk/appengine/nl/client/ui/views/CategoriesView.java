@@ -33,7 +33,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class CategoriesView extends AbstractItemsView{
 
-	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
 	private CategoriesAnimator categoriesAnimator = new CategoriesAnimator();
 
 	private EditCategoryForm editCategoryForm = new EditCategoryForm();
@@ -45,6 +44,26 @@ public class CategoriesView extends AbstractItemsView{
 		}
 	};
 
+	private Function<CategoryJavascriptObject, Void> categoryDeletion = new Function<CategoryJavascriptObject, Void>() {
+		@Override
+		public Void apply(CategoryJavascriptObject input) {
+			parent.getDtoService().deleteCategory(input.getKeyStr(),
+					input.getImageBlobKey(), input.getBackgroundBlobKey(),
+					getRedrawingCallback(redrawCategoriesCallback));
+			return null;
+		}
+	};
+	private Function<Void, Void> redrawCategoriesCallback = new Function<Void, Void>() {
+		@Override
+		public Void apply(Void input) {
+			editCategoryForm.hide();
+			parent.updateLabel();
+			parent.getBackButton().setVisible(false);
+			render(parent.getOutputPanel(), null);
+
+			return null;
+		}
+	};
 	private Function<CategoryJavascriptObject, LayoutPanel> editableCategoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
 		@Override
 		public LayoutPanel apply(final CategoryJavascriptObject category) {
@@ -66,11 +85,11 @@ public class CategoriesView extends AbstractItemsView{
 		public void onClick(ClickEvent event) {
 			if (Window
 					.confirm("Are you sure you want to delete all categories and items in these categories?")) {
-				dtoService.clearData(new AsyncCallback<Void>() {
+				parent.getDtoService().clearData(new AsyncCallback<Void>() {
 					@Override
 					public void onSuccess(Void result) {
-						updateLabel(status);
-						outputCategories(outputPanel);
+						parent.updateLabel();
+						render(parent.getOutputPanel(), null);
 					}
 
 					@Override
@@ -81,10 +100,16 @@ public class CategoriesView extends AbstractItemsView{
 		}
 	};
 
+	
+	protected CategoriesView(Nl parent) {
+		super(parent);
+		editCategoryForm.setRedrawAfterItemCreatedCallback(redrawCategoriesCallback);
+	}
+
 	protected <T extends ShopItem> void createShopItemsFromJson(
 			final Panel panel, final Function<T, LayoutPanel> creation,
 			final Function<T, LayoutPanel> editableCeation, final String json) {
-		dtoService.isAdmin(new AsyncCallback<UserStatus>() {
+		parent.getDtoService().isAdmin(new AsyncCallback<UserStatus>() {
 			@Override
 			public void onSuccess(UserStatus result) {
 				final JsArray<T> arrayFromJson = ShopItem
@@ -120,32 +145,26 @@ public class CategoriesView extends AbstractItemsView{
 		itemPanel.setWidgetTopHeight(backgroundLabel, 40, Style.Unit.PX, 20,
 				Style.Unit.PX);
 		
-		//TODO majority of this method should go into CategoriesAnimator
-		
 		ClickHandler categoryClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				// categories disappearance animation goes here
-				setTransitionTimeouts(ANIMATION_SPEED, ANIMATION_DELAY,
-						widgetMatrix, false);
-				moveWidgetsOutOfTheScreen(Window.getClientWidth(),
-						Window.getClientHeight(), widgetMatrix);
-				final HashSet<Widget> allWidgets = new HashSet<Widget>();
-				for (List<Widget> l : widgetMatrix) {
-					allWidgets.addAll(l);
-				}
+				categoriesAnimator.setTransitionTimeouts(false);
+				categoriesAnimator.moveWidgetsOutOfTheScreen();
 
 				Timer t = new Timer() {
 					@Override
 					public void run() {
-						if (allWidgetsOutsideTheScreen(allWidgets)) {
+						if (categoriesAnimator.allWidgetsOutsideTheScreen()) {
 							// at this point, all categories are outside the
 							// screen
 							
 							//Append /category/id/ to the URL
-							History.newItem(getCategoryURLPart(keyStr), false);
+							History.newItem(Nl.getCategoryURLPart(keyStr), false);
 							
-							renderGoods(keyStr);
+							parent.setSelectedCategoryKeyStr(keyStr);
+							parent.switchToGoodsView();
+							parent.renderView(null);
 							
 							cancel();
 						}
@@ -171,62 +190,11 @@ public class CategoriesView extends AbstractItemsView{
 		return result;
 	}
 	
-	private void createLogoutUrl() {
-		dtoService.getLogoutUrl(new AsyncCallback<String>() {
-			@Override
-			public void onSuccess(String result) {
-				HTML link = new HTML();
-				link.setHTML("<a href='" + result + "'>Logout</a>");
-				rootPanel.add(link);
-			}
 
-			@Override
-			public void onFailure(Throwable caught) {
-			}
-		});
-	}
-
-
-	private void outputControlsForCategories() {
-		dtoService.isAdmin(new AsyncCallback<UserStatus>() {
-			@Override
-			public void onSuccess(UserStatus userStatus) {
-				switch (userStatus) {
-				case ADMIN:
-					createLogoutUrl();
-
-					setCategoriesAdminButtonHandlers();
-					break;
-				case NOT_LOGGED_IN:
-					dtoService.getLoginUrl(new AsyncCallback<String>() {
-						@Override
-						public void onSuccess(String result) {
-							HTML link = new HTML();
-							link.setHTML("<a href='" + result + "'>Login</a>");
-							rootPanel.add(link);
-						}
-
-						@Override
-						public void onFailure(Throwable caught) {
-						}
-					});
-
-					break;
-				case NOT_ADMIN:
-					createLogoutUrl();
-					break;
-				}
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-			}
-		});
-	}
-
-	private void outputCategories(final Panel panel) {
+	@Override
+	public void render(final Panel panel, Function<?, ?> callback) {
 		
-		dtoService.getCategoriesJson(new AsyncCallback<String>() {
+		parent.getDtoService().getCategoriesJson(new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {
 				createShopItemsFromJson(panel, categoryPanelCreation,
@@ -240,10 +208,14 @@ public class CategoriesView extends AbstractItemsView{
 	}
 
 
-	private void renderAllCategories() {
-		setCategoriesAdminButtonHandlers();
-		outputCategories(outputPanel);
-		outputControlsForCategories();
+	@Override
+	public ClickHandler getNewItemHandler() {
+		return categoriesNewButtonHandler;
+	}
+
+	@Override
+	public ClickHandler getClearAllHandler() {
+		return categoriesClearButtonClickHandler;
 	}
 
 

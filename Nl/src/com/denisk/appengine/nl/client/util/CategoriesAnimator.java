@@ -3,6 +3,7 @@ package com.denisk.appengine.nl.client.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -111,7 +112,7 @@ public class CategoriesAnimator {
 	 * This is called when categories are appeared on the screen
 	 * 
 	 * @param widgets
-	 *            - categories wigdets, are not yet added to panel
+	 *            - categories widgets, are not yet added to panel
 	 * @param panel
 	 *            - future parent of Widgets
 	 */
@@ -144,12 +145,11 @@ public class CategoriesAnimator {
 		addWidgetsToPanel(widgets, panel);
 
 		// move widgets out the screen
-		moveWidgetsOutOfTheScreen(clientWidth, clientHeight, widgetMatrix);
+		moveWidgetsOutOfTheScreen();
 		// =============================
 		// set animation delays on widgets
 
-		setTransitionTimeouts(ANIMATION_SPEED, ANIMATION_DELAY, widgetMatrix,
-				true);
+		setTransitionTimeouts(true);
 
 		// ===================================
 		// set destination dementions
@@ -176,11 +176,16 @@ public class CategoriesAnimator {
 	/**
 	 * Determines whether all widgets are completely outside the screen (beyond the left side or the bottom)  
 	 */
-	private boolean allWidgetsOutsideTheScreen(
-			Collection<? extends Widget> widgets) {
+	public boolean allWidgetsOutsideTheScreen() {
 		int clientWidth = Window.getClientWidth();
 		int clientHeight = Window.getClientHeight();
-		for (Widget w : widgets) {
+		
+		final HashSet<Widget> allWidgets = new HashSet<Widget>();
+		for (List<Widget> l : widgetMatrix) {
+			allWidgets.addAll(l);
+		}
+
+		for (Widget w : allWidgets) {
 			if (w.getElement().getAbsoluteLeft() < clientWidth
 					&& w.getElement().getAbsoluteTop() < clientHeight) {
 				return false;
@@ -201,16 +206,14 @@ public class CategoriesAnimator {
 	/**
 	 * Sets CSS3 transition timeouts for grid of widgets
 	 * 
-	 * @param animationSpeed
-	 * @param delay
-	 *            amount of delay to execute animation with
-	 * @param widgetMatrix
 	 * @param in
 	 *            true if widgets should appear, false - if they should
 	 *            disappear
 	 */
-	private void setTransitionTimeouts(double animationSpeed, double delay,
-			ArrayList<ArrayList<Widget>> widgetMatrix, boolean in) {
+	public void setTransitionTimeouts(boolean in) {
+		double animationSpeed = ANIMATION_SPEED;
+		double delay = ANIMATION_DELAY;
+		
 		int currentDiagonalIndex = 0;
 		int diagonalLength = getDiagonalLength(widgetMatrix);
 
@@ -300,8 +303,10 @@ public class CategoriesAnimator {
 		return diagonalLength;
 	}
 
-	private void moveWidgetsOutOfTheScreen(int clientWidth, int clientHeight,
-			ArrayList<ArrayList<Widget>> widgetMatrix) {
+	public void moveWidgetsOutOfTheScreen() {
+		int clientWidth = Window.getClientWidth();
+		int clientHeight = Window.getClientHeight();
+		
 		int widgetsToMoveToBottom = 1;
 		for (int r = 0; r < widgetMatrix.size(); r++) {
 			ArrayList<Widget> rows = widgetMatrix.get(r);

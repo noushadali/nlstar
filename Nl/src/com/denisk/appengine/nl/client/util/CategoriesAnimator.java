@@ -18,8 +18,11 @@ public class CategoriesAnimator {
 	private static final int ITEM_WIDTH = 300;
 	private static final int ITEM_HEIGHT = 200;
 
+	//time between panel waves
 	private static final double ANIMATION_DELAY = 0.1;
+	//overall time of the animation
 	private static final double ANIMATION_SPEED = 0.5;
+	
 	private static final int CATEGORIES_MARGIN = 10;
 	private static final int TOP_OFFSET = 100;
 
@@ -341,7 +344,6 @@ public class CategoriesAnimator {
 		private int y;
 
 		protected Dimention(int x, int y) {
-			super();
 			this.x = x;
 			this.y = y;
 		}

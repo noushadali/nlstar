@@ -159,7 +159,7 @@ public class Carousel extends Composite {
 	/**
 	 * Lay out the images based on the current rotation.
 	 */
-	private void placeImages() {
+	public void placeImages() {
 		// The size of the container the holds the images.
 		int containerWidth = imagePanel.getOffsetWidth();
 		int containerHeight = imagePanel.getElement().getClientHeight();
@@ -243,11 +243,18 @@ public class Carousel extends Composite {
 		for (int i = 0; i < carouselSize; i++) {
 			images[i + preLoadSize].getElement().getStyle().setProperty("display", "");
 		}
-		placeImages();
 		PhotoToFrontEvent evt = new PhotoToFrontEvent();
 		evt.setPhotoIndex(currentPhotoIndex);
 		evt.setPhoto(photos.get(currentPhotoIndex));
 		fireEvent(evt);
+		Timer t = new Timer() {
+			
+			@Override
+			public void run() {
+				placeImages();
+			}
+		};
+		t.schedule(300);
 	}
 
 	private void setCurrentPhotoIndex(int photoIndex) {

@@ -29,24 +29,26 @@ public class GoodsView extends AbstractItemsView {
 	private ClickHandler goodsClearButtonClickHandler = new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
-			parent.showBusyIndicator();
-			if (parent.getSelectedCategoryKeyStr() != null) {
-				parent.getDtoService().clearGoodsForCategory(
-						parent.getSelectedCategoryKeyStr(),
-						new AsyncCallback<Void>() {
-							@Override
-							public void onSuccess(
-									Void result) {
-								outputGoodsForCategory(null);
-								parent.updateLabel();
-							}
-
-							@Override
-							public void onFailure(
-									Throwable caught) {
-								Window.alert("Can't delete all goods for category " + parent.getSelectedCategoryKeyStr());
-							}
-						});
+			if(Window.confirm("Are you sure you want to delete all goods of category with key=" + parent.getSelectedCategoryKeyStr())){
+				parent.showBusyIndicator();
+				if (parent.getSelectedCategoryKeyStr() != null) {
+					parent.getDtoService().clearGoodsForCategory(
+							parent.getSelectedCategoryKeyStr(),
+							new AsyncCallback<Void>() {
+								@Override
+								public void onSuccess(
+										Void result) {
+									outputGoodsForCategory(null);
+									parent.updateLabel();
+								}
+	
+								@Override
+								public void onFailure(
+										Throwable caught) {
+									Window.alert("Can't delete all goods for category " + parent.getSelectedCategoryKeyStr());
+								}
+							});
+				}
 			}
 		}
 	};

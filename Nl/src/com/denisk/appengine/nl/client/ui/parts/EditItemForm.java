@@ -62,14 +62,17 @@ public class EditItemForm extends Composite implements HasWidgets {
 	
 	@UiHandler("save")
 	void onSaveClick(ClickEvent event) {
+		loading.show();
 		imageForm.submit();
 	}
 	
 	public void show(){
+		loading.hide();
 		popup.center();
 	}
 
 	public void hide() {
+		loading.hide();
 		popup.hide();
 	}
 
@@ -113,4 +116,10 @@ public class EditItemForm extends Composite implements HasWidgets {
 		this.name.setText("");
 		this.description.setText("");
 	}
+
+	public PopupPanel getLoading() {
+		return loading;
+	}
+	
+	
 }

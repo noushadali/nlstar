@@ -29,6 +29,7 @@ public class GoodsView extends AbstractItemsView {
 	private ClickHandler goodsClearButtonClickHandler = new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
+			parent.showBusyIndicator();
 			if (parent.getSelectedCategoryKeyStr() != null) {
 				parent.getDtoService().clearGoodsForCategory(
 						parent.getSelectedCategoryKeyStr(),
@@ -94,6 +95,7 @@ public class GoodsView extends AbstractItemsView {
 		backButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
+				p.showBusyIndicator();
 				// set transitioned style to the carousel
 
 				carousel.addStyleName("carouselDownAnimated");
@@ -198,6 +200,8 @@ public class GoodsView extends AbstractItemsView {
 							carousel.getElement().getStyle()
 									.setTop(100, Unit.PX);
 							carousel.removeStyleName("carouselAnimated");
+							
+							parent.hideBusyIndicator();
 						}
 					};
 					t1.schedule(2000 + 500);
@@ -220,6 +224,7 @@ public class GoodsView extends AbstractItemsView {
 
 	@Override
 	public void render(Panel panel, Function callback) {
+		parent.showBusyIndicator();
 		outputGoodsForCategory(callback);
 	}
 

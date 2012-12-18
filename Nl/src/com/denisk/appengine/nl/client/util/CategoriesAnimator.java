@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import com.denisk.appengine.nl.client.ui.views.Nl;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.Timer;
@@ -23,7 +24,12 @@ public class CategoriesAnimator {
 	private static final int TOP_OFFSET = 100;
 
 	private ArrayList<ArrayList<Widget>> widgetMatrix;
+	
+	private Nl parent;
 
+	public CategoriesAnimator(Nl parent) {
+		this.parent = parent;
+	}
 	/**
 	 * This takes an array of widgets and converts builds a grid (matrix) from
 	 * them. It sets left and top properties widgets as if they were put on a
@@ -156,6 +162,8 @@ public class CategoriesAnimator {
 				setTransitionTimeouts(true);
 
 				animate(destinationDimentions);
+				
+				parent.hideBusyIndicator();
 			}
 		};
 		// it seems that DOM needs some time to add object appropriately, so we

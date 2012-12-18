@@ -20,6 +20,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -34,14 +35,19 @@ public class Nl implements EntryPoint {
 	private final FlowPanel outputPanel = new FlowPanel();
 	private final Label status = new Label();
 	private final RootPanel rootPanel = RootPanel.get("container");
+	
 	private HandlerRegistration newButtonClickHandlerRegistration;
 	private HandlerRegistration clearButtonHandlerRegistration;
+
 	private Button clearButton;
 	private Button newButton;
 	private Button backButton;
+	
 	private HTML loginUrl;
 	private HTML logoutUrl;
 
+	private Image busyIndicator;
+	
 	// state fields
 	private String selectedCategoryKeyStr;
 	private AbstractItemsView currentView;
@@ -122,6 +128,10 @@ public class Nl implements EntryPoint {
 		backButton = new Button("Back");
 		backButton.setVisible(false);
 		rootPanel.add(backButton);
+		
+		busyIndicator = new Image();
+		busyIndicator.setUrl("/images/loading.gif");
+		rootPanel.add(busyIndicator);
 
 		createLoginUrl();
 		createLogoutUrl();
@@ -257,6 +267,28 @@ public class Nl implements EntryPoint {
 	}
 
 
+	public void switchToCategoriesView() {
+		currentView = categoriesView;
+		setAdminButtonHandlers();
+		backButton.setVisible(false);
+		//this clears everything in the URL starting from '#' inclusive
+		History.newItem("");
+
+	}
+	
+	public void switchToGoodsView() {
+		goodsView.getEditGoodForm().setParentCategoryItemKeyStr(selectedCategoryKeyStr);
+		backButton.setVisible(true);
+		this.currentView = goodsView;
+	}
+
+	public void showBusyIndicator(){
+		this.busyIndicator.setVisible(true);
+	}
+	
+	public void hideBusyIndicator(){
+		this.busyIndicator.setVisible(false);
+	}
 	public static String getCategoryURLPart(String categoryKeyStr) {
 		return CATEGORY_URL_PREFIX + categoryKeyStr + "/";
 	}
@@ -273,21 +305,6 @@ public class Nl implements EntryPoint {
 		this.selectedCategoryKeyStr = selectedCategoryKeyStr;
 	}
 
-	public void switchToCategoriesView() {
-		currentView = categoriesView;
-		setAdminButtonHandlers();
-		backButton.setVisible(false);
-		//this clears everything in the URL starting from '#' inclusive
-		History.newItem("");
-
-	}
-	
-	public void switchToGoodsView() {
-		goodsView.getEditGoodForm().setParentCategoryItemKeyStr(selectedCategoryKeyStr);
-		backButton.setVisible(true);
-		this.currentView = goodsView;
-	}
-
 	public DtoServiceAsync getDtoService() {
 		return dtoService;
 	}
@@ -300,5 +317,5 @@ public class Nl implements EntryPoint {
 	public Button getBackButton() {
 		return backButton;
 	}
-
+	
 }

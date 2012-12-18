@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.Panel;
 
 public class CategoriesView extends AbstractItemsView{
 
-	private CategoriesAnimator categoriesAnimator = new CategoriesAnimator();
+	private CategoriesAnimator categoriesAnimator;
 
 	private EditCategoryForm editCategoryForm = new EditCategoryForm();
 
@@ -92,6 +92,7 @@ public class CategoriesView extends AbstractItemsView{
 	
 	protected CategoriesView(Nl parent) {
 		super(parent);
+		categoriesAnimator = new CategoriesAnimator(parent);
 		editCategoryForm.setRedrawAfterItemCreatedCallback(redrawCategoriesCallback);
 	}
 
@@ -137,6 +138,8 @@ public class CategoriesView extends AbstractItemsView{
 		ClickHandler categoryClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
+				parent.showBusyIndicator();
+				
 				// categories disappearance animation goes here
 				categoriesAnimator.setTransitionTimeouts(false);
 				categoriesAnimator.moveWidgetsOutOfTheScreen();
@@ -182,7 +185,7 @@ public class CategoriesView extends AbstractItemsView{
 
 	@Override
 	public void render(final Panel panel, Function callback) {
-		
+		parent.showBusyIndicator();
 		parent.getDtoService().getCategoriesJson(new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {

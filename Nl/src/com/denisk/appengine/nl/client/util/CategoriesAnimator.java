@@ -130,6 +130,7 @@ public class CategoriesAnimator {
 		int clientHeight = Window.getClientHeight();
 		int widgetCount = widgets.size();
 		if (widgetCount == 0) {
+			parent.hideBusyIndicator();
 			return;
 		}
 

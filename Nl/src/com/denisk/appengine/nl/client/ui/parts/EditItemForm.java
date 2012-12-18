@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.FormElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -15,6 +16,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HasWidgets;
+import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -39,8 +41,7 @@ public class EditItemForm extends Composite implements HasWidgets {
 	@UiField VerticalPanel customInputs;
 	@UiField PopupPanel popup;
 	@UiField UploadPanel imagePanel;
-	
-
+	@UiField VerticalPanel formChild;
 	
 	private HashMap<String, Object> additionalProperties = new HashMap<String, Object>();
 	
@@ -49,6 +50,12 @@ public class EditItemForm extends Composite implements HasWidgets {
 
 	public EditItemForm() {
 		initWidget(uiBinder.createAndBindUi(this));
+		//HACK forcing the encoding
+		FormElement.as(imageForm.getElement()).setAcceptCharset("UTF-8");
+		Hidden field = new Hidden();
+		field.setName("utf8char");
+		field.setValue("\u8482");
+		formChild.add(field);
 	}
 
 	public HashMap<String, Object> getAdditionalProperties() {

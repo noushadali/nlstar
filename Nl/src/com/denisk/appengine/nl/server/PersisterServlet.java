@@ -38,6 +38,9 @@ public class PersisterServlet extends HttpServlet {
 			System.out.println("Request to Persister was not multipart/form request");
 			return;
 		}
+		
+		req.setCharacterEncoding("UTF-8");
+		
 		ServletFileUpload upload = new ServletFileUpload();
 
 		// Parse the request
@@ -55,7 +58,7 @@ public class PersisterServlet extends HttpServlet {
 				String fieldName = item.getFieldName();
 				InputStream stream = item.openStream();
 				if (item.isFormField()) {
-					String value = Streams.asString(stream);
+					String value = Streams.asString(stream, "UTF-8");
 					System.out.println("Form field " + fieldName + " with value "
 							+ value + " detected.");
 					if(KEY_FIELD.equals(fieldName)){

@@ -205,6 +205,8 @@ public class GoodsView extends AbstractItemsView {
 						}
 					};
 					t1.schedule(2000 + 500);
+				} else {
+					parent.hideBusyIndicator();
 				}
 			}
 

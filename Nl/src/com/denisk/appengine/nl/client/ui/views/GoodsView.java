@@ -14,6 +14,8 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseWheelEvent;
+import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -91,7 +93,16 @@ public class GoodsView extends AbstractItemsView {
 	public GoodsView(Nl parent) {
 		super(parent);
 		editGoodForm.setRedrawAfterItemCreatedCallback(redrawGoodsCallback);
-
+		
+		carousel.addDomHandler(new MouseWheelHandler(){
+			public void onMouseWheel(MouseWheelEvent event){
+				if(event.isNorth()){
+					carousel.next();
+				} else if(event.isSouth()){
+					carousel.prev();
+				}
+			}
+		}, MouseWheelEvent.getType());
 		final Button backButton = parent.getBackButton();
 		final Nl p = parent;
 		backButton.addClickHandler(new ClickHandler() {

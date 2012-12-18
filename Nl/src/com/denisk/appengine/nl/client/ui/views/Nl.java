@@ -1,50 +1,27 @@
 package com.denisk.appengine.nl.client.ui.views;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
-import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
-import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
-import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.client.service.DtoService;
 import com.denisk.appengine.nl.client.service.DtoServiceAsync;
-import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Carousel;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Photo;
-import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickEvent;
-import com.denisk.appengine.nl.client.ui.parts.EditCategoryForm;
-import com.denisk.appengine.nl.client.ui.parts.EditForm;
-import com.denisk.appengine.nl.client.ui.parts.EditGoodForm;
 import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 public class Nl implements EntryPoint {
 	private static final String CATEGORY_URL_PREFIX = "category/";
@@ -72,7 +49,6 @@ public class Nl implements EntryPoint {
 	//views
 	private CategoriesView categoriesView;
 	private GoodsView goodsView;
-	private SingleGoodView singleGoodView;
 	
 	private void createLogoutUrl() {
 		dtoService.getLogoutUrl(new AsyncCallback<String>() {

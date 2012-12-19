@@ -456,14 +456,14 @@ public class Carousel extends Composite {
 	 * Start an animated rotation to the previous photo.
 	 */
 	public void prev() {
-		rotateTo(getPhotoIndex() - 1.0);
+		rotateBy(- 1.0);
 	}
 
 	/**
 	 * Start an animated rotation to the next photo.
 	 */
 	public void next() {
-		rotateTo(getPhotoIndex() + 1.0);
+		rotateBy(+ 1.0);
 	}
 
 	/**

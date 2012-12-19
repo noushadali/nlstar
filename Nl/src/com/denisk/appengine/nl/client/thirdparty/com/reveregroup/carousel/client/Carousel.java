@@ -254,7 +254,7 @@ public class Carousel extends Composite {
 				placeImages();
 			}
 		};
-		t.schedule(300);
+		t.schedule(600);
 	}
 
 	private void setCurrentPhotoIndex(int photoIndex) {

@@ -94,15 +94,6 @@ public class GoodsView extends AbstractItemsView {
 		super(parent);
 		editGoodForm.setRedrawAfterItemCreatedCallback(redrawGoodsCallback);
 		
-		carousel.addDomHandler(new MouseWheelHandler(){
-			public void onMouseWheel(MouseWheelEvent event){
-				if(event.isNorth()){
-					carousel.next();
-				} else if(event.isSouth()){
-					carousel.prev();
-				}
-			}
-		}, MouseWheelEvent.getType());
 		final Button backButton = parent.getBackButton();
 		final Nl p = parent;
 		backButton.addClickHandler(new ClickHandler() {

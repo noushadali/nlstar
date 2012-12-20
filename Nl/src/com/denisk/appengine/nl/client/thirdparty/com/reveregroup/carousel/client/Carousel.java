@@ -16,6 +16,8 @@ import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.event.dom.client.MouseWheelEvent;
+import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -68,7 +70,6 @@ public class Carousel extends Composite {
 		carouselDock.setCellHeight(caption, "15");
 		carouselDock.setCellHeight(imagePanel, "100%");
 		carouselDock.setCellHorizontalAlignment(caption, DockPanel.ALIGN_CENTER);
-		Utils.preventSelection(carouselDock.getElement());
 		imagePanel.getElement().getStyle().setProperty("overflow", "hidden");
 		carouselDock.setStyleName("photoCarousel");
 		caption.setStyleName("photoCarouselCaption");
@@ -136,6 +137,15 @@ public class Carousel extends Composite {
 		addMouseMoveHandler(new MouseMoveHandler() {
 			public void onMouseMove(MouseMoveEvent event) {
 				mouseMoved = true;
+			}
+		});
+		addMouseWheelHandler(new MouseWheelHandler(){
+			public void onMouseWheel(MouseWheelEvent event){
+				if(event.isNorth()){
+					next();
+				} else if(event.isSouth()){
+					prev();
+				}
 			}
 		});
 	}
@@ -514,18 +524,23 @@ public class Carousel extends Composite {
 	}
 
 	public HandlerRegistration addClickHandler(ClickHandler handler) {
-		return addDomHandler(handler, ClickEvent.getType());
+		return imagePanel.addDomHandler(handler, ClickEvent.getType());
 	}
 
 	public HandlerRegistration addMouseDownHandler(MouseDownHandler handler) {
-		return addDomHandler(handler, MouseDownEvent.getType());
+		return imagePanel.addDomHandler(handler, MouseDownEvent.getType());
 	}
 
 	public HandlerRegistration addMouseMoveHandler(MouseMoveHandler handler) {
-		return addDomHandler(handler, MouseMoveEvent.getType());
+		return imagePanel.addDomHandler(handler, MouseMoveEvent.getType());
 	}
 
 	public HandlerRegistration addMouseUpHandler(MouseUpHandler handler) {
-		return addDomHandler(handler, MouseUpEvent.getType());
+		return imagePanel.addDomHandler(handler, MouseUpEvent.getType());
+	}
+	
+	public HandlerRegistration addMouseWheelHandler(MouseWheelHandler handler){
+		return imagePanel.addDomHandler(handler, MouseWheelEvent.getType());
+
 	}
 }

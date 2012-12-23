@@ -69,7 +69,6 @@ public class Carousel extends Composite {
 	public Carousel() {
 		this(true, true);
 	}
-	CarouselImage trackingImage;
 	
 	public Carousel(boolean useDefaultMouseBehavior, boolean useDefaultFocusBehavior) {
 		// Set up UI structure
@@ -108,9 +107,6 @@ public class Carousel extends Composite {
 		images = new CarouselImage[this.carouselSize + (this.preLoadSize * 2)];
 		for (int i = 0; i < images.length; i++) {
 			images[i] = new CarouselImage();
-			if(i == 0){
-				trackingImage = images[i];
-			}
 			images[i].setSize("1", "1");
 			Utils.preventDrag(images[i]);
 			Utils.preventSelection(images[i].getElement());
@@ -123,7 +119,6 @@ public class Carousel extends Composite {
 					Image img = (Image) event.getSource();
 					for (int i = 0; i < carouselSize; i++) {
 						if (images[i + preLoadSize] == img) {
-							System.out.println("In Click Handler");
 							int pIndex = i - 4 + currentPhotoIndex;
 							pIndex = Utils.modulus(pIndex, photos.size());
 							// fire off photo clicked event
@@ -308,6 +303,7 @@ public class Carousel extends Composite {
 			return;
 		} else {
 			int shiftOffset = photoIndex - this.currentPhotoIndex;
+
 			int halfPhotos = photos.size() / 2;
 			if (shiftOffset < -halfPhotos) {
 				shiftOffset += photos.size();

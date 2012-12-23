@@ -274,7 +274,6 @@ public class DataHandler {
 		save(entity);
 	}
 
-	//todo unit test
 	public void deleteGood(String key, String imageKey){
 		Transaction tx = ds.beginTransaction();
 		delete(key, tx);
@@ -282,7 +281,6 @@ public class DataHandler {
 		deleteImage(imageKey);
 	}
 	
-	//todo unit test
 	public void deleteCategory(String key, String imageKey, String backgroundKey){
 		if(key == null || key.isEmpty()){
 			return;

@@ -298,6 +298,8 @@ public class Carousel extends Composite {
 	}
 
 	private void setCurrentPhotoIndex(int photoIndex) {
+		System.out.println("photo index:" + photoIndex);
+		System.out.println("Current photo index:" + currentPhotoIndex);
 		if (photoIndex == this.currentPhotoIndex){
 			return;
 		}
@@ -306,9 +308,10 @@ public class Carousel extends Composite {
 			return;
 		} else {
 			int shiftOffset = photoIndex - this.currentPhotoIndex;
-			if (shiftOffset < -(photos.size() / 2)) {
+			int halfPhotos = photos.size() / 2;
+			if (shiftOffset < -halfPhotos) {
 				shiftOffset += photos.size();
-			} else if (shiftOffset > (photos.size() / 2)) {
+			} else if (shiftOffset > halfPhotos) {
 				shiftOffset -= photos.size();
 			}
 			if (shiftOffset > 0) {

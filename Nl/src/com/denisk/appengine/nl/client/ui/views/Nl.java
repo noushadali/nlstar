@@ -276,7 +276,6 @@ public class Nl implements EntryPoint {
 	}
 	
 	public void switchToGoodsView() {
-		System.out.println("Selected category key:" + selectedCategoryKeyStr);
 		goodsView.getEditGoodForm().setParentCategoryItemKeyStr(selectedCategoryKeyStr);
 		backButton.setVisible(true);
 		this.currentView = goodsView;

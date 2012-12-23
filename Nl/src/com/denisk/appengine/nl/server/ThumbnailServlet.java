@@ -28,7 +28,6 @@ public class ThumbnailServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		System.out.println("In ThumbnailServlet - GET");
 
 		processRequest(req, resp, true);
 	}
@@ -37,7 +36,6 @@ public class ThumbnailServlet extends HttpServlet {
 	@Override
 	protected void doHead(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		System.out.println("In ThumbnailServlet - HEAD");
 		processRequest(req, resp, false);
 	}
 
@@ -46,14 +44,12 @@ public class ThumbnailServlet extends HttpServlet {
 			throws IOException, ServletException {
 		String ifNoteMatch = req.getHeader("If-None-Match");
 		if(ifNoteMatch != null && imageExists(ifNoteMatch)){
-			System.out.println("Not modified based on If-None-Match header");
 			resp.sendError(HttpServletResponse.SC_NOT_MODIFIED);
 			return;
 		}
 
 		String blobKeyStr = req.getParameter("key");
 		if (blobKeyStr == null || blobKeyStr.isEmpty() || blobKeyStr.equals("null")) {
-			System.out.println("Key was null, exiting");
 			return;
 		}
 		String widthStr = req.getParameter("w");
@@ -79,7 +75,6 @@ public class ThumbnailServlet extends HttpServlet {
 		if(ifModifiedSince != null && imageExists(combinedKey)){
 			//we don't care what 'ifModifiedSince' value is, the images can't be updated in blobstore - only overridden
 			//so in case of update we would get new blobKey anyway
-			System.out.print("Not modified based on If-Modified-Since presence");
 			resp.sendError(HttpServletResponse.SC_NOT_MODIFIED);
 			return;
 		}

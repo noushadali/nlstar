@@ -52,6 +52,14 @@ public class Carousel extends Composite {
 
 	private int preLoadSize = 3;
 
+	boolean timerOn;
+	double velocity;
+	Timer timer = new RotationTimer();
+	long lastTime;
+
+	double acceleration = .998;
+	double velocityThreshold = .00002;
+
 	private boolean mouseMoved = false;
 
 	private MouseBehavior mouseBehavior;
@@ -286,12 +294,13 @@ public class Carousel extends Composite {
 				placeImages();
 			}
 		};
-		t.schedule(600);
+		t.schedule(1000);
 	}
 
 	private void setCurrentPhotoIndex(int photoIndex) {
-		if (this.currentPhotoIndex == photoIndex)
+		if (photoIndex == this.currentPhotoIndex){
 			return;
+		}
 		photoIndex = Utils.modulus(photoIndex, photos.size());
 		if (this.currentPhotoIndex == photoIndex) {
 			return;
@@ -347,14 +356,6 @@ public class Carousel extends Composite {
 			this.currentPhotoIndex = photoIndex;
 		}
 	}
-
-	boolean timerOn;
-	double velocity;
-	Timer timer = new RotationTimer();
-	long lastTime;
-
-	double acceleration = .998;
-	double velocityThreshold = .00002;
 
 	/**
 	 * Acceleration determines how fast the carousel slows down or speeds up as
@@ -446,8 +447,6 @@ public class Carousel extends Composite {
 			event.setPhoto(photos.get(getPhotoIndex()));
 			event.setPhotoIndex(getPhotoIndex());
 			fireEvent(event);
-		} else {
-			//System.out.println("Photo index" + getPhotoIndex());
 		}
 		placeImages();
 	}

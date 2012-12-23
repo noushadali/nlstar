@@ -72,13 +72,6 @@ public class GoodsView extends AbstractItemsView {
 		}
 	};
 
-	private Function<GoodJavascriptObject, LayoutPanel> goodPanelCreation = new Function<GoodJavascriptObject, LayoutPanel>() {
-		@Override
-		public LayoutPanel apply(GoodJavascriptObject input) {
-			return createShopItemPanel(input);
-		}
-	};
-
 	private Function<Void, Void> redrawGoodsCallback = new Function<Void, Void>() {
 		@Override
 		public Void apply(Void input) {

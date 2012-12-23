@@ -152,10 +152,8 @@ public class Nl implements EntryPoint {
 				String categoryKeyRegexp;
 				Function<List<Photo>, Void> callback = null;
 				if(token.startsWith(CATEGORY_URL_PREFIX) && !token.contains(GOOD_URL_PREFIX)){
-					switchToGoodsView();
 					categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/";
 				} else if(token.startsWith(CATEGORY_URL_PREFIX) && token.contains(GOOD_URL_PREFIX)){
-					switchToGoodsView();
 					categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/good";
 				
 					RegExp goodRegexp = RegExp.compile(".+" + GOOD_URL_PREFIX + "(.+)/");
@@ -199,6 +197,7 @@ public class Nl implements EntryPoint {
 				}
 				String categoryKey = m.getGroup(1);
 				setSelectedCategoryKeyStr(categoryKey);
+				switchToGoodsView();
 				renderView(callback);			}
 		});
 		
@@ -277,6 +276,7 @@ public class Nl implements EntryPoint {
 	}
 	
 	public void switchToGoodsView() {
+		System.out.println("Selected category key:" + selectedCategoryKeyStr);
 		goodsView.getEditGoodForm().setParentCategoryItemKeyStr(selectedCategoryKeyStr);
 		backButton.setVisible(true);
 		this.currentView = goodsView;

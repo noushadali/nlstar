@@ -293,8 +293,6 @@ public class Carousel extends Composite {
 	}
 
 	private void setCurrentPhotoIndex(int photoIndex) {
-		System.out.println("photo index:" + photoIndex);
-		System.out.println("Current photo index:" + currentPhotoIndex);
 		if (photoIndex == this.currentPhotoIndex){
 			return;
 		}

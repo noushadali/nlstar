@@ -1,6 +1,7 @@
 package com.denisk.appengine.nl.client.ui.views;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
@@ -12,22 +13,26 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public class CategoriesView extends AbstractItemsView{
 
 	private CategoriesAnimator categoriesAnimator;
 
 	private EditCategoryForm editCategoryForm = new EditCategoryForm();
-
+	
 	private Function<CategoryJavascriptObject, LayoutPanel> categoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
 		@Override
 		public LayoutPanel apply(CategoryJavascriptObject input) {
@@ -130,16 +135,13 @@ public class CategoriesView extends AbstractItemsView{
 	private LayoutPanel createCategoryPanel(
 			final CategoryJavascriptObject categoryJson) {
 		LayoutPanel itemPanel = createShopItemPanel(categoryJson);
-		Label backgroundLabel = new Label(categoryJson.getBackgroundBlobKey());
 		final String keyStr = categoryJson.getKeyStr();
 
-		itemPanel.add(backgroundLabel);
-		itemPanel.setWidgetTopHeight(backgroundLabel, 40, Style.Unit.PX, 20,
-				Style.Unit.PX);
-		
 		ClickHandler categoryClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
+				CategoriesView.this.clicked = true;
+				
 				parent.showBusyIndicator();
 				
 				// categories disappearance animation goes here
@@ -170,17 +172,43 @@ public class CategoriesView extends AbstractItemsView{
 
 		itemPanel.addDomHandler(categoryClickHandler, ClickEvent.getType());
 		
-		itemPanel.addDomHandler(new MouseOverHandler(){
-			@Override
-			public void onMouseOver(MouseOverEvent event) {
-				String backgroundBlobKey = categoryJson.getBackgroundBlobKey();
-				parent.setBackground(backgroundBlobKey);
-			}
+		//init background image
+		final String backgroundBlobKey = categoryJson.getBackgroundBlobKey();
+		if (backgroundBlobKey != null && !backgroundBlobKey.isEmpty()) {
+			final Image background = new Image(AbstractItemsView.getImageUrl(
+					backgroundBlobKey, "-1", "-1"));
+			background.getElement().getStyle().setOpacity(0);
+			background.addStyleName("background");
 			
-		}, MouseOverEvent.getType());
+			RootPanel.get("backgroundsContainer").add(background);
+			
+			itemPanel.addDomHandler(new MouseOverHandler() {
+				@Override
+				public void onMouseOver(MouseOverEvent event) {
+					background.getElement().getStyle().setOpacity(1);
+				}
+
+			}, MouseOverEvent.getType());
+
+			itemPanel.addDomHandler(new MouseOutHandler() {
+				@Override
+				public void onMouseOut(MouseOutEvent event) {
+					if (! clicked) {
+						background.getElement().getStyle().setOpacity(0);
+					}
+				}
+
+			}, MouseOutEvent.getType());
+		}
 		return itemPanel;
 	}
 
+	private boolean clicked = false;
+	
+	private void clearBackgrounds(){
+		RootPanel.get("backgroundsContainer").clear();
+	}
+	
 	private <T extends ShopItem> ArrayList<LayoutPanel> createTiles(
 			JsArray<T> arrayFromJson, Function<T, LayoutPanel> panelCreation) {
 		ArrayList<LayoutPanel> result = new ArrayList<LayoutPanel>();
@@ -196,7 +224,12 @@ public class CategoriesView extends AbstractItemsView{
 
 	@Override
 	public void render(final Panel panel, Function callback) {
+		this.clicked = false; 
+		
 		parent.showBusyIndicator();
+		
+		clearBackgrounds();
+		
 		parent.getDtoService().getCategoriesJson(new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {
@@ -213,13 +246,11 @@ public class CategoriesView extends AbstractItemsView{
 
 	@Override
 	public ClickHandler getNewItemHandler() {
-		return categoriesNewButtonHandler;
+		return this.categoriesNewButtonHandler;
 	}
 
 	@Override
 	public ClickHandler getClearAllHandler() {
-		return categoriesClearButtonClickHandler;
+		return this.categoriesClearButtonClickHandler;
 	}
-
-
 }

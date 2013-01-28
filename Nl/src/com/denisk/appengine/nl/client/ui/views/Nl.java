@@ -314,11 +314,4 @@ public class Nl implements EntryPoint {
 	public Button getBackButton() {
 		return backButton;
 	}
-
-	public void setBackground(String backgroundBlobKey) {
-		System.out.println("Here");
-		String url = "url(" + AbstractItemsView.getImageUrl(backgroundBlobKey, "-1", "-1") + ")";
-		RootPanel.getBodyElement().getStyle().setBackgroundImage(url);
-	}
-	
 }

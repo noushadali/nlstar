@@ -42,7 +42,9 @@ public class ThumbnailServlet extends HttpServlet {
 
 	private void processRequest(HttpServletRequest req, HttpServletResponse resp, boolean content)
 			throws IOException, ServletException {
-System.out.println("On server");
+		
+		System.out.println("Getting thumbnail");
+		
 		String ifNoteMatch = req.getHeader("If-None-Match");
 		if(ifNoteMatch != null && imageExists(ifNoteMatch)){
 			resp.sendError(HttpServletResponse.SC_NOT_MODIFIED);

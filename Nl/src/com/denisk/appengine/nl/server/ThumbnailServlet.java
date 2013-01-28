@@ -42,6 +42,7 @@ public class ThumbnailServlet extends HttpServlet {
 
 	private void processRequest(HttpServletRequest req, HttpServletResponse resp, boolean content)
 			throws IOException, ServletException {
+System.out.println("On server");
 		String ifNoteMatch = req.getHeader("If-None-Match");
 		if(ifNoteMatch != null && imageExists(ifNoteMatch)){
 			resp.sendError(HttpServletResponse.SC_NOT_MODIFIED);
@@ -54,25 +55,25 @@ public class ThumbnailServlet extends HttpServlet {
 		}
 		String widthStr = req.getParameter("w");
 		String heightStr = req.getParameter("h");
-		int w;
-		int h;
+		int w = -1;
+		int h = -1;
 		
 		try {
 			w = Integer.parseInt(widthStr);
 		} catch (NumberFormatException e){
-			throw new ServletException("Width is not a number", e);
+			e.printStackTrace();
 		}
 		
 		try {
 			h = Integer.parseInt(heightStr);
 		} catch (NumberFormatException e){
-			throw new ServletException("Height is not a number", e);
+			e.printStackTrace();
 		}
 		
-		String combinedKey = imageCacheService.buildCombinedKey(new BlobKey(blobKeyStr), w, h);
+		String key = imageCacheService.buildCombinedKey(new BlobKey(blobKeyStr), w, h);
 		
 		String ifModifiedSince = req.getHeader("If-Modified-Since");
-		if(ifModifiedSince != null && imageExists(combinedKey)){
+		if(ifModifiedSince != null && imageExists(key)){
 			//we don't care what 'ifModifiedSince' value is, the images can't be updated in blobstore - only overridden
 			//so in case of update we would get new blobKey anyway
 			resp.sendError(HttpServletResponse.SC_NOT_MODIFIED);
@@ -80,7 +81,7 @@ public class ThumbnailServlet extends HttpServlet {
 		}
 		
 		
-		resp.setHeader("ETag", combinedKey);
+		resp.setHeader("ETag", key);
 
 		Image image = imageCacheService.getImage(new BlobKey(blobKeyStr), w, h);
 		if(image == null){
@@ -109,7 +110,7 @@ public class ThumbnailServlet extends HttpServlet {
 	}
 
 	private boolean imageExists(String key) {
-		if(! key.matches(".+" + ImageCacheService.KEY_DELIM + "\\d{1,4}" + ImageCacheService.KEY_DELIM + "\\d{1,4}")){
+		if(! key.matches(".+" + ImageCacheService.KEY_DELIM + "-?\\d{1,4}" + ImageCacheService.KEY_DELIM + "-?\\d{1,4}")){
 			System.out.println("Header has wrong format: " + key);
 			return false;
 		}
@@ -119,7 +120,8 @@ public class ThumbnailServlet extends HttpServlet {
 		String gotX = parts[1];
 		String gotY = parts[2];
 		
-		return getImage(gotBlobKey, gotX, gotY) != null;
+		Image image = getImage(gotBlobKey, gotX, gotY);
+		return image != null && image.getImageData() != null;
 	}
 
 	private Image getImage(String key, String w, String h) {

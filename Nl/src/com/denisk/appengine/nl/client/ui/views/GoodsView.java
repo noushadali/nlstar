@@ -145,7 +145,7 @@ public class GoodsView extends AbstractItemsView {
 							.length());
 					for (int i = 0; i < goods.length(); i++) {
 						GoodJavascriptObject good = goods.get(i);
-						String imageUrl = getImageUrl(good, "600", "600");
+						String imageUrl = getImageUrl(good.getImageBlobKey(), "600", "600");
 						Photo photo = new Photo(imageUrl, good.getName(), good
 								.getDescription(), good.getKeyStr());
 						photos.add(photo);

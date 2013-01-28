@@ -28,7 +28,7 @@ public abstract class AbstractItemsView {
 		final Label name = new Label(itemJson.getName());
 		Label description = new Label(itemJson.getDescription());
 		Image image = new Image(
-				getImageUrl(itemJson, THUMB_WIDTH, THUMB_HEIGHT));
+				getImageUrl(itemJson.getImageBlobKey(), THUMB_WIDTH, THUMB_HEIGHT));
 
 		LayoutPanel itemPanel = new LayoutPanel();
 
@@ -122,9 +122,9 @@ public abstract class AbstractItemsView {
 		};
 	}
 
-	public static String getImageUrl(final ShopItem itemJson, String width,
+	public static String getImageUrl(final String imageBlobKey, String width,
 			String height) {
-		return "/nl/thumb?key=" + itemJson.getImageBlobKey() + "&w=" + width
+		return "/nl/thumb?key=" + imageBlobKey + "&w=" + width
 				+ "&h=" + height;
 	}
 

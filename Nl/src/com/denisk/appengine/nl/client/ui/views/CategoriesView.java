@@ -12,6 +12,8 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -167,6 +169,15 @@ public class CategoriesView extends AbstractItemsView{
 		};
 
 		itemPanel.addDomHandler(categoryClickHandler, ClickEvent.getType());
+		
+		itemPanel.addDomHandler(new MouseOverHandler(){
+			@Override
+			public void onMouseOver(MouseOverEvent event) {
+				String backgroundBlobKey = categoryJson.getBackgroundBlobKey();
+				parent.setBackground(backgroundBlobKey);
+			}
+			
+		}, MouseOverEvent.getType());
 		return itemPanel;
 	}
 

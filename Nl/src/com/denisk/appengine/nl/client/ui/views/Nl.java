@@ -46,7 +46,7 @@ public class Nl implements EntryPoint {
 	private HTML loginUrl;
 	private HTML logoutUrl;
 
-	private Image busyIndicator;
+	private RootPanel busyIndicator;
 	
 	// state fields
 	private String selectedCategoryKeyStr;
@@ -129,9 +129,7 @@ public class Nl implements EntryPoint {
 		backButton.setVisible(false);
 		rootPanel.add(backButton);
 		
-		busyIndicator = new Image();
-		busyIndicator.setUrl("/images/loading.gif");
-		rootPanel.add(busyIndicator);
+		busyIndicator = rootPanel.get("busyIndicator");
 
 		createLoginUrl();
 		createLogoutUrl();

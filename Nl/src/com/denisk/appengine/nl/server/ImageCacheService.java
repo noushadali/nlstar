@@ -1,5 +1,10 @@
 package com.denisk.appengine.nl.server;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import com.google.appengine.api.blobstore.BlobInfoFactory;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.images.Image;
@@ -26,18 +31,18 @@ public class ImageCacheService {
 		if(w <= 0 || h <= 0){
 			w = -1;
 			h = -1;
-			image = (Image) memcacheService.get(new String(Md5Utils.getMd5Digest(key.getKeyString().getBytes())));
+			image = (Image) memcacheService.get(md5(key.getKeyString()));
 			if(image == null){
 				checkBlobExists(key);
 				image = ImagesServiceFactory.makeImageFromBlob(key);
 				//we need to apply any transform to the image, otherwise the image data will remain null
 				image = imageService.applyTransform(lucky, image);
-				memcacheService.put(new String(Md5Utils.getMd5Digest(key.getKeyString().getBytes())), image);
+				memcacheService.put(md5(key.getKeyString()), image);
 			}
 		} else {
 			String combinedKey = buildCombinedKey(key, w, h);
 			
-			image = (Image) memcacheService.get(new String(Md5Utils.getMd5Digest(combinedKey.getBytes())));  
+			image = (Image) memcacheService.get(md5(combinedKey));  
 			if(image != null){
 				return image;
 			}
@@ -55,7 +60,7 @@ public class ImageCacheService {
 			Transform resize = ImagesServiceFactory.makeResize(w, h);
 			image = imageService.applyTransform(resize, image);
 			
-			memcacheService.put(new String(Md5Utils.getMd5Digest(combinedKey.getBytes())), image);
+			memcacheService.put(md5(combinedKey), image);
 		}
 		
 		return image;
@@ -67,6 +72,20 @@ public class ImageCacheService {
 		}
 	}
 	
+	public static String md5(String str){
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
+		
+		try {
+			return new BigInteger(1, md.digest(str.getBytes("UTF-8"))).toString(16);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
 	public String buildCombinedKey(BlobKey key, int w, int h) {
 		return key.getKeyString() + KEY_DELIM + w + KEY_DELIM + h;
 	}

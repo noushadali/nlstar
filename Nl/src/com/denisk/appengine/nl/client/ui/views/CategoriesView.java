@@ -11,6 +11,7 @@ import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
@@ -32,6 +33,9 @@ public class CategoriesView extends AbstractItemsView{
 	private CategoriesAnimator categoriesAnimator;
 
 	private EditCategoryForm editCategoryForm = new EditCategoryForm();
+	
+	//true when category panel is clicked. Reseted on render
+	private boolean clicked = false;
 	
 	private Function<CategoryJavascriptObject, LayoutPanel> categoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
 		@Override
@@ -134,7 +138,7 @@ public class CategoriesView extends AbstractItemsView{
 	 */
 	private LayoutPanel createCategoryPanel(
 			final CategoryJavascriptObject categoryJson) {
-		LayoutPanel itemPanel = createShopItemPanel(categoryJson);
+		final LayoutPanel itemPanel = createShopItemPanel(categoryJson);
 		final String keyStr = categoryJson.getKeyStr();
 
 		ClickHandler categoryClickHandler = new ClickHandler() {
@@ -182,6 +186,7 @@ public class CategoriesView extends AbstractItemsView{
 			
 			RootPanel.get("backgroundsContainer").add(background);
 			
+			//background handlers
 			itemPanel.addDomHandler(new MouseOverHandler() {
 				@Override
 				public void onMouseOver(MouseOverEvent event) {
@@ -200,11 +205,55 @@ public class CategoriesView extends AbstractItemsView{
 
 			}, MouseOutEvent.getType());
 		}
+		//border style handlers
+		final Style style = itemPanel.getElement().getStyle();
+
+		final int borderWidth = 10;
+		
+
+		itemPanel.addDomHandler(new MouseOverHandler() {
+			@Override
+			public void onMouseOver(MouseOverEvent event) {
+				style.setBorderColor("orange");
+				style.setBorderWidth(borderWidth, Unit.PX);
+				
+				String topStr = style.getTop();
+				String leftStr = style.getLeft();
+
+				final int top = getIntFromPx(topStr);
+				final int left = getIntFromPx(leftStr);
+				//assuming that we use px
+				style.setTop(top - borderWidth, Unit.PX);
+				style.setLeft(left - borderWidth, Unit.PX);
+			}
+
+		}, MouseOverEvent.getType());
+
+		itemPanel.addDomHandler(new MouseOutHandler() {
+			@Override
+			public void onMouseOut(MouseOutEvent event) {
+				style.setBorderColor("black");
+				style.setBorderWidth(1, Unit.PX);
+
+				String topStr = style.getTop();
+				String leftStr = style.getLeft();
+
+				final int top = getIntFromPx(topStr);
+				final int left = getIntFromPx(leftStr);
+
+				style.setTop(top + borderWidth, Unit.PX);
+				style.setLeft(left + borderWidth, Unit.PX);
+			}
+
+		}, MouseOutEvent.getType());
+
 		return itemPanel;
 	}
 
-	private boolean clicked = false;
-	
+	private int getIntFromPx(String str) {
+		return Integer.parseInt(str.substring(0, str.length() - 2));
+	}
+
 	private void clearBackgrounds(){
 		RootPanel.get("backgroundsContainer").clear();
 	}

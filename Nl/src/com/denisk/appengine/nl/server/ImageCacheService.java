@@ -8,6 +8,7 @@ import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.Transform;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.gwt.util.tools.shared.Md5Utils;
 
 public class ImageCacheService {
 	public static final String KEY_DELIM = "#";
@@ -25,18 +26,18 @@ public class ImageCacheService {
 		if(w <= 0 || h <= 0){
 			w = -1;
 			h = -1;
-			image = (Image) memcacheService.get(key.getKeyString());
+			image = (Image) memcacheService.get(new String(Md5Utils.getMd5Digest(key.getKeyString().getBytes())));
 			if(image == null){
 				checkBlobExists(key);
 				image = ImagesServiceFactory.makeImageFromBlob(key);
 				//we need to apply any transform to the image, otherwise the image data will remain null
 				image = imageService.applyTransform(lucky, image);
-				memcacheService.put(key.getKeyString(), image);
+				memcacheService.put(new String(Md5Utils.getMd5Digest(key.getKeyString().getBytes())), image);
 			}
 		} else {
 			String combinedKey = buildCombinedKey(key, w, h);
 			
-			image = (Image) memcacheService.get(combinedKey);  
+			image = (Image) memcacheService.get(new String(Md5Utils.getMd5Digest(combinedKey.getBytes())));  
 			if(image != null){
 				return image;
 			}
@@ -54,7 +55,7 @@ public class ImageCacheService {
 			Transform resize = ImagesServiceFactory.makeResize(w, h);
 			image = imageService.applyTransform(resize, image);
 			
-			memcacheService.put(combinedKey, image);
+			memcacheService.put(new String(Md5Utils.getMd5Digest(combinedKey.getBytes())), image);
 		}
 		
 		return image;

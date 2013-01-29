@@ -6,6 +6,12 @@ html, body {
 	border: solid 1px black;
 	position: absolute !important;
 	top:-220px;
+
+	transition: border 1s;
+	-moz-transition: border 1s;
+	-webkit-transition: border 1s;
+	-o-transition: border 1s;
+	-ms-transition: border 1s;
 }
 .categoryEditRoot {
 	position: relative;
@@ -106,7 +112,6 @@ html, body {
 	animation: slideFromBottom 2s forwards;
 }
 
-
 .carouselDownAnimated {
 	-moz-transition: all 2s;
 	-webkit-transition: all 2s;
@@ -127,6 +132,7 @@ html, body {
 	bottom: 0;
 	z-index: -999999;
 }
+
 #backgroundsContainer {
 	
 }

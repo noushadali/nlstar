@@ -32,8 +32,6 @@ public abstract class AbstractItemsView {
 
 		LayoutPanel itemPanel = new LayoutPanel();
 
-		itemPanel.addStyleName("category");
-
 		itemPanel.add(name);
 		itemPanel.add(image);
 		itemPanel.add(description);
@@ -52,7 +50,11 @@ public abstract class AbstractItemsView {
 				Style.Unit.PX);
 		itemPanel.setWidgetHorizontalPosition(image,
 				com.google.gwt.layout.client.Layout.Alignment.END);
-		return itemPanel;
+		
+		LayoutPanel wrapper = new LayoutPanel();
+		wrapper.addStyleName("category");
+		wrapper.add(itemPanel);
+		return wrapper;
 	}
 
 	protected<T extends ShopItem> void buildEditButton(final T item,

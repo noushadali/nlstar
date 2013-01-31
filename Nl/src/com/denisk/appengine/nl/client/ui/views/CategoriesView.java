@@ -206,25 +206,10 @@ public class CategoriesView extends AbstractItemsView{
 			}, MouseOutEvent.getType());
 		}
 		//border style handlers
-		final Style style = itemPanel.getElement().getStyle();
-
-		final int borderWidth = 10;
-		
-
 		itemPanel.addDomHandler(new MouseOverHandler() {
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
-				style.setBorderColor("orange");
-				style.setBorderWidth(borderWidth, Unit.PX);
-				
-				String topStr = style.getTop();
-				String leftStr = style.getLeft();
-
-				final int top = getIntFromPx(topStr);
-				final int left = getIntFromPx(leftStr);
-				//assuming that we use px
-				style.setTop(top - borderWidth, Unit.PX);
-				style.setLeft(left - borderWidth, Unit.PX);
+				itemPanel.getWidget(0).addStyleName("pulsing");
 			}
 
 		}, MouseOverEvent.getType());
@@ -232,17 +217,7 @@ public class CategoriesView extends AbstractItemsView{
 		itemPanel.addDomHandler(new MouseOutHandler() {
 			@Override
 			public void onMouseOut(MouseOutEvent event) {
-				style.setBorderColor("black");
-				style.setBorderWidth(1, Unit.PX);
-
-				String topStr = style.getTop();
-				String leftStr = style.getLeft();
-
-				final int top = getIntFromPx(topStr);
-				final int left = getIntFromPx(leftStr);
-
-				style.setTop(top + borderWidth, Unit.PX);
-				style.setLeft(left + borderWidth, Unit.PX);
+				itemPanel.getWidget(0).removeStyleName("pulsing");
 			}
 
 		}, MouseOutEvent.getType());

@@ -3,15 +3,8 @@ html, body {
 	height: 100%;
 }
 .category {
-	border: solid 1px black;
 	position: absolute !important;
 	top:-220px;
-
-	transition: border 1s;
-	-moz-transition: border 1s;
-	-webkit-transition: border 1s;
-	-o-transition: border 1s;
-	-ms-transition: border 1s;
 }
 .categoryEditRoot {
 	position: relative;
@@ -133,6 +126,39 @@ html, body {
 	z-index: -999999;
 }
 
-#backgroundsContainer {
+@-moz-keyframes pulsingSelection {
+	0% {border: 1px solid black;}
+	50% {border: 10px solid orange;}
+	100% {border: 1px solid black;}
+}
+
+@-webkit-keyframes pulsingSelection {
+	0% {border: 1px solid black;}
+	50% {border: 10px solid orange;}
+	100% {border: 1px solid black;}
+}
+
+@-o-keyframes pulsingSelection {
+	0% {border: 1px solid black;}
+	50% {border: 10px solid orange;}
+	100% {border: 1px solid black;}
+}
+
+@keyframes pulsingSelection {
+	0% {border: 1px solid black;}
+	50% {border: 10px solid orange;}
+	100% {border: 1px solid black;}
+}
+
+.pulsing {
+	border: 1px solid black;
+	-moz-animation: pulsingSelection 1s infinite;
+	-webkit-animation: pulsingSelection 1s infinite;
+	-o-animation: pulsingSelection 1s infinite;
+	animation: pulsingSelection 1s infinite;
 	
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	-o-border-radius: 30px;
+	border-radius: 30px;
 }

@@ -6,6 +6,10 @@ html, body {
 	position: absolute !important;
 	top:-220px;
 }
+
+.category div {
+	overflow: visible !important;
+}
 .categoryEditRoot {
 	position: relative;
 	padding: 7px;
@@ -127,31 +131,33 @@ html, body {
 }
 
 @-moz-keyframes pulsingSelection {
-	0% {border: 1px solid black;}
-	50% {border: 10px solid orange;}
-	100% {border: 1px solid black;}
+	0% {border: 1px solid black; top: 0px; left: 0px;}
+	50% {border: 15px solid orange; top: -15px; left: -15px;}
+	100% {border: 1px solid black; top: 0px; left: 0px;}
 }
 
 @-webkit-keyframes pulsingSelection {
-	0% {border: 1px solid black;}
-	50% {border: 10px solid orange;}
-	100% {border: 1px solid black;}
+	0% {border: 1px solid black; top: 0px; left: 0px;}
+	50% {border: 15px solid orange; top: -15px; left: -15px;}
+	100% {border: 1px solid black; top: 0px; left: 0px;}
 }
 
 @-o-keyframes pulsingSelection {
-	0% {border: 1px solid black;}
-	50% {border: 10px solid orange;}
-	100% {border: 1px solid black;}
+	0% {border: 1px solid black; top: 0px; left: 0px;}
+	50% {border: 15px solid orange; top: -15px; left: -15px;}
+	100% {border: 1px solid black; top: 0px; left: 0px;}
 }
 
 @keyframes pulsingSelection {
-	0% {border: 1px solid black;}
-	50% {border: 10px solid orange;}
-	100% {border: 1px solid black;}
+	0% {border: 1px solid black; top: 0px; left: 0px;}
+	50% {border: 15px solid orange; top: -15px; left: -15px;}
+	100% {border: 1px solid black; top: 0px; left: 0px;}
 }
 
 .pulsing {
 	border: 1px solid black;
+	width: 100% !important;
+	height: 100% !important;
 	-moz-animation: pulsingSelection 1s infinite;
 	-webkit-animation: pulsingSelection 1s infinite;
 	-o-animation: pulsingSelection 1s infinite;

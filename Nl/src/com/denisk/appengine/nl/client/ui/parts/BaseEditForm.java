@@ -54,7 +54,7 @@ public abstract class BaseEditForm<T extends ShopItem> extends Composite impleme
 
 	protected void populateFields(T input){
 		itemForm.name.setText(input.getName());
-		itemForm.description.setText(input.getDescription());
+		itemForm.descriptionArea.setHTML(input.getDescription());
 	}
 	
 	protected void clearUploads(){

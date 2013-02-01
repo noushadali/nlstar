@@ -20,6 +20,7 @@ html, body {
 	position: relative;
 	margin-bottom: 10px;
 	height: 25px;
+	width: 100% !important;
 }
 
 .menuItem .gwt-Label {
@@ -167,4 +168,8 @@ html, body {
 	-moz-border-radius: 30px;
 	-o-border-radius: 30px;
 	border-radius: 30px;
+}
+
+.imageForm {
+	width: 685px !important;
 }

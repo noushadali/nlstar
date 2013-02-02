@@ -24,38 +24,6 @@ public abstract class AbstractItemsView {
 	public AbstractItemsView(Nl parent){
 		this.parent = parent;
 	}
-	protected LayoutPanel createShopItemPanel(final ShopItem itemJson) {
-		final Label name = new Label(itemJson.getName());
-		Label description = new Label(itemJson.getDescription());
-		Image image = new Image(
-				getImageUrl(itemJson.getImageBlobKey(), THUMB_WIDTH, THUMB_HEIGHT));
-
-		LayoutPanel itemPanel = new LayoutPanel();
-
-		itemPanel.add(name);
-		itemPanel.add(image);
-		itemPanel.add(description);
-
-		itemPanel.setWidgetLeftRight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
-		itemPanel.setWidgetTopHeight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
-
-		itemPanel.setWidgetLeftRight(description, 5, Style.Unit.PX, 20,
-				Style.Unit.PX);
-		itemPanel.setWidgetBottomHeight(description, 5, Style.Unit.PX, 20,
-				Style.Unit.PX);
-
-		itemPanel
-				.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
-		itemPanel.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150,
-				Style.Unit.PX);
-		itemPanel.setWidgetHorizontalPosition(image,
-				com.google.gwt.layout.client.Layout.Alignment.END);
-		
-		LayoutPanel wrapper = new LayoutPanel();
-		wrapper.addStyleName("category");
-		wrapper.add(itemPanel);
-		return wrapper;
-	}
 
 	protected<T extends ShopItem> void buildEditButton(final T item,
 			LayoutPanel panel, final EditForm<T> editForm) {

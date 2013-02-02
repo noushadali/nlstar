@@ -22,6 +22,7 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -105,6 +106,39 @@ public class CategoriesView extends AbstractItemsView{
 		super(parent);
 		categoriesAnimator = new CategoriesAnimator(parent);
 		editCategoryForm.setRedrawAfterItemCreatedCallback(redrawCategoriesCallback);
+	}
+
+	protected LayoutPanel createShopItemPanel(final ShopItem itemJson) {
+		final Label name = new Label(itemJson.getName());
+		HTML description = new HTML(itemJson.getDescription());
+		Image image = new Image(
+				getImageUrl(itemJson.getImageBlobKey(), THUMB_WIDTH, THUMB_HEIGHT));
+
+		LayoutPanel itemPanel = new LayoutPanel();
+
+		itemPanel.add(name);
+		itemPanel.add(image);
+		itemPanel.add(description);
+
+		itemPanel.setWidgetLeftRight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
+		itemPanel.setWidgetTopHeight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
+
+		itemPanel.setWidgetLeftRight(description, 5, Style.Unit.PX, 20,
+				Style.Unit.PX);
+		itemPanel.setWidgetBottomHeight(description, 5, Style.Unit.PX, 20,
+				Style.Unit.PX);
+
+		itemPanel
+				.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
+		itemPanel.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150,
+				Style.Unit.PX);
+		itemPanel.setWidgetHorizontalPosition(image,
+				com.google.gwt.layout.client.Layout.Alignment.END);
+		
+		LayoutPanel wrapper = new LayoutPanel();
+		wrapper.addStyleName("category");
+		wrapper.add(itemPanel);
+		return wrapper;
 	}
 
 	protected <T extends ShopItem> void createShopItemsFromJson(

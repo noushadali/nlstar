@@ -2,6 +2,16 @@ html, body {
 	width: 100%;
 	height: 100%;
 }
+#header h1 {
+	display: inline;
+	margin-left: 20%;
+}
+#buttonsContainer {
+	float: left;
+}
+#loginContainer {
+	float: right;
+}
 .category {
 	position: absolute !important;
 	top:-220px;

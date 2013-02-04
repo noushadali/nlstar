@@ -118,6 +118,7 @@ public class Nl implements EntryPoint {
 		rootPanel.add(outputPanel);
 
 		clearButton = new Button("Clear all");
+		clearButton.setEnabled(false);
 		newButton = new Button("New item");
 		clearButton.setVisible(false);
 		newButton.setVisible(false);

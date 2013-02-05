@@ -3,21 +3,23 @@ package com.denisk.appengine.nl.client.ui.views;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.client.ui.parts.EditForm;
 import com.denisk.appengine.nl.client.util.Function;
-import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.AnchorElement;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Panel;
 
 public abstract class AbstractItemsView {
-	public static final String THUMB_WIDTH = "200";
-	public static final String THUMB_HEIGHT = "100";
-
+	public static final String THUMB_WIDTH = "480";
+	public static final String THUMB_HEIGHT = "400";
 	
 	protected Nl parent;
 
@@ -26,13 +28,25 @@ public abstract class AbstractItemsView {
 	}
 
 	protected<T extends ShopItem> void buildEditButton(final T item,
-			LayoutPanel panel, final EditForm<T> editForm) {
-		HTML edit = new HTML("<a href=#>Edit</a>");
+			Panel panel, final EditForm<T> editForm) {
+		Label edit = new Label("Edit");
+		edit.addStyleName("editControl");
 		edit.addClickHandler(getEditClickHandler(item, editForm));
+		
 		panel.add(edit);
+	}
 
-		panel.setWidgetRightWidth(edit, 60, Style.Unit.PX, 30, Style.Unit.PX);
-		panel.setWidgetTopHeight(edit, 10, Style.Unit.PX, 20, Style.Unit.PX);
+	/**
+	 * Deletes an item and redraws the panel
+	 */
+	protected <T extends ShopItem> void buildDeleteButton(final T item,
+			Panel panel, final Function<T, Void> deletion) {
+		Label delete = new Label("Delete");
+		delete.addStyleName("editControl");
+
+		delete.addClickHandler(getDeleteClickHandler(item, deletion));
+
+		panel.add(delete);
 	}
 
 	protected AsyncCallback<Void> getRedrawingCallback(
@@ -49,22 +63,6 @@ public abstract class AbstractItemsView {
 				redrawing.apply(null);
 			}
 		};
-	}
-
-	/**
-	 * Deletes an item and redraws the panel
-	 */
-	protected <T extends ShopItem> void buildDeleteButton(final T item,
-			LayoutPanel panel, final Function<T, Void> deletion) {
-		HTML delete = new HTML("<a href='javascript://'>Delete</a>");
-
-		delete.addClickHandler(getDeleteClickHandler(item, deletion));
-
-		panel.add(delete);
-
-		panel.setWidgetRightWidth(delete, 15, Style.Unit.PX, 40, Style.Unit.PX);
-		panel.setWidgetTopHeight(delete, 10, Style.Unit.PX, 20, Style.Unit.PX);
-
 	}
 
 	protected <T extends ShopItem> ClickHandler getDeleteClickHandler(

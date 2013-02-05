@@ -1,7 +1,6 @@
 package com.denisk.appengine.nl.client.ui.views;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
@@ -10,8 +9,8 @@ import com.denisk.appengine.nl.client.util.CategoriesAnimator;
 import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.HeadingElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
@@ -22,10 +21,9 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -38,9 +36,9 @@ public class CategoriesView extends AbstractItemsView{
 	//true when category panel is clicked. Reseted on render
 	private boolean clicked = false;
 	
-	private Function<CategoryJavascriptObject, LayoutPanel> categoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
+	private Function<CategoryJavascriptObject, Panel> categoryPanelCreation = new Function<CategoryJavascriptObject, Panel>() {
 		@Override
-		public LayoutPanel apply(CategoryJavascriptObject input) {
+		public Panel apply(CategoryJavascriptObject input) {
 			return createCategoryPanel(input);
 		}
 	};
@@ -65,12 +63,18 @@ public class CategoriesView extends AbstractItemsView{
 			return null;
 		}
 	};
-	private Function<CategoryJavascriptObject, LayoutPanel> editableCategoryPanelCreation = new Function<CategoryJavascriptObject, LayoutPanel>() {
+	private Function<CategoryJavascriptObject, Panel> editableCategoryPanelCreation = new Function<CategoryJavascriptObject, Panel>() {
 		@Override
-		public LayoutPanel apply(final CategoryJavascriptObject category) {
-			LayoutPanel panel = categoryPanelCreation.apply(category);
-			buildEditButton(category, panel, editCategoryForm);
-			buildDeleteButton(category, panel, categoryDeletion);
+		public Panel apply(final CategoryJavascriptObject category) {
+			Panel panel = categoryPanelCreation.apply(category);
+			
+			FlowPanel editContainer = new FlowPanel();
+			editContainer.addStyleName("editContainer");
+			panel.add(editContainer);
+			
+			buildEditButton(category, editContainer, editCategoryForm);
+			buildDeleteButton(category, editContainer, categoryDeletion);
+			
 			return panel;
 		}
 	};
@@ -100,7 +104,6 @@ public class CategoriesView extends AbstractItemsView{
 			}
 		}
 	};
-
 	
 	protected CategoriesView(Nl parent) {
 		super(parent);
@@ -108,56 +111,49 @@ public class CategoriesView extends AbstractItemsView{
 		editCategoryForm.setRedrawAfterItemCreatedCallback(redrawCategoriesCallback);
 	}
 
-	protected LayoutPanel createShopItemPanel(final ShopItem itemJson) {
-		final Label name = new Label(itemJson.getName());
+	protected Panel createShopItemPanel(final ShopItem itemJson) {
+		HeadingElement name = Document.get().createHElement(3);
+		name.setInnerText(itemJson.getName());
+		name.addClassName("categoryName");
+		
 		HTML description = new HTML(itemJson.getDescription());
+		description.addStyleName("categoryDescription");
+
 		Image image = new Image(
 				getImageUrl(itemJson.getImageBlobKey(), THUMB_WIDTH, THUMB_HEIGHT));
+		image.addStyleName("categoryImage");
 
-		LayoutPanel itemPanel = new LayoutPanel();
+		FlowPanel result = new FlowPanel();
+		result.addStyleName("category");
 
-		itemPanel.add(name);
-		itemPanel.add(image);
-		itemPanel.add(description);
-
-		itemPanel.setWidgetLeftRight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
-		itemPanel.setWidgetTopHeight(name, 5, Style.Unit.PX, 20, Style.Unit.PX);
-
-		itemPanel.setWidgetLeftRight(description, 5, Style.Unit.PX, 20,
-				Style.Unit.PX);
-		itemPanel.setWidgetBottomHeight(description, 5, Style.Unit.PX, 20,
-				Style.Unit.PX);
-
-		itemPanel
-				.setWidgetLeftRight(image, 0, Style.Unit.PX, 10, Style.Unit.PX);
-		itemPanel.setWidgetBottomHeight(image, 10, Style.Unit.PX, 150,
-				Style.Unit.PX);
-		itemPanel.setWidgetHorizontalPosition(image,
-				com.google.gwt.layout.client.Layout.Alignment.END);
+		result.getElement().appendChild(name);
+		FlowPanel imageWrapper = new FlowPanel();
+		imageWrapper.addStyleName("categoryImageWrapper");
+		imageWrapper.add(image);
 		
-		LayoutPanel wrapper = new LayoutPanel();
-		wrapper.addStyleName("category");
-		wrapper.add(itemPanel);
-		return wrapper;
+		result.add(imageWrapper);
+		result.add(description);
+
+		return result;
 	}
 
 	protected <T extends ShopItem> void createShopItemsFromJson(
-			final Panel panel, final Function<T, LayoutPanel> creation,
-			final Function<T, LayoutPanel> editableCeation, final String json) {
+			final Panel panel, final Function<T, ? extends Panel> creation,
+			final Function<T, ? extends Panel> editableCeation, final String json) {
 		parent.getDtoService().isAdmin(new AsyncCallback<UserStatus>() {
 			@Override
 			public void onSuccess(UserStatus result) {
 				final JsArray<T> arrayFromJson = ShopItem
 						.getArrayFromJson(json);
 				panel.clear();
-				ArrayList<LayoutPanel> categories;
+				ArrayList<Panel> categories;
 				switch (result) {
-				case ADMIN:
-					categories = createTiles(arrayFromJson, editableCeation);
-					break;
-				default:
-					categories = createTiles(arrayFromJson, creation);
-				}
+					case ADMIN:
+						categories = createTiles(arrayFromJson, editableCeation);
+						break;
+					default:
+						categories = createTiles(arrayFromJson, creation);
+					}
 				categoriesAnimator.animateWidgetGridAppearenceAndAddToPanel(categories, panel);
 			}
 
@@ -170,9 +166,9 @@ public class CategoriesView extends AbstractItemsView{
 	/**
 	 * Creates panel for category from json
 	 */
-	private LayoutPanel createCategoryPanel(
+	private Panel createCategoryPanel(
 			final CategoryJavascriptObject categoryJson) {
-		final LayoutPanel itemPanel = createShopItemPanel(categoryJson);
+		final Panel itemPanel = createShopItemPanel(categoryJson);
 		final String keyStr = categoryJson.getKeyStr();
 
 		ClickHandler categoryClickHandler = new ClickHandler() {
@@ -239,11 +235,15 @@ public class CategoriesView extends AbstractItemsView{
 
 			}, MouseOutEvent.getType());
 		}
+		
+		final FlowPanel border = new FlowPanel();
+		border.addStyleName("categoryBorder");
+		itemPanel.add(border);
 		//border style handlers
 		itemPanel.addDomHandler(new MouseOverHandler() {
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
-				itemPanel.getWidget(0).addStyleName("pulsing");
+				border.addStyleName("pulsing");
 			}
 
 		}, MouseOverEvent.getType());
@@ -251,7 +251,7 @@ public class CategoriesView extends AbstractItemsView{
 		itemPanel.addDomHandler(new MouseOutHandler() {
 			@Override
 			public void onMouseOut(MouseOutEvent event) {
-				itemPanel.getWidget(0).removeStyleName("pulsing");
+				border.removeStyleName("pulsing");
 			}
 
 		}, MouseOutEvent.getType());
@@ -259,20 +259,16 @@ public class CategoriesView extends AbstractItemsView{
 		return itemPanel;
 	}
 
-	private int getIntFromPx(String str) {
-		return Integer.parseInt(str.substring(0, str.length() - 2));
-	}
-
 	private void clearBackgrounds(){
 		RootPanel.get("backgroundsContainer").clear();
 	}
 	
-	private <T extends ShopItem> ArrayList<LayoutPanel> createTiles(
-			JsArray<T> arrayFromJson, Function<T, LayoutPanel> panelCreation) {
-		ArrayList<LayoutPanel> result = new ArrayList<LayoutPanel>();
+	private <T extends ShopItem> ArrayList<Panel> createTiles(
+			JsArray<T> arrayFromJson, Function<T, ? extends Panel> panelCreation) {
+		ArrayList<Panel> result = new ArrayList<Panel>();
 		for (int i = 0; i < arrayFromJson.length(); i++) {
 			final T categoryJson = arrayFromJson.get(i);
-			LayoutPanel itemPanel = panelCreation.apply(categoryJson);
+			Panel itemPanel = panelCreation.apply(categoryJson);
 			result.add(itemPanel);
 		}
 

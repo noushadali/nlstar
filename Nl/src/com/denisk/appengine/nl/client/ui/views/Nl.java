@@ -30,15 +30,20 @@ public class Nl implements EntryPoint {
 
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
 
+	//hidden
 	private Label categoriesInfo = new Label();
 
 	private final FlowPanel outputPanel = new FlowPanel();
 	private final Label status = new Label();
 	private final RootPanel rootPanel = RootPanel.get("container");
 	
+	private final RootPanel buttonsContainer = RootPanel.get("buttonsContainer");
+	private final RootPanel loginContainer = RootPanel.get("loginContainer");
+	
 	private HandlerRegistration newButtonClickHandlerRegistration;
 	private HandlerRegistration clearButtonHandlerRegistration;
 
+	//disabled
 	private Button clearButton;
 	private Button newButton;
 	private Button backButton;
@@ -63,7 +68,7 @@ public class Nl implements EntryPoint {
 				logoutUrl = new HTML();
 				logoutUrl.setHTML("<a href='" + result + "'>Logout</a>");
 				logoutUrl.setVisible(false);
-				rootPanel.add(logoutUrl);
+				loginContainer.add(logoutUrl);
 			}
 
 			@Override
@@ -79,7 +84,7 @@ public class Nl implements EntryPoint {
 				loginUrl = new HTML();
 				loginUrl.setHTML("<a href='" + result + "'>Login</a>");
 				loginUrl.setVisible(false);
-				rootPanel.add(loginUrl);
+				loginContainer.add(loginUrl);
 			}
 
 			@Override
@@ -112,25 +117,28 @@ public class Nl implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
+		categoriesInfo.setVisible(false);
 		updateLabel();
+		
 		rootPanel.add(status);
 		rootPanel.add(categoriesInfo);
 		rootPanel.add(outputPanel);
 
 		clearButton = new Button("Clear all");
 		clearButton.setEnabled(false);
-		newButton = new Button("New item");
 		clearButton.setVisible(false);
+
+		newButton = new Button("New item");
 		newButton.setVisible(false);
-		rootPanel.add(clearButton);
-		rootPanel.add(newButton);
+		buttonsContainer.add(clearButton);
+		buttonsContainer.add(newButton);
 
 		outputPanel.addStyleName("outputPanel");
 		backButton = new Button("Back");
 		backButton.setVisible(false);
-		rootPanel.add(backButton);
+		buttonsContainer.add(backButton);
 		
-		busyIndicator = rootPanel.get("busyIndicator");
+		busyIndicator = RootPanel.get("busyIndicator");
 
 		createLoginUrl();
 		createLogoutUrl();
@@ -249,8 +257,10 @@ public class Nl implements EntryPoint {
 
 	/**
 	 * Calculates total items count and updates corresponding label
+	 * This is disabled
 	 */
 	public void updateLabel() {
+		/*
 		dtoService.countEntities(new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String result) {
@@ -262,6 +272,7 @@ public class Nl implements EntryPoint {
 				status.setText("Can't calculate entities");
 			}
 		});
+		*/
 	}
 
 

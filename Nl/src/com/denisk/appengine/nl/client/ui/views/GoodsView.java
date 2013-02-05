@@ -14,12 +14,12 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.MouseWheelEvent;
-import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
 
 public class GoodsView extends AbstractItemsView {
@@ -139,7 +139,21 @@ public class GoodsView extends AbstractItemsView {
 				final JsArray<GoodJavascriptObject> goods = GoodJavascriptObject
 						.getArrayFromJson(json);
 				if (goods.length() > 0) {
-					panel.add(carousel);
+					Image leftArrow = new Image("/images/arrow-left.png");
+					Image rightArrow = new Image("/images/arrow-right.png");
+										
+					leftArrow.addStyleName("leftArrow");
+					rightArrow.addStyleName("rightArrow");
+					
+					panel.add(leftArrow);
+					
+					FlowPanel carouselContainer = new FlowPanel();
+					carouselContainer.addStyleName("carouselContainer");
+					carouselContainer.add(carousel);
+					panel.add(carouselContainer);
+					
+					panel.add(rightArrow);
+					
 					final ArrayList<Photo> photos = new ArrayList<Photo>(goods
 							.length());
 					for (int i = 0; i < goods.length(); i++) {

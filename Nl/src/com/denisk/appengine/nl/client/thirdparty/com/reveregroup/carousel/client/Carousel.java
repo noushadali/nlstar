@@ -113,8 +113,9 @@ public class Carousel extends Composite {
 			images[i].getElement().getStyle().setProperty("display", "none");
 			images[i].addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
-					if (mouseMoved)
+					if (mouseMoved) {
 						return; // make sure a photo click is not registered
+					}
 					// when the mouse is dragged.
 					Image img = (Image) event.getSource();
 					for (int i = 0; i < carouselSize; i++) {

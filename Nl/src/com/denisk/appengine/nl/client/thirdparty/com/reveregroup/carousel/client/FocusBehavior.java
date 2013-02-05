@@ -57,20 +57,18 @@ public class FocusBehavior {
 		
 		eventHandlers.add(target.addPhotoClickHandler(new PhotoClickHandler() {
 			public void photoClicked(PhotoClickEvent event) {
-				if (event.getPhotoIndex() == target.getPhotoIndex()) {
-					PhotoFocusEvent evt = new PhotoFocusEvent();
-					evt.setPhoto(event.getPhoto());
-					evt.setPhotoIndex(event.getPhotoIndex());
-					lastFocusEvent = evt;
-					if (event.isShouldChangeURL()) {
-						//put URL into the history
-						String goodURLPart = Nl.getGoodURLPart(event.getPhoto()
-								.getId());
-						History.newItem(History.getToken() + goodURLPart, false);
-					}
-					//this will be fired from History.onValueChange handler
-					handlerManager.fireEvent(evt);
+				PhotoFocusEvent evt = new PhotoFocusEvent();
+				evt.setPhoto(event.getPhoto());
+				evt.setPhotoIndex(event.getPhotoIndex());
+				lastFocusEvent = evt;
+				if (event.isShouldChangeURL()) {
+					//put URL into the history
+					String goodURLPart = Nl.getGoodURLPart(event.getPhoto()
+							.getId());
+					History.newItem(History.getToken() + goodURLPart, false);
 				}
+				//this will be fired from History.onValueChange handler
+				handlerManager.fireEvent(evt);
 			}
 		}));
 		

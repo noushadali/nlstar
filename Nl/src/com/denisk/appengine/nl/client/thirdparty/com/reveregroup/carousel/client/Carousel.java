@@ -41,9 +41,6 @@ public class Carousel extends Composite {
 
 	private Label caption;
 	
-	private Button nextButton;
-	private Button prevButton;
-
 	private double currentRotation = 0.0;
 
 	private int currentPhotoIndex = 0; // the photo that is currently in front
@@ -74,8 +71,6 @@ public class Carousel extends Composite {
 		// Set up UI structure
 		carouselDock = new DockPanel();
 		imagePanel = new AbsolutePanel();
-		prevButton = new Button("Previous");
-		nextButton = new Button("Next");
 		imagePanel.setSize("100%", "100%");
 		caption = new Label();
 		carouselDock.add(caption, DockPanel.SOUTH);
@@ -86,22 +81,6 @@ public class Carousel extends Composite {
 		imagePanel.getElement().getStyle().setProperty("overflow", "hidden");
 		carouselDock.setStyleName("photoCarousel");
 		caption.setStyleName("photoCarouselCaption");
-		prevButton.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				prev();
-			}
-		});
-		nextButton.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				next();
-			}
-		});
-		carouselDock.add(prevButton, DockPanel.NORTH);
-		carouselDock.add(nextButton, DockPanel.NORTH);
 		
 		// Set up images
 		images = new CarouselImage[this.carouselSize + (this.preLoadSize * 2)];

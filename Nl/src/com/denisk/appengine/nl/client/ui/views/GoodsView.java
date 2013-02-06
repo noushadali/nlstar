@@ -14,6 +14,14 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.event.dom.client.MouseDownHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -25,6 +33,10 @@ import com.google.gwt.user.client.ui.Panel;
 public class GoodsView extends AbstractItemsView {
 
 	private Carousel carousel = new Carousel();
+	private FlowPanel carouselContainer = new FlowPanel();
+	private Image leftArrow = new Image("/images/arrow-left.png");
+	private Image rightArrow = new Image("/images/arrow-right.png");
+	
 	private EditGoodForm editGoodForm = new EditGoodForm();
 
 	private ClickHandler goodsClearButtonClickHandler = new ClickHandler() {
@@ -84,6 +96,17 @@ public class GoodsView extends AbstractItemsView {
 
 	public GoodsView(Nl parent) {
 		super(parent);
+
+		
+		carouselContainer.addStyleName("carouselContainer");
+							
+		leftArrow.addStyleName("leftArrow");
+		rightArrow.addStyleName("rightArrow");
+
+		addArrowHandlers();
+		
+		carouselContainer.add(carousel);
+		
 		editGoodForm.setRedrawAfterItemCreatedCallback(redrawGoodsCallback);
 		
 		final Button backButton = parent.getBackButton();
@@ -94,14 +117,14 @@ public class GoodsView extends AbstractItemsView {
 				p.showBusyIndicator();
 				// set transitioned style to the carousel
 
-				carousel.addStyleName("carouselDownAnimated");
+				p.getOutputPanel().addStyleName("carouselDownAnimated");
 				Timer t = new Timer() {
 
 					@Override
 					public void run() {
 						// move carousel far down
 						// this will last 2 seconds
-						carousel.getElement().getStyle()
+						p.getOutputPanel().getElement().getStyle()
 								.setTop(Window.getClientHeight(), Unit.PX);
 					}
 				};
@@ -110,6 +133,11 @@ public class GoodsView extends AbstractItemsView {
 				Timer t1 = new Timer() {
 					@Override
 					public void run() {
+						p.getOutputPanel().removeStyleName("carouselDownAnimated");
+						p.getOutputPanel().getElement().getStyle().clearTop();
+						//this is extra clear
+						p.getOutputPanel().clear();
+						
 						p.switchToCategoriesView();
 						p.renderView(null);
 					}
@@ -120,40 +148,98 @@ public class GoodsView extends AbstractItemsView {
 
 	}
 
+	private void addArrowHandlers() {
+		leftArrow.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				carousel.prev();
+			}
+		});
+		rightArrow.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				carousel.next();
+			}
+		});
+		leftArrow.addMouseOverHandler(new MouseOverHandler() {
+			@Override
+			public void onMouseOver(MouseOverEvent event) {
+				leftArrow.setUrl("/images/arrow-left-mouseover.png");
+				
+			}
+		});
+		rightArrow.addMouseOverHandler(new MouseOverHandler() {
+			@Override
+			public void onMouseOver(MouseOverEvent event) {
+				rightArrow.setUrl("/images/arrow-right-mouseover.png");
+			}
+		});
+		leftArrow.addMouseOutHandler(new MouseOutHandler() {
+			@Override
+			public void onMouseOut(MouseOutEvent event) {
+				leftArrow.setUrl("/images/arrow-left.png");
+			}
+		});
+		rightArrow.addMouseOutHandler(new MouseOutHandler() {
+			@Override
+			public void onMouseOut(MouseOutEvent event) {
+				rightArrow.setUrl("/images/arrow-right.png");
+			}
+		});
+		leftArrow.addMouseDownHandler(new MouseDownHandler() {
+			@Override
+			public void onMouseDown(MouseDownEvent event) {
+				leftArrow.setUrl("/images/arrow-left-press.png");
+				
+			}
+		});
+		rightArrow.addMouseDownHandler(new MouseDownHandler() {
+			@Override
+			public void onMouseDown(MouseDownEvent event) {
+				rightArrow.setUrl("/images/arrow-right-press.png");
+			}
+		});
+
+		leftArrow.addMouseUpHandler(new MouseUpHandler() {
+			@Override
+			public void onMouseUp(MouseUpEvent event) {
+				leftArrow.setUrl("/images/arrow-left.png");
+			}
+		});
+		rightArrow.addMouseUpHandler(new MouseUpHandler() {
+			@Override
+			public void onMouseUp(MouseUpEvent event) {
+				rightArrow.setUrl("/images/arrow-right.png");
+			}
+		});
+	}
+
 	/**
 	 * This method fills carousel with good items and adds carousel to
 	 * outputPanel
 	 */
 	private void outputGoodsForCategory(final Function<List<Photo>, ?> callback) {
-		final Panel panel = parent.getOutputPanel();
 		final String categoryKeyStr = parent.getSelectedCategoryKeyStr();
+		parent.getOutputPanel().clear();
 		
 		parent.getDtoService().getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {
 				// move carousel far down
-				carousel.getElement().getStyle()
+				parent.getOutputPanel().getElement().getStyle()
 						.setTop(Window.getClientHeight(), Unit.PX);
 
-				panel.clear();
+				//panel.clear();
 				final JsArray<GoodJavascriptObject> goods = GoodJavascriptObject
 						.getArrayFromJson(json);
 				if (goods.length() > 0) {
-					Image leftArrow = new Image("/images/arrow-left.png");
-					Image rightArrow = new Image("/images/arrow-right.png");
-										
-					leftArrow.addStyleName("leftArrow");
-					rightArrow.addStyleName("rightArrow");
+					final Panel panel = parent.getOutputPanel();
 					
 					panel.add(leftArrow);
-					
-					FlowPanel carouselContainer = new FlowPanel();
-					carouselContainer.addStyleName("carouselContainer");
-					carouselContainer.add(carousel);
 					panel.add(carouselContainer);
-					
 					panel.add(rightArrow);
-					
+
 					final ArrayList<Photo> photos = new ArrayList<Photo>(goods
 							.length());
 					for (int i = 0; i < goods.length(); i++) {
@@ -196,8 +282,8 @@ public class GoodsView extends AbstractItemsView {
 
 						@Override
 						public void run() {
-							carousel.removeStyleName("carouselDownAnimated");
-							carousel.addStyleName("carouselAnimated");
+							parent.getOutputPanel().removeStyleName("carouselDownAnimated");
+							parent.getOutputPanel().addStyleName("carouselAnimated");
 						}
 					};
 					t.schedule(500);
@@ -207,9 +293,9 @@ public class GoodsView extends AbstractItemsView {
 						@Override
 						public void run() {
 							// remove 'top' property from the carousel
-							carousel.getElement().getStyle()
+							parent.getOutputPanel().getElement().getStyle()
 									.setTop(100, Unit.PX);
-							carousel.removeStyleName("carouselAnimated");
+							parent.getOutputPanel().removeStyleName("carouselAnimated");
 							
 							parent.hideBusyIndicator();
 						}

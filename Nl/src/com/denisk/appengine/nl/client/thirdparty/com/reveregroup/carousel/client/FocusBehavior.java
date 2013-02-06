@@ -52,8 +52,9 @@ public class FocusBehavior {
 	}
 	
 	public void start() {
-		if (eventHandlers.size() > 0)
+		if (eventHandlers.size() > 0) {
 			return; //already started
+		}
 		
 		eventHandlers.add(target.addPhotoClickHandler(new PhotoClickHandler() {
 			public void photoClicked(PhotoClickEvent event) {
@@ -113,12 +114,19 @@ public class FocusBehavior {
 					popup.addStyleName("good");
 					popup.setGlassEnabled(true);
 					popup.setAnimationEnabled(true);
+					
+					//without this, the popup refuses to center properly
+					popup.setWidth("800px");
+					popup.setHeight("700px");
 				}
+				
 				
 				Photo photo = event.getPhoto();
 				panel.setPanelTitle(photo.getTitle());
 				panel.setImageUrl(photo.getUrl());
 				panel.setContent(photo.getText());
+				
+				popup.center();
 				
 				if(photo.getDeleteClickHandler() != null){
 					delete.setVisible(true);
@@ -139,8 +147,6 @@ public class FocusBehavior {
 				} else {
 					edit.setVisible(false);
 				}
-				
-				popup.center();
 			}
 		}));		
 	}

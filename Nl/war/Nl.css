@@ -104,13 +104,6 @@ html, body {
 .gwt-PopupPanel {
 	z-index: 999;
 }
-.good {
-	padding: 10px;
-	border: 1px solid;
-}
-.good-description {
-	max-width: 800px;
-}
 
 /**********************ANIMATIONS********************/
 @-moz-keyframes slideFromBottom {
@@ -245,7 +238,6 @@ html, body {
 	-o-border-radius: 10px;
 	border-radius: 10px;
 }
-
 .imageForm {
 	width: 685px !important;
 }
@@ -261,4 +253,18 @@ html, body {
 	position: absolute;
 	right: 60px;
 	left: 60px;
+}
+.goodImage {
+	
+}
+.goodName {
+	
+}
+.goodDescription {
+	
+}
+.close {
+	position: absolute;
+	right: 5px;
+	top: 5px;
 }

@@ -166,7 +166,6 @@ public class GoodsView extends AbstractItemsView {
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
 				leftArrow.setUrl("/images/arrow-left-mouseover.png");
-				
 			}
 		});
 		rightArrow.addMouseOverHandler(new MouseOverHandler() {

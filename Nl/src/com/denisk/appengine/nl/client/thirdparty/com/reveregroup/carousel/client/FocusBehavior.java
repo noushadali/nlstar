@@ -31,8 +31,7 @@ public class FocusBehavior {
 	protected Carousel target;
 	protected HandlerManager handlerManager;
 
-	protected PopupPanel popup;
-	protected SingleGoodPanel panel;
+	protected SingleGoodPanel panel = new SingleGoodPanel();
 
 	protected Widget focusDecoratorWidget = null;
 	
@@ -42,9 +41,6 @@ public class FocusBehavior {
 
 	protected Button edit;
 	protected Button delete;
-	
-	protected HandlerRegistration editRegistration;
-	protected HandlerRegistration deleteRegistration;
 	
 	public FocusBehavior(Carousel carousel) {
 		this.target = carousel;
@@ -75,78 +71,40 @@ public class FocusBehavior {
 		
 		eventHandlers.add(addPhotoFocusHandler(new PhotoFocusHandler() {
 			public void photoFocused(PhotoFocusEvent event) {
-				if (popup == null) {
-				    popup = new PopupPanel(true,true);
-					panel = new SingleGoodPanel();
-					DockPanel dockPanel = new DockPanel();
-					edit = new Button("Edit");
-					delete = new Button("Delete");
-					edit.setVisible(false);
-					delete.setVisible(false);
-					ClickHandler closeHandler = new ClickHandler() {
-						
-						@Override
-						public void onClick(ClickEvent event) {
-							popup.hide();
-						}
-					};
-					edit.addClickHandler(closeHandler);
-					delete.addClickHandler(closeHandler);
-					FlowPanel buttonsPanel = new FlowPanel();
-					buttonsPanel.add(edit);
-					buttonsPanel.add(delete);
-					dockPanel.add(buttonsPanel, DockPanel.NORTH);
-					dockPanel.add(panel, DockPanel.CENTER);
-				    popup.add(dockPanel);
-				    popup.getElement().getStyle().setProperty("zIndex", "150");
-					popup.addCloseHandler(new CloseHandler<PopupPanel>(){
-						public void onClose(CloseEvent<PopupPanel> event) {
-							popup.hide();
-							PhotoUnfocusEvent evt = new PhotoUnfocusEvent();
-							evt.setPhotoIndex(lastFocusEvent.getPhotoIndex());
-							evt.setPhoto(lastFocusEvent.getPhoto());
-							//cut the good from the URL
-							cutOutGoodHistory();
-							
-							handlerManager.fireEvent(evt);
-						}
-					});
-					popup.addStyleName("good");
-					popup.setGlassEnabled(true);
-					popup.setAnimationEnabled(true);
-					
-					//without this, the popup refuses to center properly
-					popup.setWidth("800px");
-					popup.setHeight("700px");
-				}
-				
-				
+			    panel.setPopupCloseHandler(new CloseHandler<PopupPanel>() {
+					@Override
+					public void onClose(CloseEvent<PopupPanel> event) {
+						panel.hide();
+						PhotoUnfocusEvent evt = new PhotoUnfocusEvent();
+						evt.setPhotoIndex(lastFocusEvent.getPhotoIndex());
+						evt.setPhoto(lastFocusEvent.getPhoto());
+						//cut the good from the URL
+						cutOutGoodHistory();
+
+						handlerManager.fireEvent(evt);
+					}
+				});
+			
+			
 				Photo photo = event.getPhoto();
-				panel.setPanelTitle(photo.getTitle());
-				panel.setImageUrl(photo.getUrl());
-				panel.setContent(photo.getText());
 				
-				popup.center();
+				panel.setName(photo.getTitle());
+				panel.setImageUrl(photo.getUrl());
+				panel.setDescription(photo.getText());
 				
 				if(photo.getDeleteClickHandler() != null){
-					delete.setVisible(true);
-					if(deleteRegistration != null){
-						deleteRegistration.removeHandler();
-					}
-					deleteRegistration = delete.addClickHandler(photo.getDeleteClickHandler());
+					panel.setDeleteClickHandler(photo.getDeleteClickHandler());
 				} else {
-					delete.setVisible(false);
+					panel.hideDelete();
 				}
 				
 				if(photo.getEditClickHandler() != null){
-					edit.setVisible(true);
-					if(editRegistration != null){
-						editRegistration.removeHandler();
-					}
-					editRegistration = edit.addClickHandler(photo.getEditClickHandler());
+					panel.setEditClickHandler(photo.getEditClickHandler());
 				} else {
-					edit.setVisible(false);
+					panel.hideEdit();
 				}
+				
+				panel.show();
 			}
 		}));		
 	}

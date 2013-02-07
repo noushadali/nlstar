@@ -219,25 +219,86 @@ public class GoodsView extends AbstractItemsView {
 	 * outputPanel
 	 */
 	private void outputGoodsForCategory(final Function<List<Photo>, ?> callback) {
-		final String categoryKeyStr = parent.getSelectedCategoryKeyStr();
-		parent.getOutputPanel().clear();
+		final Panel panel = parent.getOutputPanel();
+		panel.clear();
 		
+		// move carousel far down
+		parent.getOutputPanel().getElement().getStyle()
+				.setTop(Window.getClientHeight(), Unit.PX);
+
+		
+		panel.add(leftArrow);
+		panel.add(carouselContainer);
+		panel.add(rightArrow);
+
+		if(callback != null){
+			callback.apply(this.carousel.getPhotos());
+		}
+		
+		// Slide the carousel from the bottom
+		Timer t = new Timer() {
+
+			@Override
+			public void run() {
+				parent.getOutputPanel().removeStyleName("carouselDownAnimated");
+				parent.getOutputPanel().addStyleName("carouselAnimated");
+			}
+		};
+		t.schedule(500);
+		// remove 'top' style after the carousel has arrived
+		Timer t1 = new Timer() {
+
+			@Override
+			public void run() {
+				// remove 'top' property from the carousel
+				parent.getOutputPanel().getElement().getStyle()
+						.setTop(100, Unit.PX);
+				parent.getOutputPanel().removeStyleName("carouselAnimated");
+				
+				parent.hideBusyIndicator();
+			}
+		};
+		t1.schedule(2000 + 500);
+	}
+
+	public void selectPhoto(Photo photo){
+		PhotoClickEvent event = new PhotoClickEvent();
+		event.setPhoto(photo);
+		event.setShouldChangeURL(false);
+		carousel.fireEvent(event);
+	}
+
+	@Override
+	public void render(Panel panel, Function callback) {
+		parent.showBusyIndicator();
+		outputGoodsForCategory(callback);
+	}
+
+	@Override
+	public ClickHandler getNewItemHandler() {
+		return goodsNewButtonHandler;
+	}
+
+	@Override
+	public ClickHandler getClearAllHandler() {
+		return goodsClearButtonClickHandler;
+	}
+
+	public EditGoodForm getEditGoodForm() {
+		return editGoodForm;
+	}
+
+	public void startGoodsRendering() {
+		final String categoryKeyStr = parent.getSelectedCategoryKeyStr();
+
 		parent.getDtoService().getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {
-				// move carousel far down
-				parent.getOutputPanel().getElement().getStyle()
-						.setTop(Window.getClientHeight(), Unit.PX);
 
 				//panel.clear();
 				final JsArray<GoodJavascriptObject> goods = GoodJavascriptObject
 						.getArrayFromJson(json);
 				if (goods.length() > 0) {
-					final Panel panel = parent.getOutputPanel();
-					
-					panel.add(leftArrow);
-					panel.add(carouselContainer);
-					panel.add(rightArrow);
 
 					final ArrayList<Photo> photos = new ArrayList<Photo>(goods
 							.length());
@@ -272,35 +333,9 @@ public class GoodsView extends AbstractItemsView {
 					});
 					carousel.setPhotos(photos);
 					
-					if(callback != null){
-						callback.apply(photos);
-					}
-					
-					// Slide the carousel from the bottom
-					Timer t = new Timer() {
-
-						@Override
-						public void run() {
-							parent.getOutputPanel().removeStyleName("carouselDownAnimated");
-							parent.getOutputPanel().addStyleName("carouselAnimated");
-						}
-					};
-					t.schedule(500);
-					// remove 'top' style after the carousel has arrived
-					Timer t1 = new Timer() {
-
-						@Override
-						public void run() {
-							// remove 'top' property from the carousel
-							parent.getOutputPanel().getElement().getStyle()
-									.setTop(100, Unit.PX);
-							parent.getOutputPanel().removeStyleName("carouselAnimated");
-							
-							parent.hideBusyIndicator();
-						}
-					};
-					t1.schedule(2000 + 500);
 				} else {
+					System.out.println("Here");
+					carousel.clear();
 					parent.hideBusyIndicator();
 				}
 			}
@@ -310,33 +345,6 @@ public class GoodsView extends AbstractItemsView {
 				Window.alert("There is no category with identifier " + categoryKeyStr);
 			}
 		});
-	}
-
-	public void selectPhoto(Photo photo){
-		PhotoClickEvent event = new PhotoClickEvent();
-		event.setPhoto(photo);
-		event.setShouldChangeURL(false);
-		carousel.fireEvent(event);
-	}
-
-	@Override
-	public void render(Panel panel, Function callback) {
-		parent.showBusyIndicator();
-		outputGoodsForCategory(callback);
-	}
-
-	@Override
-	public ClickHandler getNewItemHandler() {
-		return goodsNewButtonHandler;
-	}
-
-	@Override
-	public ClickHandler getClearAllHandler() {
-		return goodsClearButtonClickHandler;
-	}
-
-	public EditGoodForm getEditGoodForm() {
-		return editGoodForm;
 	}
 
 }

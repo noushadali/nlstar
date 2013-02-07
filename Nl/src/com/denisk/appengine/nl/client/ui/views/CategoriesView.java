@@ -175,6 +175,9 @@ public class CategoriesView extends AbstractItemsView{
 			@Override
 			public void onClick(ClickEvent event) {
 				CategoriesView.this.clicked = true;
+				parent.setSelectedCategoryKeyStr(keyStr);
+				parent.switchToGoodsView();
+				parent.startGoodsRendering();
 				
 				parent.showBusyIndicator();
 				
@@ -192,8 +195,6 @@ public class CategoriesView extends AbstractItemsView{
 							//Append /category/id/ to the URL
 							History.newItem(Nl.getCategoryURLPart(keyStr), false);
 							
-							parent.setSelectedCategoryKeyStr(keyStr);
-							parent.switchToGoodsView();
 							parent.renderView(null);
 							
 							cancel();

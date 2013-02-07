@@ -205,6 +205,8 @@ public class Nl implements EntryPoint {
 				String categoryKey = m.getGroup(1);
 				setSelectedCategoryKeyStr(categoryKey);
 				switchToGoodsView();
+
+				startGoodsRendering();
 				renderView(callback);			}
 		});
 		
@@ -325,5 +327,9 @@ public class Nl implements EntryPoint {
 
 	public Button getBackButton() {
 		return backButton;
+	}
+
+	public void startGoodsRendering() {
+		this.goodsView.startGoodsRendering();
 	}
 }

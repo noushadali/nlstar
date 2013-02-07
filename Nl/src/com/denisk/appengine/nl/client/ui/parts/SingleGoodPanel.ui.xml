@@ -7,15 +7,15 @@
 		/* Add CSS here. See the GWT docs on UI Binder for more details */
 	</ui:style>
 	<g:HTMLPanel>
-		<g:PopupPanel ui:field="popup" animationEnabled="true" autoHideEnabled="true" autoHideOnHistoryEventsEnabled="true" glassEnabled="true" width="761px" height="701px">
+		<g:PopupPanel ui:field="popup" animationEnabled="true" autoHideEnabled="true" autoHideOnHistoryEventsEnabled="true" glassEnabled="true" width="800px" height="700px">
 			<g:FlowPanel width="100%" height="100%">
 				<g:Label text="X" styleName="close" ui:field="close"/>
-				<g:Label ui:field="name" horizontalAlignment="ALIGN_CENTER" styleName="goodName"/>
+				<g:Label ui:field="name" horizontalAlignment="ALIGN_CENTER" styleName="goodName" height=""/>
 				<g:HTMLPanel ui:field="description" styleName="goodDescription">
 					Description rich text goes here
-					<g:Image ui:field="image"/>
+					<g:Image ui:field="image" styleName="goodImage"/>
 				</g:HTMLPanel>
-				<g:FlowPanel styleName="editContainer">
+				<g:FlowPanel styleName="editContainer goodEditContainer" ui:field="editContainer">
 					<g:Label text="Edit" ui:field="edit" styleName="editControl"/>
 					<g:Label text="Delete" ui:field="delete" styleName="editControl"/>
 				</g:FlowPanel>

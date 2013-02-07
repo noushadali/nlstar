@@ -94,14 +94,16 @@ public class FocusBehavior {
 				
 				if(photo.getDeleteClickHandler() != null){
 					panel.setDeleteClickHandler(photo.getDeleteClickHandler());
+					panel.showEditContainer();
 				} else {
-					panel.hideDelete();
+					panel.hideEditContainer();
 				}
 				
 				if(photo.getEditClickHandler() != null){
+					panel.showEditContainer();
 					panel.setEditClickHandler(photo.getEditClickHandler());
 				} else {
-					panel.hideEdit();
+					panel.hideEditContainer();
 				}
 				
 				panel.show();

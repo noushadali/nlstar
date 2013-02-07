@@ -5,6 +5,7 @@ package com.denisk.appengine.nl.client.ui.parts;
 
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoUnfocusEvent;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -20,6 +21,7 @@ import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 
 /**
  * @author denisk
@@ -36,6 +38,7 @@ public class SingleGoodPanel extends Composite {
 	@UiField Label delete;
 	@UiField Label close;
 	@UiField HTMLPanel description;
+	@UiField FlowPanel editContainer;
 	
 	protected HandlerRegistration editRegistration;
 	protected HandlerRegistration deleteRegistration;
@@ -67,6 +70,7 @@ public class SingleGoodPanel extends Composite {
 	public SingleGoodPanel() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
+		this.image.getElement().setAttribute("align", "right");
 		this.description.add(this.image);
 		edit.addClickHandler(closeHandler);
 		delete.addClickHandler(closeHandler);
@@ -83,8 +87,10 @@ public class SingleGoodPanel extends Composite {
 	
 	public void setDescription(String text){
 		this.description.clear();
-		this.description.getElement().setInnerHTML(text);
-		this.description.add(this.image);
+		
+		//this is a hack because we can add children only to the bottom of htmlPanel
+		this.description.getElement().setInnerHTML("<span id='anchor'></span>" + text);
+		this.description.addAndReplaceElement(this.image, "anchor");
 	}
 	
 	public void setPopupCloseHandler(CloseHandler<PopupPanel> handler){
@@ -126,11 +132,12 @@ public class SingleGoodPanel extends Composite {
 		delete.setVisible(true);
 	}
 	
-	public void hideEdit(){
-		edit.setVisible(false);
+	public void hideEditContainer(){
+		description.getElement().getStyle().setBottom(0, Unit.PX);
+		editContainer.setVisible(false);
 	}
-	
-	public void hideDelete(){
-		delete.setVisible(false);
+	public void showEditContainer(){
+		description.getElement().getStyle().setBottom(50, Unit.PX);
+		editContainer.setVisible(true);
 	}
 }

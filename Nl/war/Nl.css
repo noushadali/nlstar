@@ -255,16 +255,28 @@ html, body {
 	left: 60px;
 }
 .goodImage {
-	
+	margin-right: 5px;
 }
 .goodName {
-	
+	position: absolute;
+	top: 0;
+	font-size: 2em;
+	height: 50px;
+	width: 100%;
 }
 .goodDescription {
-	
+	position: absolute;
+	top: 50px;
+	bottom: 50px;
+	overflow-y: auto;
+}
+.goodEditContainer {
+	height: 50px;
 }
 .close {
 	position: absolute;
 	right: 5px;
 	top: 5px;
+	z-index: 999;
+	cursor: pointer;
 }

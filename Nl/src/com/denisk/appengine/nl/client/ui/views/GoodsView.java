@@ -114,23 +114,7 @@ public class GoodsView extends AbstractItemsView {
 		backButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				p.showBusyIndicator();
-				// set transitioned style to the carousel
-
-				p.getOutputPanel().addStyleName("carouselDownAnimated");
-				Timer t = new Timer() {
-
-					@Override
-					public void run() {
-						// move carousel far down
-						// this will last 2 seconds
-						p.getOutputPanel().getElement().getStyle()
-								.setTop(Window.getClientHeight(), Unit.PX);
-					}
-				};
-				t.schedule(500);
-
-				Timer t1 = new Timer() {
+				Timer switchTimer = new Timer() {
 					@Override
 					public void run() {
 						p.getOutputPanel().removeStyleName("carouselDownAnimated");
@@ -142,7 +126,26 @@ public class GoodsView extends AbstractItemsView {
 						p.renderView(null);
 					}
 				};
-				t1.schedule(2000 + 500 + 100/* just in case */);
+
+				if (carousel.getPhotos().size() > 0) {
+					p.showBusyIndicator();
+					// set transitioned style to the carousel
+					p.getOutputPanel().addStyleName("carouselDownAnimated");
+					Timer modeDownTimer = new Timer() {
+
+						@Override
+						public void run() {
+							// move carousel far down
+							// this will last 2 seconds
+							p.getOutputPanel().getElement().getStyle()
+									.setTop(Window.getClientHeight(), Unit.PX);
+						}
+					};
+					modeDownTimer.schedule(500);
+					switchTimer.schedule(2000 + 500 + 100/* just in case */);
+				} else {
+					switchTimer.run();
+				}
 			}
 		});
 
@@ -301,6 +304,7 @@ public class GoodsView extends AbstractItemsView {
 					};
 					t1.schedule(2000 + 500);
 				} else {
+					carousel.getPhotos().clear();
 					parent.hideBusyIndicator();
 				}
 			}

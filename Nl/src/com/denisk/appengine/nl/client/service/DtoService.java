@@ -33,4 +33,6 @@ public interface DtoService extends RemoteService {
 	void deleteCategory(String key, String imageKey, String backgroundImageKey);
 	
 	void deleteGood(String key, String imageKey);
+
+	String getSingleCategoryJson(String categoryKey);
 }

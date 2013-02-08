@@ -209,12 +209,7 @@ public class CategoriesView extends AbstractItemsView{
 		//init background image
 		final String backgroundBlobKey = categoryJson.getBackgroundBlobKey();
 		if (backgroundBlobKey != null && !backgroundBlobKey.isEmpty()) {
-			final Image background = new Image(AbstractItemsView.getImageUrl(
-					backgroundBlobKey, "-1", "-1"));
-			background.getElement().getStyle().setOpacity(0);
-			background.addStyleName("background");
-			
-			RootPanel.get("backgroundsContainer").add(background);
+			final Image background = createAndSetupBackground(backgroundBlobKey);
 			
 			//background handlers
 			itemPanel.addDomHandler(new MouseOverHandler() {
@@ -257,6 +252,16 @@ public class CategoriesView extends AbstractItemsView{
 		}, MouseOutEvent.getType());
 
 		return itemPanel;
+	}
+
+	public Image createAndSetupBackground(final String backgroundBlobKey) {
+		final Image background = new Image(AbstractItemsView.getImageUrl(
+				backgroundBlobKey, "-1", "-1"));
+		background.getElement().getStyle().setOpacity(0);
+		background.addStyleName("background");
+		
+		RootPanel.get("backgroundsContainer").add(background);
+		return background;
 	}
 
 	private void clearBackgrounds(){

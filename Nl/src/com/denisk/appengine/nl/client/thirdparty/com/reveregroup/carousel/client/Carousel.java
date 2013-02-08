@@ -1,5 +1,6 @@
 package com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickEvent;
@@ -31,7 +32,7 @@ import com.google.gwt.user.client.ui.Label;
  */
 
 public class Carousel extends Composite {
-	private List<Photo> photos;
+	private List<Photo> photos = new ArrayList<Photo>();
 	private CarouselImage[] images;
 
 	// Panels and label for the UI
@@ -540,5 +541,9 @@ public class Carousel extends Composite {
 	public HandlerRegistration addMouseWheelHandler(MouseWheelHandler handler){
 		return imagePanel.addDomHandler(handler, MouseWheelEvent.getType());
 
+	}
+
+	public List<Photo> getPhotos() {
+		return photos;
 	}
 }

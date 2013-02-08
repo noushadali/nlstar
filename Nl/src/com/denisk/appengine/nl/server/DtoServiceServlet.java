@@ -139,4 +139,10 @@ public class DtoServiceServlet extends RemoteServiceServlet implements DtoServic
 		checkCredentials();
 		dh.deleteGood(key, imageKey);
 	}
+
+
+	@Override
+	public String getSingleCategoryJson(String categoryKey) {
+		return dh.getSingleCategoryJson(categoryKey);
+	}
 }

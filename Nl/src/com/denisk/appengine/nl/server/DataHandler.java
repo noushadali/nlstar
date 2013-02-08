@@ -29,12 +29,14 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileService;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 
 public class DataHandler {
 	private DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
@@ -87,14 +89,20 @@ public class DataHandler {
 		Iterator<Entity> iterator = getAllEntities(ds, Category.KIND);
 		while(iterator.hasNext()){
 			Entity e = iterator.next();
-			Category c = new Category();
-			setCommonJsonableProperties(e, c);
-			c.setBackgroundBlobKey((String) e.getProperty(Category.BACKGROUND_BLOB_KEY));
+			Category c = categoryFromEntity(e);
 			
 			result.add(c);
 		}
 		
 		return result;
+	}
+
+	private Category categoryFromEntity(Entity e) {
+		Category c = new Category();
+		setCommonJsonableProperties(e, c);
+		c.setBackgroundBlobKey((String) e.getProperty(Category.BACKGROUND_BLOB_KEY));
+		
+		return c;
 	}
 
 	private void setCommonJsonableProperties(Entity e, Jsonable<?> c) {
@@ -314,5 +322,15 @@ public class DataHandler {
 		if(imageKey != null && !imageKey.isEmpty()){
 			bs.delete(new BlobKey(imageKey));
 		}
+	}
+
+	public String getSingleCategoryJson(String categoryKey) {
+		Query q = new Query(Category.KIND);
+		q.setFilter(new FilterPredicate(Category.KEY_STR, FilterOperator.EQUAL, categoryKey));
+		Entity category = ds.prepare(q).asSingleEntity();
+		
+		Category c = categoryFromEntity(category);
+		
+		return c.toJson();
 	}
 }

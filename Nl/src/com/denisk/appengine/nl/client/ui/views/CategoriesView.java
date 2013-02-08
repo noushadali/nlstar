@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 
-public class CategoriesView extends AbstractItemsView{
+public class CategoriesView extends AbstractItemsView {
 
 	private CategoriesAnimator categoriesAnimator;
 
@@ -58,6 +58,7 @@ public class CategoriesView extends AbstractItemsView{
 			editCategoryForm.hide();
 			parent.updateLabel();
 			parent.getBackButton().setVisible(false);
+			System.out.println("redrawCategoriesCallback...");
 			render(parent.getOutputPanel(), null);
 
 			return null;
@@ -264,10 +265,6 @@ public class CategoriesView extends AbstractItemsView{
 		return background;
 	}
 
-	private void clearBackgrounds(){
-		RootPanel.get("backgroundsContainer").clear();
-	}
-	
 	private <T extends ShopItem> ArrayList<Panel> createTiles(
 			JsArray<T> arrayFromJson, Function<T, ? extends Panel> panelCreation) {
 		ArrayList<Panel> result = new ArrayList<Panel>();
@@ -288,7 +285,7 @@ public class CategoriesView extends AbstractItemsView{
 		parent.showBusyIndicator();
 		
 		clearBackgrounds();
-		
+
 		parent.getDtoService().getCategoriesJson(new AsyncCallback<String>() {
 			@Override
 			public void onSuccess(String json) {

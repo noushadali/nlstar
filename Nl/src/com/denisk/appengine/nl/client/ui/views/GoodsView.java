@@ -72,6 +72,45 @@ public class GoodsView extends AbstractItemsView {
 			editGoodForm.showForCreation();
 		}
 	};
+	
+	private ClickHandler backButtonHandler = new ClickHandler() {
+		@Override
+		public void onClick(ClickEvent event) {
+			Timer switchTimer = new Timer() {
+				@Override
+				public void run() {
+					parent.getOutputPanel().removeStyleName("carouselDownAnimated");
+					parent.getOutputPanel().getElement().getStyle().clearTop();
+					//this is extra clear
+					parent.getOutputPanel().clear();
+					
+					parent.switchToCategoriesView();
+					parent.renderView(null);
+				}
+			};
+
+			if (carousel.getPhotos().size() > 0) {
+				parent.showBusyIndicator();
+				// set transitioned style to the carousel
+				parent.getOutputPanel().addStyleName("carouselDownAnimated");
+				Timer modeDownTimer = new Timer() {
+
+					@Override
+					public void run() {
+						// move carousel far down
+						// this will last 2 seconds
+						parent.getOutputPanel().getElement().getStyle()
+								.setTop(Window.getClientHeight(), Unit.PX);
+					}
+				};
+				modeDownTimer.schedule(500);
+				switchTimer.schedule(2000 + 500 + 100/* just in case */);
+			} else {
+				switchTimer.run();
+			}
+		}
+	};
+
 	// ==============================================
 
 	private Function<GoodJavascriptObject, Void> goodDeletion = new Function<GoodJavascriptObject, Void>() {
@@ -111,43 +150,7 @@ public class GoodsView extends AbstractItemsView {
 		
 		final Button backButton = parent.getBackButton();
 		final Nl p = parent;
-		backButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Timer switchTimer = new Timer() {
-					@Override
-					public void run() {
-						p.getOutputPanel().removeStyleName("carouselDownAnimated");
-						p.getOutputPanel().getElement().getStyle().clearTop();
-						//this is extra clear
-						p.getOutputPanel().clear();
-						
-						p.switchToCategoriesView();
-						p.renderView(null);
-					}
-				};
-
-				if (carousel.getPhotos().size() > 0) {
-					p.showBusyIndicator();
-					// set transitioned style to the carousel
-					p.getOutputPanel().addStyleName("carouselDownAnimated");
-					Timer modeDownTimer = new Timer() {
-
-						@Override
-						public void run() {
-							// move carousel far down
-							// this will last 2 seconds
-							p.getOutputPanel().getElement().getStyle()
-									.setTop(Window.getClientHeight(), Unit.PX);
-						}
-					};
-					modeDownTimer.schedule(500);
-					switchTimer.schedule(2000 + 500 + 100/* just in case */);
-				} else {
-					switchTimer.run();
-				}
-			}
-		});
+		backButton.addClickHandler(backButtonHandler);
 
 	}
 

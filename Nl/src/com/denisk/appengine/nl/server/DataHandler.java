@@ -324,13 +324,14 @@ public class DataHandler {
 		}
 	}
 
-	public String getSingleCategoryJson(String categoryKey) {
-		Query q = new Query(Category.KIND);
-		q.setFilter(new FilterPredicate(Category.KEY_STR, FilterOperator.EQUAL, categoryKey));
-		Entity category = ds.prepare(q).asSingleEntity();
-		
-		Category c = categoryFromEntity(category);
-		
-		return c.toJson();
+	public String getCategoryBackgroundKey(String categoryKey) {
+		Entity category;
+		try {
+			category = ds.get(KeyFactory.stringToKey(categoryKey));
+		} catch (EntityNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+
+		return (String) category.getProperty(Category.BACKGROUND_BLOB_KEY);
 	}
 }

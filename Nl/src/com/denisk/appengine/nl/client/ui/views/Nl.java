@@ -210,23 +210,22 @@ public class Nl implements EntryPoint {
 					renderView(callback);
 					return;
 				}
-				String categoryKey = m.getGroup(1);
+				final String categoryKey = m.getGroup(1);
 				setSelectedCategoryKeyStr(categoryKey);
 				switchToGoodsView();
 				renderView(callback);
 				//set background
-				dtoService.getSingleCategoryJson(categoryKey, new AsyncCallback<String>() {
+				dtoService.getCategoryBackgroundKey(categoryKey, new AsyncCallback<String>() {
 					
 					@Override
 					public void onSuccess(String result) {
-						JsArray<ShopItem> arrayFromJson = ShopItem.getArrayFromJson(result);
-						CategoryJavascriptObject category = arrayFromJson.cast();
-						categoriesView.createAndSetupBackground(category.getBackgroundBlobKey());
+						//show create and show background
+						categoriesView.createAndSetupBackground(result).getElement().getStyle().setOpacity(1);
 					}
 					
 					@Override
 					public void onFailure(Throwable caught) {
-						//todo
+						Window.alert("Can't get background for category " + categoryKey);
 					}
 				});
 				
@@ -299,7 +298,7 @@ public class Nl implements EntryPoint {
 		setAdminButtonHandlers();
 		backButton.setVisible(false);
 		// this clears everything in the URL starting from '#' inclusive
-		History.newItem("");
+		History.newItem("", false);
 
 	}
 

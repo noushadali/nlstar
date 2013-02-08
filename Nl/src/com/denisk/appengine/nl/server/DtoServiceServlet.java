@@ -29,7 +29,6 @@ public class DtoServiceServlet extends RemoteServiceServlet implements DtoServic
 		return "Catogories: " + dh.countCategories() + ", goods: " + dh.countGoods();
 	}
 
-
 	@Override
 	public String getCategoriesJson() {
 		try {
@@ -39,7 +38,6 @@ public class DtoServiceServlet extends RemoteServiceServlet implements DtoServic
 			return null;
 		}
 	}
-
 
 	@Override
 	public void clearData() {
@@ -142,7 +140,7 @@ public class DtoServiceServlet extends RemoteServiceServlet implements DtoServic
 
 
 	@Override
-	public String getSingleCategoryJson(String categoryKey) {
-		return dh.getSingleCategoryJson(categoryKey);
+	public String getCategoryBackgroundKey(String categoryKey) {
+		return dh.getCategoryBackgroundKey(categoryKey);
 	}
 }

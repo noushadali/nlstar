@@ -35,5 +35,5 @@ public interface DtoServiceAsync {
 
 	void deleteGood(String key, String imageKey, AsyncCallback<Void> callback);
 
-	void getSingleCategoryJson(String categoryKey, AsyncCallback<String> callback);
+	void getCategoryBackgroundKey(String categoryKey, AsyncCallback<String> callback);
 }

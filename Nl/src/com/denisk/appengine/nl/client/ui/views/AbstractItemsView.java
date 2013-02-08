@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public abstract class AbstractItemsView {
 	public static final String THUMB_WIDTH = "480";
@@ -96,6 +97,10 @@ public abstract class AbstractItemsView {
 				+ "&h=" + height;
 	}
 
+	protected void clearBackgrounds(){
+		RootPanel.get("backgroundsContainer").clear();
+	}
+	
 	public abstract void render(Panel panel, Function callback);
 	public abstract ClickHandler getNewItemHandler();
 	public abstract ClickHandler getClearAllHandler();

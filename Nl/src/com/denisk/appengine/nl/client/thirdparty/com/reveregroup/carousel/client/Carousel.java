@@ -1,6 +1,5 @@
 package com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickEvent;
@@ -32,7 +31,7 @@ import com.google.gwt.user.client.ui.Label;
  */
 
 public class Carousel extends Composite {
-	private List<Photo> photos = new ArrayList<Photo>();
+	private List<Photo> photos;
 	private CarouselImage[] images;
 
 	// Panels and label for the UI
@@ -84,8 +83,36 @@ public class Carousel extends Composite {
 		caption.setStyleName("photoCarouselCaption");
 		
 		// Set up images
-		initImages();
-
+		images = new CarouselImage[this.carouselSize + (this.preLoadSize * 2)];
+		for (int i = 0; i < images.length; i++) {
+			images[i] = new CarouselImage();
+			images[i].setSize("1", "1");
+			Utils.preventDrag(images[i]);
+			Utils.preventSelection(images[i].getElement());
+			images[i].getElement().getStyle().setProperty("display", "none");
+			images[i].addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					if (mouseMoved) {
+						return; // make sure a photo click is not registered
+					}
+					// when the mouse is dragged.
+					Image img = (Image) event.getSource();
+					for (int i = 0; i < carouselSize; i++) {
+						if (images[i + preLoadSize] == img) {
+							int pIndex = i - 4 + currentPhotoIndex;
+							pIndex = Utils.modulus(pIndex, photos.size());
+							// fire off photo clicked event
+							PhotoClickEvent pcEvent = new PhotoClickEvent();
+							pcEvent.setPhotoIndex(pIndex);
+							pcEvent.setPhoto(photos.get(pIndex));
+							fireEvent(pcEvent);
+							break;
+						}
+					}
+				}
+			});
+			imagePanel.add(images[i]);
+		}
 		this.initWidget(carouselDock);
 
 		// Sync caption with front-most photo.
@@ -126,43 +153,6 @@ public class Carousel extends Composite {
 				}
 			}
 		});
-	}
-
-	private void initImages() {
-		images = new CarouselImage[this.carouselSize + (this.preLoadSize * 2)];
-		for (int i = 0; i < images.length; i++) {
-			images[i] = new CarouselImage();
-			images[i].setSize("1", "1");
-			Utils.preventDrag(images[i]);
-			Utils.preventSelection(images[i].getElement());
-			images[i].getElement().getStyle().setProperty("display", "none");
-			images[i].addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					if (mouseMoved) {
-						return; // make sure a photo click is not registered
-					}
-					// when the mouse is dragged.
-					Image img = (Image) event.getSource();
-					for (int i = 0; i < carouselSize; i++) {
-						if (images[i + preLoadSize] == img) {
-							int pIndex = i - 4 + currentPhotoIndex;
-							pIndex = Utils.modulus(pIndex, photos.size());
-							// fire off photo clicked event
-							PhotoClickEvent pcEvent = new PhotoClickEvent();
-							pcEvent.setPhotoIndex(pIndex);
-							pcEvent.setPhoto(photos.get(pIndex));
-							fireEvent(pcEvent);
-							break;
-						}
-					}
-				}
-			});
-			imagePanel.add(images[i]);
-		}
-	}
-	
-	public List<Photo> getPhotos(){
-		return photos;
 	}
 	
 	public void setUseDefaultMouseBehavior(boolean useDefaultMouseBehavior) {
@@ -550,11 +540,5 @@ public class Carousel extends Composite {
 	public HandlerRegistration addMouseWheelHandler(MouseWheelHandler handler){
 		return imagePanel.addDomHandler(handler, MouseWheelEvent.getType());
 
-	}
-
-	public void clear() {
-		photos.clear();
-		initImages();
-		
 	}
 }

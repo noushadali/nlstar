@@ -11,6 +11,8 @@ import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoUnfocusHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.LoadEvent;
+import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
@@ -27,6 +29,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 /**
  * Copied from http://code.google.com/p/spiral-carousel-gwt/
  */
@@ -34,7 +37,7 @@ import com.google.gwt.user.client.ui.Label;
 public class Carousel extends Composite {
 	private List<Photo> photos = new ArrayList<Photo>();
 	private CarouselImage[] images;
-
+	
 	// Panels and label for the UI
 	private DockPanel carouselDock;
 
@@ -154,6 +157,7 @@ public class Carousel extends Composite {
 				}
 			}
 		});
+		
 	}
 	
 	public void setUseDefaultMouseBehavior(boolean useDefaultMouseBehavior) {
@@ -176,72 +180,68 @@ public class Carousel extends Composite {
 	 * Lay out the images based on the current rotation.
 	 */
 	public void placeImages() {
-		// The size of the container the holds the images.
-		int containerWidth = imagePanel.getOffsetWidth();
-		int containerHeight = imagePanel.getElement().getClientHeight();
-
-		// The base dimensions for each image. Images are scaled from these base
-		// dimensions.
-		double boxHeight = containerHeight * 3.0 / 8.0;
-		double boxWidth = boxHeight * 1.2;
-		// The radius of the ellipse that the images are set around.
-		double xRadius = (containerWidth - boxWidth) / 2.0;
-		double yRadius = boxHeight / 3.0;
-		// A factor for achieving the spiral affect. The greater this value, the
-		// more pronounced the spiral effect.
-		double spiralSpread = yRadius * .5;
-
-		// The fraction that the images are offset from a whole number rotation.
-		// This value will be between -0.5 and 0.5.
-		double decimalOffset = currentRotation - Math.round(currentRotation);
-		// The angle (in radians) that the images are offset from the base
-		// positions. Base positions are 0*, 45*, 90*, 135*, etc. This value
-		// will be between -22.5* and 22.5*.
-		double angleOffset = -(decimalOffset * ((Math.PI) / 4));
-
 		for (int i = 0; i < carouselSize; i++) {
-			CarouselImage image = images[i + preLoadSize];
-			// The actual angle of the given image from the front.
-			double angle = ((i * Math.PI) / 4) + angleOffset;
-			// These are the simple x and y coordinates of the angel in a unit
-			// circle. We flipped some of the signs and dimensions around
-			// because our coordinate plane is a little turned around.
-			double x = -Math.sin(angle);
-			double y = -Math.cos(angle);
-			// The factor by which to scale the image (i.e. make it smaller or
-			// larger). This is based solely on the 'y' coordinate.
-			double scale = Math.pow(2, y);
-			// set the zindex so that images in the front appear on top of
-			// images behind.
-			int zindex = (int) (y * 10) + 10;
-			image.getElement().getStyle().setProperty("zIndex", Integer.toString(zindex));
+			placeImage(i);
+		}
+	}
 
-			// set the size of the image. The aspect ratio of the image is
-			// maintained as the image is scaled so that it fits inside the
-			// correct "box" dimensions.
-			image.sizeToBounds((int) (scale * boxWidth), (int) (scale * boxHeight));
+	/**
+	 * 
+	 * @param i - should not exceed carouselSize
+	 */
+	private void placeImage(int i) {
+		ImageData imageData = new ImageData();
+		int containerWidth = imageData.getContainerWidth(); 
+		int containerHeight = imageData.getContainerHeight();
+		double boxHeight = imageData.getBoxHeight(); 
+		double boxWidth = imageData.getBoxWidth(); 
+		double xRadius = imageData.getxRadius(); 
+		double yRadius = imageData.getyRadius();
+		double spiralSpread = imageData.getSpiralSpread(); 
+		double decimalOffset = imageData.getDecimalOffset(); 
+		double angleOffset = imageData.getAngleOffset();
+		
+		CarouselImage image = images[i + preLoadSize];
+		// The actual angle of the given image from the front.
+		double angle = ((i * Math.PI) / 4) + angleOffset;
+		// These are the simple x and y coordinates of the angel in a unit
+		// circle. We flipped some of the signs and dimensions around
+		// because our coordinate plane is a little turned around.
+		double x = -Math.sin(angle);
+		double y = -Math.cos(angle);
+		// The factor by which to scale the image (i.e. make it smaller or
+		// larger). This is based solely on the 'y' coordinate.
+		double scale = Math.pow(2, y);
+		// set the zindex so that images in the front appear on top of
+		// images behind.
+		int zindex = (int) (y * 10) + 10;
+		image.getElement().getStyle().setProperty("zIndex", Integer.toString(zindex));
 
-			// The x coordinate is obtained by simply scaling the unit-circle x
-			// coordinate to fit the container.
-			int xcoord = (int) Math.round((x * xRadius) + (containerWidth - image.getWidth()) / 2.0);
-			// The y coordinate is similarly calculated, except that the spiral
-			// factor is also added. Basically, the farther the image is around
-			// the circle, the farther down it is shifted to give the spiral
-			// effect.
-			int ycoord = (int) Math.round((y * yRadius) + containerHeight - boxHeight - yRadius - image.getHeight()
-					/ 2.0 - Math.round(spiralSpread * (i - 4 - decimalOffset)));
+		// set the size of the image. The aspect ratio of the image is
+		// maintained as the image is scaled so that it fits inside the
+		// correct "box" dimensions.
+		image.sizeToBounds((int) (scale * boxWidth), (int) (scale * boxHeight));
 
-			imagePanel.setWidgetPosition(image, xcoord, ycoord);
+		// The x coordinate is obtained by simply scaling the unit-circle x
+		// coordinate to fit the container.
+		int xcoord = (int) Math.round((x * xRadius) + (containerWidth - image.getWidth()) / 2.0);
+		// The y coordinate is similarly calculated, except that the spiral
+		// factor is also added. Basically, the farther the image is around
+		// the circle, the farther down it is shifted to give the spiral
+		// effect.
+		int ycoord = (int) Math.round((y * yRadius) + containerHeight - boxHeight - yRadius - image.getHeight()
+				/ 2.0 - Math.round(spiralSpread * (i - 4 - decimalOffset)));
 
-			// Finally, fade out the images that are at the very back. Make sure
-			// the rest have full opacity.
-			if (i == 0) {
-				image.setOpacity(.5 - decimalOffset);
-			} else if (i == carouselSize - 1) {
-				image.setOpacity(.5 + decimalOffset);
-			} else {
-				image.setOpacity(1.0);
-			}
+		imagePanel.setWidgetPosition(image, xcoord, ycoord);
+
+		// Finally, fade out the images that are at the very back. Make sure
+		// the rest have full opacity.
+		if (i == 0) {
+			image.setOpacity(.5 - decimalOffset);
+		} else if (i == carouselSize - 1) {
+			image.setOpacity(.5 + decimalOffset);
+		} else {
+			image.setOpacity(1.0);
 		}
 	}
 
@@ -256,20 +256,42 @@ public class Carousel extends Composite {
 			pIndex = Utils.modulus(pIndex, photos.size());
 			images[i].setUrl(photos.get(pIndex).getUrl());
 		}
-		for (int i = 0; i < carouselSize; i++) {
-			images[i + preLoadSize].getElement().getStyle().setProperty("display", "");
-		}
 		PhotoToFrontEvent evt = new PhotoToFrontEvent();
 		evt.setPhotoIndex(currentPhotoIndex);
 		evt.setPhoto(photos.get(currentPhotoIndex));
 		fireEvent(evt);
+		
+		for (int i = 0; i < carouselSize; i++) {
+			images[i + preLoadSize].getElement().getStyle().setProperty("display", "");
+			//for visible images only
+			final int iFinal = i;
+			images[i].addLoadHandler(new LoadHandler() {
+				@Override
+				public void onLoad(LoadEvent event) {
+					Timer t = new Timer() {
+						
+						@Override
+						public void run() {
+							
+							placeImage(iFinal);
+							
+						}
+					};
+					
+					//t.schedule(1000);
+				}
+			});
+		}
+		
 		Timer t = new Timer() {
 			
 			@Override
 			public void run() {
 				placeImages();
+				
 			}
 		};
+		
 		t.schedule(1000);
 	}
 
@@ -540,10 +562,100 @@ public class Carousel extends Composite {
 	
 	public HandlerRegistration addMouseWheelHandler(MouseWheelHandler handler){
 		return imagePanel.addDomHandler(handler, MouseWheelEvent.getType());
-
 	}
 
 	public List<Photo> getPhotos() {
 		return photos;
+	}
+
+	/**
+	 * A class that represents necessary numeric data for carousel images
+	 * @author denisk
+	 *
+	 */
+	private class ImageData {
+		// The size of the container the holds the images.
+		private int containerWidth;
+		private int containerHeight;
+		// The base dimensions for each image. Images are scaled from these base
+		// dimensions.
+		private double boxHeight;
+		private double boxWidth;
+		// The radius of the ellipse that the images are set around.
+		private double xRadius;
+		private double yRadius;
+		// A factor for achieving the spiral affect. The greater this value, the
+		// more pronounced the spiral effect.
+		private double spiralSpread;
+		// The fraction that the images are offset from a whole number rotation.
+		// This value will be between -0.5 and 0.5.
+		private double decimalOffset;
+		// The angle (in radians) that the images are offset from the base
+		// positions. Base positions are 0*, 45*, 90*, 135*, etc. This value
+		// will be between -22.5* and 22.5*.
+		private double angleOffset;
+		
+		public ImageData(){
+			//Carousel.this. is just for clarity
+			containerWidth = Carousel.this.imagePanel.getOffsetWidth();
+			containerHeight = Carousel.this.imagePanel.getElement().getClientHeight();
+
+			boxHeight = containerHeight * 3.0 / 8.0;
+			boxWidth = boxHeight * 1.2;
+			xRadius = (containerWidth - boxWidth) / 2.0;
+			yRadius = boxHeight / 3.0;
+			spiralSpread = yRadius * .5;
+
+			decimalOffset = currentRotation - Math.round(currentRotation);
+			angleOffset = -(decimalOffset * ((Math.PI) / 4));
+		}
+
+		public int getContainerWidth() {
+			return containerWidth;
+		}
+
+		public int getContainerHeight() {
+			return containerHeight;
+		}
+
+		public double getBoxHeight() {
+			return boxHeight;
+		}
+
+		public double getBoxWidth() {
+			return boxWidth;
+		}
+
+		public double getxRadius() {
+			return xRadius;
+		}
+
+		public double getyRadius() {
+			return yRadius;
+		}
+
+		public double getSpiralSpread() {
+			return spiralSpread;
+		}
+
+		public double getDecimalOffset() {
+			return decimalOffset;
+		}
+
+		public double getAngleOffset() {
+			return angleOffset;
+		}
+
+		@Override
+		public String toString() {
+			return "ImageData [containerWidth=" + containerWidth
+					+ ", containerHeight=" + containerHeight + ", boxHeight="
+					+ boxHeight + ", boxWidth=" + boxWidth + ", xRadius="
+					+ xRadius + ", yRadius=" + yRadius + ", spiralSpread="
+					+ spiralSpread + ", decimalOffset=" + decimalOffset
+					+ ", angleOffset=" + angleOffset + "]";
+		}
+		
+		
 	}
 }

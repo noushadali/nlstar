@@ -246,25 +246,34 @@ public class Nl implements EntryPoint {
 			public void onSuccess(UserStatus userStatus) {
 				switch (userStatus) {
 				case ADMIN:
-					logoutUrl.setVisible(true);
-					loginUrl.setVisible(false);
-
+					if (logoutUrl != null) {
+						logoutUrl.setVisible(true);
+					}
+					if (loginUrl != null) {
+						loginUrl.setVisible(false);
+					}
 					newButton.setVisible(true);
 					clearButton.setVisible(true);
 
 					setAdminButtonHandlers();
 					break;
 				case NOT_LOGGED_IN:
-					logoutUrl.setVisible(false);
-					loginUrl.setVisible(true);
-
+					if (logoutUrl != null) {
+						logoutUrl.setVisible(false);
+					}
+					if (loginUrl != null) {
+						loginUrl.setVisible(true);
+					}
 					newButton.setVisible(false);
 					newButton.setVisible(false);
 					break;
 				case NOT_ADMIN:
-					logoutUrl.setVisible(true);
-					loginUrl.setVisible(false);
-
+					if (logoutUrl != null) {
+						logoutUrl.setVisible(true);
+					}
+					if (loginUrl != null) {
+						loginUrl.setVisible(false);
+					}
 					newButton.setVisible(false);
 					newButton.setVisible(false);
 					break;

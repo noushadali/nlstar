@@ -27,16 +27,13 @@ public class CarouselImage extends Image{
 	}
 	@Override
 	public void setSize(String width, String height){
-		if (width != null) {
-			getElement().setAttribute("width", width);
-		}
-		if (height != null) {
-			getElement().setAttribute("height", height);
-		}
+		getElement().setAttribute("width", width);
+		getElement().setAttribute("height", height);
 	}
 	public void sizeToBounds(int maxWidth, int maxHeight) {
 		if (originalWidth == 0) {
 			setSize("", "");
+
 			originalWidth = getWidth();
 			originalHeight = getHeight();
 			if (originalWidth != 0) {
@@ -45,12 +42,7 @@ public class CarouselImage extends Image{
 				dimension[1] = originalHeight;
 				sizeCache.put(getUrl(), dimension);
 			} else {
-				if(maxWidth >= maxHeight){
-					maxWidth= 0;
-				} else {
-					maxHeight = 0;
-				}
-				setSize(maxWidth == 0 ? null : Integer.toString(maxWidth), maxHeight == 0 ? null : Integer.toString(maxHeight));
+				setSize(Integer.toString(maxWidth), Integer.toString(maxHeight));
 				return;
 			}
 		}

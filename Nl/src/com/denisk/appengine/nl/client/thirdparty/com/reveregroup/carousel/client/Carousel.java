@@ -9,6 +9,7 @@ import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoToFrontEvent;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoToFrontHandler;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoUnfocusHandler;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
@@ -23,6 +24,7 @@ import com.google.gwt.event.dom.client.MouseWheelEvent;
 import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
@@ -90,7 +92,12 @@ public class Carousel extends Composite {
 		images = new CarouselImage[this.carouselSize + (this.preLoadSize * 2)];
 		for (int i = 0; i < images.length; i++) {
 			images[i] = new CarouselImage();
-			images[i].setSize("1", "1");
+			//hack for IE
+			System.out.println(Window.Navigator.getUserAgent());
+			if (Window.Navigator.getUserAgent().contains("MSIE")) {
+				images[i].getElement().getStyle().setProperty("height", "auto");
+			}
+			//images[i].setSize("1", "1");
 			Utils.preventDrag(images[i]);
 			Utils.preventSelection(images[i].getElement());
 			images[i].getElement().getStyle().setProperty("display", "none");
@@ -180,8 +187,10 @@ public class Carousel extends Composite {
 	 * Lay out the images based on the current rotation.
 	 */
 	public void placeImages() {
+		ImageData imageData = new ImageData();
+
 		for (int i = 0; i < carouselSize; i++) {
-			placeImage(i);
+			placeImage(i, imageData);
 		}
 	}
 
@@ -189,8 +198,7 @@ public class Carousel extends Composite {
 	 * 
 	 * @param i - should not exceed carouselSize
 	 */
-	private void placeImage(int i) {
-		ImageData imageData = new ImageData();
+	private void placeImage(int i, ImageData imageData) {
 		int containerWidth = imageData.getContainerWidth(); 
 		int containerHeight = imageData.getContainerHeight();
 		double boxHeight = imageData.getBoxHeight(); 
@@ -261,38 +269,19 @@ public class Carousel extends Composite {
 		evt.setPhoto(photos.get(currentPhotoIndex));
 		fireEvent(evt);
 		
+		final ImageData imageData = new ImageData();
 		for (int i = 0; i < carouselSize; i++) {
 			images[i + preLoadSize].getElement().getStyle().setProperty("display", "");
 			//for visible images only
 			final int iFinal = i;
-			images[i].addLoadHandler(new LoadHandler() {
+			images[i + preLoadSize].addLoadHandler(new LoadHandler() {
 				@Override
 				public void onLoad(LoadEvent event) {
-					Timer t = new Timer() {
-						
-						@Override
-						public void run() {
-							
-							placeImage(iFinal);
-							
-						}
-					};
-					
-					//t.schedule(1000);
+					placeImage(iFinal, imageData);
 				}
 			});
 		}
 		
-		Timer t = new Timer() {
-			
-			@Override
-			public void run() {
-				placeImages();
-				
-			}
-		};
-		
-		t.schedule(1000);
 	}
 
 	private void setCurrentPhotoIndex(int photoIndex) {

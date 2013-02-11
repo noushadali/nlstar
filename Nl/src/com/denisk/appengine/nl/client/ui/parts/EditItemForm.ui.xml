@@ -15,7 +15,7 @@
 				encoding="multipart/form-data" width="685px" action="/nl/persist" styleName="imageForm">
 				<g:VerticalPanel width="666px" height="511px"
 					horizontalAlignment="ALIGN_LEFT" ui:field="formChild">
-					<g:Cell height="0px">
+					<g:Cell>
 						<g:FlowPanel height="">
 						<g:TextBox ui:field="kind" name="kind" styleName="key" />
 						<g:TextBox ui:field="key" name="key" styleName="key" />

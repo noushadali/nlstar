@@ -16,7 +16,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class CategoriesAnimator {
 	private static final int ITEM_WIDTH = 500;
-	private static final int ITEM_HEIGHT = 600;
+	private static final int ITEM_HEIGHT = 700;
 
 	//time between panel waves
 	private static final double ANIMATION_DELAY = 0.1;

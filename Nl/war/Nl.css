@@ -280,3 +280,7 @@ html, body {
 	z-index: 999;
 	cursor: pointer;
 }
+
+.photoCarouselCaption {
+	background-color: white;
+}

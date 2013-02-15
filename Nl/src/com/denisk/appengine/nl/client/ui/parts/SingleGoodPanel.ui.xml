@@ -7,7 +7,7 @@
 		/* Add CSS here. See the GWT docs on UI Binder for more details */
 	</ui:style>
 	<g:HTMLPanel>
-		<g:PopupPanel ui:field="popup" animationEnabled="true" autoHideEnabled="true" autoHideOnHistoryEventsEnabled="true" glassEnabled="true" width="800px" height="700px">
+		<g:PopupPanel ui:field="popup" animationEnabled="true" autoHideEnabled="true" autoHideOnHistoryEventsEnabled="true" glassEnabled="true" width="900px" height="800px">
 			<g:FlowPanel width="100%" height="100%">
 				<g:Label text="X" styleName="close" ui:field="close"/>
 				<g:Label ui:field="name" horizontalAlignment="ALIGN_CENTER" styleName="goodName" height=""/>

@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.RichTextArea.Formatter;
  
 public class RichTextToolbar extends Composite {
-	private static final String HTTP_STATIC_ICONS_GIF = "http://blog.elitecoderz.net/wp-includes/js/tinymce/themes/advanced/img/icons.gif";
+	private static final String HTTP_STATIC_ICONS_GIF = "/images/editor-icons.gif";
  
 	/** Private Variables **/
 	//The main (Vertical)-Panel and the two inner (Horizontal)-Panels
@@ -59,6 +59,7 @@ public class RichTextToolbar extends Composite {
  
 	private ListBox fontlist;
 	private ListBox colorlist;
+	private ListBox fontSizeList;
  
 
 	public RichTextToolbar(){
@@ -236,7 +237,6 @@ public class RichTextToolbar extends Composite {
 		}
  
 		public void onChange(ChangeEvent event) {
-			System.out.println("fire");
 			if (event.getSource().equals(fontlist)) {
 				if (isHTMLMode()) {
 					changeHtmlStyle("<span style=\"font-family: "+fontlist.getValue(fontlist.getSelectedIndex())+";\">","</span>");
@@ -249,10 +249,40 @@ public class RichTextToolbar extends Composite {
 				} else {
 					styleTextFormatter.setForeColor(colorlist.getValue(colorlist.getSelectedIndex()));
 				}
+			} else if (event.getSource().equals(fontSizeList)) {
+				if (isHTMLMode()) {
+					changeHtmlStyle("<font size=\""+fontSizeList.getValue(fontSizeList.getSelectedIndex())+"\">","</font>");
+				} else {
+					styleTextFormatter.setFontSize(getFontSize(fontSizeList.getValue(fontSizeList.getSelectedIndex())));
+				}
 			}
 		}
 	}
- 
+
+	/**
+	 * This is a hack around the stupidity of RichTextArea.FontSize design which does not allow ANY custom initialization
+	 */
+	private RichTextArea.FontSize getFontSize(String number){
+		int num = Integer.parseInt(number);
+		switch(num){
+		case 1:
+			return RichTextArea.FontSize.XX_SMALL;
+		case 2:
+			return RichTextArea.FontSize.X_SMALL;
+		case 3:
+			return RichTextArea.FontSize.SMALL;
+		case 4:
+			return RichTextArea.FontSize.MEDIUM;
+		case 5:
+			return RichTextArea.FontSize.LARGE;
+		case 6:
+			return RichTextArea.FontSize.X_LARGE;
+		case 7:
+			return RichTextArea.FontSize.XX_LARGE;
+		default:
+			throw new IllegalArgumentException("Font Size Number should 1-7, was " + number);
+		}
+	}
 	/** Native JavaScript that returns the selected text and position of the start **/
 	public static native JsArrayString getSelection(Element elem) /*-{
 		var txt = "";
@@ -340,6 +370,8 @@ public class RichTextToolbar extends Composite {
 		bottomPanel.add(fontlist = createFontList());
 		bottomPanel.add(new HTML("&nbsp;"));
 		bottomPanel.add(colorlist = createColorList());
+		bottomPanel.add(new HTML("&nbsp;"));
+		bottomPanel.add(fontSizeList = createFontSizeList());
 	}
  
 	/** Method to create a Toggle button for the toolbar **/
@@ -400,5 +432,21 @@ public class RichTextToolbar extends Composite {
 	    return mylistBox;
 	}
  
+	private ListBox createFontSizeList(){
+		ListBox myListBox = new ListBox();
+		myListBox.addChangeHandler(evHandler);
+		myListBox.setVisibleItemCount(1);
+		
+		myListBox.addItem("Text size");
+		myListBox.addItem("XX Small", "1");
+		myListBox.addItem("X Small", "2");
+		myListBox.addItem("Small", "3");
+		myListBox.addItem("Medium", "4");
+		myListBox.addItem("Large", "5");
+		myListBox.addItem("X Large", "6");
+		myListBox.addItem("XX Large", "7");
+		return myListBox;
+		
+	}
 }
  

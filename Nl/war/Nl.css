@@ -285,3 +285,6 @@ html, body {
 .photoCarouselCaption {
 	background-color: white;
 }
+.list {
+	overflow-y: auto;
+}

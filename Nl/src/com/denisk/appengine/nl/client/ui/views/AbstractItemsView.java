@@ -19,8 +19,8 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public abstract class AbstractItemsView {
-	public static final String THUMB_WIDTH = "480";
-	public static final String THUMB_HEIGHT = "400";
+	public static final int THUMB_WIDTH = 480;
+	public static final int THUMB_HEIGHT = 400;
 	
 	protected Nl parent;
 
@@ -91,8 +91,8 @@ public abstract class AbstractItemsView {
 		};
 	}
 
-	public static String getImageUrl(final String imageBlobKey, String width,
-			String height) {
+	public static String getImageUrl(final String imageBlobKey, int width,
+			int height) {
 		return "/nl/thumb?key=" + imageBlobKey + "&w=" + width
 				+ "&h=" + height;
 	}

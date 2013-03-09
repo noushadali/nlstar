@@ -65,6 +65,53 @@ public class Nl implements EntryPoint {
 	private CategoriesView categoriesView;
 	private GoodsView goodsView;
 
+	private ValueChangeHandler<String> valueChangeHandler = new ValueChangeHandler<String>() {
+		@Override
+		public void onValueChange(ValueChangeEvent<String> event) {
+			String token = event.getValue();
+			if (token == null || token.isEmpty()) {
+				switchToCategoriesView();
+				renderView(null);
+				return;
+			}
+			String categoryKeyRegexp;
+			Function<List<Photo>, Void> callback = null;
+			if (token.startsWith(CATEGORY_URL_PREFIX)
+					&& !token.contains(GOOD_URL_PREFIX)) {
+				categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/";
+			} else if (token.startsWith(CATEGORY_URL_PREFIX)
+					&& token.contains(GOOD_URL_PREFIX)) {
+				categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/good";
+
+				RegExp goodRegexp = RegExp.compile(".+" + GOOD_URL_PREFIX
+						+ "(.+)/");
+				MatchResult goodMatch = goodRegexp.exec(token);
+				if (goodMatch == null) {
+					showGoodUrlError();
+					return;
+				}
+				final String goodKey = goodMatch.getGroup(1);
+				//1
+				callback = getRenderGoodCallback(goodKey);
+			} else {
+				showCategoryUrlError();
+				return;
+			}
+
+			RegExp p = RegExp.compile(categoryKeyRegexp);
+			MatchResult m = p.exec(token);
+			if (m == null) {
+				showNoCategoryUrlError(callback);
+				return;
+			}
+			final String categoryKey = m.getGroup(1);
+			//2
+			renderCategory(callback, categoryKey);
+			
+		}
+
+	};
+	
 	private void createLogoutUrl() {
 		dtoService.getLogoutUrl(new AsyncCallback<String>() {
 			@Override
@@ -148,92 +195,48 @@ public class Nl implements EntryPoint {
 		categoriesView = new CategoriesView(this);
 		goodsView = new GoodsView(this);
 
-		History.addValueChangeHandler(new ValueChangeHandler<String>() {
 
-			@Override
-			public void onValueChange(ValueChangeEvent<String> event) {
-				String token = event.getValue();
-				if (token == null || token.isEmpty()) {
-					switchToCategoriesView();
-					renderView(null);
-					return;
-				}
-				String categoryKeyRegexp;
-				Function<List<Photo>, Void> callback = null;
-				if (token.startsWith(CATEGORY_URL_PREFIX)
-						&& !token.contains(GOOD_URL_PREFIX)) {
-					categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/";
-				} else if (token.startsWith(CATEGORY_URL_PREFIX)
-						&& token.contains(GOOD_URL_PREFIX)) {
-					categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/good";
-
-					RegExp goodRegexp = RegExp.compile(".+" + GOOD_URL_PREFIX
-							+ "(.+)/");
-					MatchResult goodMatch = goodRegexp.exec(token);
-					if (goodMatch == null) {
-						Window.alert("Wrong format for good in URL, should be '"
-								+ GOOD_URL_PREFIX + "'");
-						History.newItem("", false);
-						switchToCategoriesView();
-						renderView(callback);
-						return;
-					}
-					final String goodKey = goodMatch.getGroup(1);
-
-					callback = new Function<List<Photo>, Void>() {
-						@Override
-						public Void apply(List<Photo> input) {
-							// pop single good window
-							for (Photo photo : input) {
-								if (photo.getId().equals(goodKey)) {
-									goodsView.selectPhoto(photo);
-								}
-							}
-							return null;
-						}
-					};
-				} else {
-					Window.alert("URL must start with '" + CATEGORY_URL_PREFIX
-							+ "' token");
-					History.newItem("", false);
-					switchToCategoriesView();
-					renderView(callback);
-					return;
-				}
-
-				RegExp p = RegExp.compile(categoryKeyRegexp);
-				MatchResult m = p.exec(token);
-				if (m == null) {
-					Window.alert("There is no '" + CATEGORY_URL_PREFIX
-							+ " in the URL provided");
-					switchToCategoriesView();
-					renderView(callback);
-					return;
-				}
-				final String categoryKey = m.getGroup(1);
-				setSelectedCategoryKeyStr(categoryKey);
-				switchToGoodsView();
-				renderView(callback);
-				//set background
-				dtoService.getCategoryBackgroundKey(categoryKey, new AsyncCallback<String>() {
-					
-					@Override
-					public void onSuccess(String result) {
-						//show create and show background
-						categoriesView.createAndSetupBackground(result).getElement().getStyle().setOpacity(1);
-					}
-					
-					@Override
-					public void onFailure(Throwable caught) {
-						Window.alert("Can't get background for category " + categoryKey);
-					}
-				});
-				
-			}	
-		});
+		History.addValueChangeHandler(valueChangeHandler);
 
 		History.fireCurrentHistoryState();
 	}
+
+	public void showCategoryUrlError() {
+		Window.alert("URL must start with '" + CATEGORY_URL_PREFIX
+				+ "' token");
+		History.newItem("", false);
+		switchToCategoriesView();
+		renderView(null);
+	}
+
+	public void showGoodUrlError() {
+		Window.alert("Wrong format for good in URL, should be '"
+				+ GOOD_URL_PREFIX + "'");
+		History.newItem("", false);
+		switchToCategoriesView();
+		renderView(null);
+	}
+
+	public void renderCategory(Function<List<Photo>, Void> callback,
+			final String categoryKey) {
+		setSelectedCategoryKeyStr(categoryKey);
+		switchToGoodsView();
+		renderView(callback);
+		//set background
+		dtoService.getCategoryBackgroundKey(categoryKey, new AsyncCallback<String>() {
+			
+			@Override
+			public void onSuccess(String result) {
+				//show create and show background
+				categoriesView.createAndSetupBackground(result).getElement().getStyle().setOpacity(1);
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert("Can't get background for category " + categoryKey);
+			}
+		});
+	}	
 
 	public void renderView(Function<?, ?> callback) {
 		currentView.render(outputPanel, callback);
@@ -352,5 +355,28 @@ public class Nl implements EntryPoint {
 
 	public Button getBackButton() {
 		return backButton;
+	}
+
+	public Function<List<Photo>, Void> getRenderGoodCallback(
+			final String goodKey) {
+		return new Function<List<Photo>, Void>() {
+			@Override
+			public Void apply(List<Photo> input) {
+				// pop single good window
+				for (Photo photo : input) {
+					if (photo.getId().equals(goodKey)) {
+						goodsView.selectPhoto(photo);
+					}
+				}
+				return null;
+			}
+		};
+	}
+
+	public void showNoCategoryUrlError(Function<List<Photo>, Void> callback) {
+		Window.alert("There is no '" + CATEGORY_URL_PREFIX
+				+ " in the URL provided");
+		switchToCategoriesView();
+		renderView(callback);
 	}
 }

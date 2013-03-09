@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.client.ui.parts.EditCategoryForm;
+import com.denisk.appengine.nl.client.ui.parts.ProductsList;
 import com.denisk.appengine.nl.client.util.CategoriesAnimator;
 import com.denisk.appengine.nl.client.util.Function;
 import com.denisk.appengine.nl.shared.UserStatus;
@@ -147,6 +148,9 @@ public class CategoriesView extends AbstractItemsView {
 				final JsArray<T> arrayFromJson = ShopItem
 						.getArrayFromJson(json);
 				panel.clear();
+				
+				addCategoriesList(panel, arrayFromJson);
+				
 				ArrayList<Panel> categories;
 				switch (result) {
 					case ADMIN:
@@ -164,14 +168,96 @@ public class CategoriesView extends AbstractItemsView {
 		});
 	}
 
+	private <T extends ShopItem> void addCategoriesList(
+			final Panel panel, final JsArray<T> arrayFromJson) {
+		Function<ShopItem, Void> callback = new Function<ShopItem, Void>() {
+			
+			@Override
+			public Void apply(ShopItem input) {
+				getCategoryClickHandler(input.getKeyStr()).onClick(null);
+				return null;
+			}
+		};
+		ProductsList list = new ProductsList(callback);
+		ArrayList<T> items = new ArrayList<T>();
+		for(int i = 0; i < arrayFromJson.length(); i++){
+			items.add(arrayFromJson.get(i));
+		}
+		list.setItems(items);
+		panel.add(list);
+	}
+
 	/**
 	 * Creates panel for category from json
 	 */
 	private Panel createCategoryPanel(
 			final CategoryJavascriptObject categoryJson) {
-		final Panel itemPanel = createShopItemPanel(categoryJson);
 		final String keyStr = categoryJson.getKeyStr();
 
+		ClickHandler categoryClickHandler = getCategoryClickHandler(keyStr);
+
+		Panel itemPanel = createShopItemPanel(categoryJson);
+		itemPanel.addDomHandler(categoryClickHandler, ClickEvent.getType());
+		
+		//init background image
+		final String backgroundBlobKey = categoryJson.getBackgroundBlobKey();
+
+		initBackgroundImage(itemPanel, backgroundBlobKey);
+		
+		initBorders(itemPanel);
+
+		return itemPanel;
+	}
+
+	private void initBorders(Panel itemPanel) {
+		final FlowPanel border = new FlowPanel();
+		border.addStyleName("categoryBorder");
+		itemPanel.add(border);
+		//border style handlers
+		itemPanel.addDomHandler(new MouseOverHandler() {
+			@Override
+			public void onMouseOver(MouseOverEvent event) {
+				border.addStyleName("pulsing");
+			}
+
+		}, MouseOverEvent.getType());
+
+		itemPanel.addDomHandler(new MouseOutHandler() {
+			@Override
+			public void onMouseOut(MouseOutEvent event) {
+				border.removeStyleName("pulsing");
+			}
+
+		}, MouseOutEvent.getType());
+	}
+
+	private void initBackgroundImage(Panel itemPanel,
+			final String backgroundBlobKey) {
+		if (backgroundBlobKey != null && !backgroundBlobKey.isEmpty()) {
+			final Image background = createAndSetupBackground(backgroundBlobKey);
+			
+			//background handlers
+			itemPanel.addDomHandler(new MouseOverHandler() {
+				@Override
+				public void onMouseOver(MouseOverEvent event) {
+					background.getElement().getStyle().setOpacity(1);
+				}
+
+			}, MouseOverEvent.getType());
+
+			itemPanel.addDomHandler(new MouseOutHandler() {
+				@Override
+				public void onMouseOut(MouseOutEvent event) {
+					if (! clicked) {
+						background.getElement().getStyle().setOpacity(0);
+					}
+				}
+
+			}, MouseOutEvent.getType());
+		}
+	}
+
+	private ClickHandler getCategoryClickHandler(final String keyStr) {
 		ClickHandler categoryClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -204,60 +290,12 @@ public class CategoriesView extends AbstractItemsView {
 				t.scheduleRepeating(300);
 			}
 		};
-
-		itemPanel.addDomHandler(categoryClickHandler, ClickEvent.getType());
-		
-		//init background image
-		final String backgroundBlobKey = categoryJson.getBackgroundBlobKey();
-		if (backgroundBlobKey != null && !backgroundBlobKey.isEmpty()) {
-			final Image background = createAndSetupBackground(backgroundBlobKey);
-			
-			//background handlers
-			itemPanel.addDomHandler(new MouseOverHandler() {
-				@Override
-				public void onMouseOver(MouseOverEvent event) {
-					background.getElement().getStyle().setOpacity(1);
-				}
-
-			}, MouseOverEvent.getType());
-
-			itemPanel.addDomHandler(new MouseOutHandler() {
-				@Override
-				public void onMouseOut(MouseOutEvent event) {
-					if (! clicked) {
-						background.getElement().getStyle().setOpacity(0);
-					}
-				}
-
-			}, MouseOutEvent.getType());
-		}
-		
-		final FlowPanel border = new FlowPanel();
-		border.addStyleName("categoryBorder");
-		itemPanel.add(border);
-		//border style handlers
-		itemPanel.addDomHandler(new MouseOverHandler() {
-			@Override
-			public void onMouseOver(MouseOverEvent event) {
-				border.addStyleName("pulsing");
-			}
-
-		}, MouseOverEvent.getType());
-
-		itemPanel.addDomHandler(new MouseOutHandler() {
-			@Override
-			public void onMouseOut(MouseOutEvent event) {
-				border.removeStyleName("pulsing");
-			}
-
-		}, MouseOutEvent.getType());
-
-		return itemPanel;
+		return categoryClickHandler;
 	}
 
 	public Image createAndSetupBackground(final String backgroundBlobKey) {
 		final Image background = new Image(AbstractItemsView.getImageUrl(
-				backgroundBlobKey, "-1", "-1"));
+				backgroundBlobKey, -1, -1));
 		background.getElement().getStyle().setOpacity(0);
 		background.addStyleName("background");
 		

@@ -288,3 +288,17 @@ html, body {
 .list {
 	overflow-y: auto;
 }
+
+/* Product list */
+.listItem {
+	margin: 3px;
+}
+/* product image */
+.listItem img {
+	margin-left: auto;
+	margin-right: auto;
+}
+/* product name */
+.listItem div {
+	
+}

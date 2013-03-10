@@ -187,7 +187,6 @@ public class CategoriesView extends AbstractItemsView {
 	private void createProductsList(
 			final Panel panel, final JsArray<GoodJavascriptObject> arrayFromJson) {
 		Function<GoodJavascriptObject, Void> callback = new Function<GoodJavascriptObject, Void>() {
-			
 			@Override
 			public Void apply(GoodJavascriptObject input) {
 				Function<List<Photo>, Void> renderGoodCallback = parent.getRenderGoodCallback(input.getKeyStr());
@@ -196,6 +195,9 @@ public class CategoriesView extends AbstractItemsView {
 			}
 		};
 		ProductsList<GoodJavascriptObject> list = new ProductsList<GoodJavascriptObject>(callback);
+		list.addStyleName("productsList");
+		list.setTitle("Все продукты");
+		
 		ArrayList<GoodJavascriptObject> items = Util.toList(arrayFromJson);
 		list.setItems(items);
 		panel.add(list);

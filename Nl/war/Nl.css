@@ -289,16 +289,17 @@ html, body {
 	overflow-y: auto;
 }
 
-/* Product list */
+/* item list */
 .listItem {
 	margin: 3px;
+	text-align: center;
 }
-/* product image */
+/* item image */
 .listItem img {
 	margin-left: auto;
 	margin-right: auto;
 }
-/* product name */
+/* item name */
 .listItem div {
 	
 }
@@ -307,4 +308,16 @@ html, body {
 .categoriesList {
 	position: relative;
 	top: -50px;
+}
+.categoriesList > div > div > div {
+	display: inline;
+	float: right;
+	margin-right: 10px;
+}
+
+/* all products list on categories page */
+.productsList {
+	position: absolute;
+	right: 5px;
+	top: 20px;
 }

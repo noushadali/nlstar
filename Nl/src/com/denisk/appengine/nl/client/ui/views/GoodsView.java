@@ -265,6 +265,8 @@ public class GoodsView extends AbstractItemsView {
 							
 							ProductsList<CategoryJavascriptObject> categories = new ProductsList<CategoryJavascriptObject>(callback);
 							categories.addStyleName("categoriesList");
+							//todo I18N-ze
+							categories.setTitle("Другие категории");
 
 							JsArray<CategoryJavascriptObject> arrayFromJson = ShopItem.getArrayFromJson(result);
 							ArrayList<CategoryJavascriptObject> list = Util.toList(arrayFromJson);

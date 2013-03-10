@@ -302,3 +302,9 @@ html, body {
 .listItem div {
 	
 }
+
+/* other categories list on goods page */
+.categoriesList {
+	position: relative;
+	top: -50px;
+}

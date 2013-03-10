@@ -11,6 +11,7 @@ import com.denisk.appengine.nl.client.ui.parts.EditCategoryForm;
 import com.denisk.appengine.nl.client.ui.parts.ProductsList;
 import com.denisk.appengine.nl.client.util.CategoriesAnimator;
 import com.denisk.appengine.nl.client.util.Function;
+import com.denisk.appengine.nl.client.util.Util;
 import com.denisk.appengine.nl.shared.UserStatus;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Document;
@@ -195,10 +196,7 @@ public class CategoriesView extends AbstractItemsView {
 			}
 		};
 		ProductsList<GoodJavascriptObject> list = new ProductsList<GoodJavascriptObject>(callback);
-		ArrayList<GoodJavascriptObject> items = new ArrayList<GoodJavascriptObject>();
-		for(int i = 0; i < arrayFromJson.length(); i++){
-			items.add(arrayFromJson.get(i));
-		}
+		ArrayList<GoodJavascriptObject> items = Util.toList(arrayFromJson);
 		list.setItems(items);
 		panel.add(list);
 	}

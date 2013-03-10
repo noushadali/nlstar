@@ -3,13 +3,18 @@ package com.denisk.appengine.nl.client.ui.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
+import com.denisk.appengine.nl.client.overlay.ShopItem;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Carousel;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Photo;
 import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.events.PhotoClickEvent;
 import com.denisk.appengine.nl.client.ui.parts.EditGoodForm;
+import com.denisk.appengine.nl.client.ui.parts.ProductsList;
 import com.denisk.appengine.nl.client.util.Function;
+import com.denisk.appengine.nl.client.util.Util;
 import com.denisk.appengine.nl.shared.UserStatus;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -30,6 +35,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public class GoodsView extends AbstractItemsView {
 
@@ -223,7 +229,7 @@ public class GoodsView extends AbstractItemsView {
 
 	/**
 	 * This method fills carousel with good items and adds carousel to
-	 * outputPanel
+	 * outputPanel. It also appends /category/xxx to current URL
 	 */
 	private void outputGoodsForCategory(final Function<List<Photo>, ?> callback) {
 		final String categoryKeyStr = parent.getSelectedCategoryKeyStr();
@@ -243,6 +249,36 @@ public class GoodsView extends AbstractItemsView {
 				final JsArray<GoodJavascriptObject> goods = GoodJavascriptObject
 						.getArrayFromJson(json);
 				if (goods.length() > 0) {
+					parent.getDtoService().getAllCategoriesExcept(categoryKeyStr, new AsyncCallback<String>() {
+						
+						@Override
+						public void onSuccess(String result) {
+							System.out.println("Got categories: " + result);
+							Function<CategoryJavascriptObject, Void> callback = new Function<CategoryJavascriptObject, Void>() {
+								
+								@Override
+								public Void apply(CategoryJavascriptObject input) {
+									parent.renderCategory(null, input.getKeyStr());
+									return null;
+								}
+							};
+							
+							ProductsList<CategoryJavascriptObject> categories = new ProductsList<CategoryJavascriptObject>(callback);
+							categories.addStyleName("categoriesList");
+
+							JsArray<CategoryJavascriptObject> arrayFromJson = ShopItem.getArrayFromJson(result);
+							ArrayList<CategoryJavascriptObject> list = Util.toList(arrayFromJson);
+							categories.setItems(list);
+							
+							parent.getOutputPanel().add(categories);
+						}
+						
+						@Override
+						public void onFailure(Throwable caught) {
+							Window.alert("Can't get all categories except one because of error " + caught); 
+						}
+					});
+					
 					final Panel panel = parent.getOutputPanel();
 					
 					panel.add(leftArrow);

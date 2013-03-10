@@ -69,6 +69,9 @@ public class Nl implements EntryPoint {
 		@Override
 		public void onValueChange(ValueChangeEvent<String> event) {
 			String token = event.getValue();
+			//clear history, it will be populated afterwards
+			History.newItem("", false);
+			
 			if (token == null || token.isEmpty()) {
 				switchToCategoriesView();
 				renderView(null);
@@ -107,7 +110,6 @@ public class Nl implements EntryPoint {
 			final String categoryKey = m.getGroup(1);
 			//2
 			renderCategory(callback, categoryKey);
-			
 		}
 
 	};

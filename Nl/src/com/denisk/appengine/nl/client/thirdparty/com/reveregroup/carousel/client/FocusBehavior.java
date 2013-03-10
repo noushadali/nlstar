@@ -58,12 +58,11 @@ public class FocusBehavior {
 				evt.setPhoto(event.getPhoto());
 				evt.setPhotoIndex(event.getPhotoIndex());
 				lastFocusEvent = evt;
-				if (event.isShouldChangeURL()) {
-					//put URL into the history
-					String goodURLPart = Nl.getGoodURLPart(event.getPhoto()
-							.getId());
-					History.newItem(History.getToken() + goodURLPart, false);
-				}
+				//put URL into the history
+				String goodURLPart = Nl.getGoodURLPart(event.getPhoto()
+						.getId());
+				//this assumes that category part is already in the URL
+				History.newItem(History.getToken() + goodURLPart, false);
 				//this will be fired from History.onValueChange handler
 				handlerManager.fireEvent(evt);
 			}

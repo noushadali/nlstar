@@ -295,9 +295,6 @@ public class CategoriesView extends AbstractItemsView {
 							// at this point, all categories are outside the
 							// screen
 							
-							//Append /category/id/ to the URL
-							History.newItem(Nl.getCategoryURLPart(keyStr), false);
-							
 							parent.setSelectedCategoryKeyStr(keyStr);
 							parent.switchToGoodsView();
 							parent.renderView(null);

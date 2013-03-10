@@ -22,6 +22,7 @@ import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -226,6 +227,9 @@ public class GoodsView extends AbstractItemsView {
 	 */
 	private void outputGoodsForCategory(final Function<List<Photo>, ?> callback) {
 		final String categoryKeyStr = parent.getSelectedCategoryKeyStr();
+		//Append /category/id/ to the URL
+		History.newItem(Nl.getCategoryURLPart(categoryKeyStr), false);
+
 		parent.getOutputPanel().clear();
 		
 		parent.getDtoService().getGoodsJson(categoryKeyStr, new AsyncCallback<String>() {
@@ -322,7 +326,7 @@ public class GoodsView extends AbstractItemsView {
 	public void selectPhoto(Photo photo){
 		PhotoClickEvent event = new PhotoClickEvent();
 		event.setPhoto(photo);
-		event.setShouldChangeURL(false);
+		//event.setShouldChangeURL(false);
 		carousel.fireEvent(event);
 	}
 

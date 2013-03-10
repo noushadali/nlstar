@@ -37,6 +37,7 @@ import com.google.appengine.api.files.FileService;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.apphosting.datastore.DatastoreV4.FilterOrBuilder;
 
 public class DataHandler {
 	private DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
@@ -85,8 +86,13 @@ public class DataHandler {
 	}
 
 	public ArrayList<Category> getCategories(){
-		ArrayList<Category> result = new ArrayList<Category>();
 		Iterator<Entity> iterator = getAllEntities(ds, Category.KIND);
+
+		return getCategories(iterator);
+	}
+
+	public ArrayList<Category> getCategories(Iterator<Entity> iterator) {
+		ArrayList<Category> result = new ArrayList<Category>();
 		while(iterator.hasNext()){
 			Entity e = iterator.next();
 			Category c = categoryFromEntity(e);
@@ -113,12 +119,18 @@ public class DataHandler {
 	}
 
 	public ArrayList<Good> getGoods(Key categoryKey){
-		ArrayList<Good> goods = new ArrayList<Good>();
 		Iterable<Entity> goodEntities = getGoodEntities(categoryKey);
-		
+
+		return goodsFromEntities(goodEntities);
+	}
+
+	public ArrayList<Good> goodsFromEntities(Iterable<Entity> goodEntities) {
+		ArrayList<Good> goods = new ArrayList<Good>();
 		for(Entity goodEntity: goodEntities){
 			Good good = new Good();
 			setCommonJsonableProperties(goodEntity, good);
+			//set parent
+			good.setParentKeyStr(KeyFactory.keyToString(goodEntity.getParent()));
 			goods.add(good);
 		}
 		
@@ -139,12 +151,15 @@ public class DataHandler {
 		return getItemsJson(categories);
 	}
 
-	private String getItemsJson(Iterable<? extends Jsonable<?>> categories)
+	/**
+	 * Gets JSON string from a collection of goods or categories
+	 */
+	private String getItemsJson(Iterable<? extends Jsonable<?>> items)
 			throws JSONException {
 		JSONStringer st = new JSONStringer();
 		JSONWriter writer = st.array();
-		for(Jsonable<?> c: categories) {
-			writer = writer.value(new JSONObject(c.toJson()));
+		for(Jsonable<?> i: items) {
+			writer = writer.value(new JSONObject(i.toJson()));
 		}
 		writer = writer.endArray();
 		
@@ -187,11 +202,24 @@ public class DataHandler {
 			}
 		}
 	}
-
+	
+	/**
+	 * Gets JSON string for all goods in the system
+	 */
+	public String getAllGoodsJson() throws JSONException{
+		Iterable<Entity> allGoods = getAllGoodEntities();
+		ArrayList<Good> goodsFromEntities = goodsFromEntities(allGoods);
+		return getItemsJson(goodsFromEntities);
+	}
+	
 	private Iterable<Entity> getGoodEntities(Key category) {
 		return ds.prepare(new Query(Good.KIND, category)).asIterable();
 	}
 
+	private Iterable<Entity> getAllGoodEntities(){
+		return ds.prepare(new Query(Good.KIND)).asIterable();
+	}
+	
 	public Key persistGood(String goodJson) {
 		Good fromJson = new Good().getFromJson(goodJson);
 		Key categoryKey = KeyFactory.stringToKey(fromJson.getParentKeyStr());
@@ -333,5 +361,17 @@ public class DataHandler {
 		}
 
 		return (String) category.getProperty(Category.BACKGROUND_BLOB_KEY);
+	}
+
+	public String getAllCategoriesExcept(String categoryKeyStr) throws JSONException {
+		Iterable<Entity> categories = getCategoryEntitiesExcept(categoryKeyStr);
+
+		return getItemsJson(getCategories(categories.iterator()));
+	}
+
+	public Iterable<Entity> getCategoryEntitiesExcept(String categoryKeyStr) {
+		Query.Filter filter = new Query.FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.NOT_EQUAL, KeyFactory.stringToKey(categoryKeyStr));
+		Iterable<Entity> categories = ds.prepare(new Query(Category.KIND).setFilter(filter)).asIterable();
+		return categories;
 	}
 }

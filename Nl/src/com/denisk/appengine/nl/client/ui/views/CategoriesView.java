@@ -1,9 +1,12 @@
 package com.denisk.appengine.nl.client.ui.views;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.denisk.appengine.nl.client.overlay.CategoryJavascriptObject;
+import com.denisk.appengine.nl.client.overlay.GoodJavascriptObject;
 import com.denisk.appengine.nl.client.overlay.ShopItem;
+import com.denisk.appengine.nl.client.thirdparty.com.reveregroup.carousel.client.Photo;
 import com.denisk.appengine.nl.client.ui.parts.EditCategoryForm;
 import com.denisk.appengine.nl.client.ui.parts.ProductsList;
 import com.denisk.appengine.nl.client.util.CategoriesAnimator;
@@ -149,7 +152,19 @@ public class CategoriesView extends AbstractItemsView {
 						.getArrayFromJson(json);
 				panel.clear();
 				
-				addCategoriesList(panel, arrayFromJson);
+				parent.getDtoService().getAllGoodsJson(new AsyncCallback<String>() {
+					
+					@Override
+					public void onSuccess(String result) {
+						JsArray<GoodJavascriptObject> goodsArray = ShopItem.getArrayFromJson(result);
+						createProductsList(panel, goodsArray);
+					}
+					
+					@Override
+					public void onFailure(Throwable caught) {
+						Window.alert("Cant load all goods: " + caught);
+					}
+				});
 				
 				ArrayList<Panel> categories;
 				switch (result) {
@@ -168,18 +183,19 @@ public class CategoriesView extends AbstractItemsView {
 		});
 	}
 
-	private <T extends ShopItem> void addCategoriesList(
-			final Panel panel, final JsArray<T> arrayFromJson) {
-		Function<ShopItem, Void> callback = new Function<ShopItem, Void>() {
+	private void createProductsList(
+			final Panel panel, final JsArray<GoodJavascriptObject> arrayFromJson) {
+		Function<GoodJavascriptObject, Void> callback = new Function<GoodJavascriptObject, Void>() {
 			
 			@Override
-			public Void apply(ShopItem input) {
-				getCategoryClickHandler(input.getKeyStr()).onClick(null);
+			public Void apply(GoodJavascriptObject input) {
+				Function<List<Photo>, Void> renderGoodCallback = parent.getRenderGoodCallback(input.getKeyStr());
+				parent.renderCategory(renderGoodCallback, input.getParentKeyStr());
 				return null;
 			}
 		};
-		ProductsList list = new ProductsList(callback);
-		ArrayList<T> items = new ArrayList<T>();
+		ProductsList<GoodJavascriptObject> list = new ProductsList<GoodJavascriptObject>(callback);
+		ArrayList<GoodJavascriptObject> items = new ArrayList<GoodJavascriptObject>();
 		for(int i = 0; i < arrayFromJson.length(); i++){
 			items.add(arrayFromJson.get(i));
 		}
@@ -257,6 +273,9 @@ public class CategoriesView extends AbstractItemsView {
 		}
 	}
 
+	/**
+	 * todo caches these callbacks
+	 */
 	private ClickHandler getCategoryClickHandler(final String keyStr) {
 		ClickHandler categoryClickHandler = new ClickHandler() {
 			@Override

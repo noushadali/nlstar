@@ -138,9 +138,26 @@ public class DtoServiceServlet extends RemoteServiceServlet implements DtoServic
 		dh.deleteGood(key, imageKey);
 	}
 
-
 	@Override
 	public String getCategoryBackgroundKey(String categoryKey) {
 		return dh.getCategoryBackgroundKey(categoryKey);
+	}
+
+	@Override
+	public String getAllGoodsJson() {
+		try {
+			return dh.getAllGoodsJson();
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	public String getAllCategoriesExcept(String categoryKeyStr){
+		try {
+			return dh.getAllCategoriesExcept(categoryKeyStr);
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

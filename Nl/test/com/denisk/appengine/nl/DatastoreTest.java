@@ -388,6 +388,27 @@ public class DatastoreTest {
 		
 		System.out.println(ds.prepare(q).asList(withLimit(100)).size());;
 	}
+	
+	@Test
+	public void testGetCategoriesExcept() throws JSONException{
+		Category c1 = new Category();
+		Category c2 = new Category();
+		Category c3 = new Category();
+		
+		c1.setName("one");
+		c2.setName("two");
+		c3.setName("three");
+		
+		dh.saveCategoryWithGoods(c1);
+		dh.saveCategoryWithGoods(c2);
+		Key key = dh.saveCategoryWithGoods(c3);
+		
+		String json = dh.getAllCategoriesExcept(KeyFactory.keyToString(key));
+
+		assertTrue(json.contains("one"));
+		assertTrue(json.contains("two"));
+		assertFalse(json.contains("three"));
+	}
 	//======================HELPER METHODS==================================
 	private String createImage() throws IOException, FileNotFoundException,
 			FinalizationException, LockException {

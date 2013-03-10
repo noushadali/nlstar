@@ -33,6 +33,9 @@ public abstract class Jsonable<T extends Jsonable<?>> {
 	}
 
 	public Text getDescription() {
+		if(description == null){
+			description = new Text("");
+		}
 		return description;
 	}
 

@@ -8,6 +8,9 @@ public interface DtoServiceAsync {
 
 	void getCategoriesJson(AsyncCallback<String> callback);
 
+	void getAllCategoriesExcept(String categoryKeyStr,
+			AsyncCallback<String> callback);
+
 	void clearData(AsyncCallback<Void> asyncCallback);
 
 	void getImageUploadUrl(AsyncCallback<String> callback);
@@ -23,6 +26,8 @@ public interface DtoServiceAsync {
 	void getLogoutUrl(AsyncCallback<String> callback);
 
 	void getGoodsJson(String categoryKeyStr, AsyncCallback<String> callback);
+
+	void getAllGoodsJson(AsyncCallback<String> callback);
 
 	void clearGoodsForCategory(String categoryKeyStr,
 			AsyncCallback<Void> callback);

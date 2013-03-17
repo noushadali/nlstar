@@ -143,7 +143,6 @@ public class GoodsView extends AbstractItemsView {
 	public GoodsView(Nl parent) {
 		super(parent);
 
-		
 		carouselContainer.addStyleName("carouselContainer");
 							
 		leftArrow.addStyleName("leftArrow");
@@ -158,7 +157,6 @@ public class GoodsView extends AbstractItemsView {
 		final Button backButton = parent.getBackButton();
 		final Nl p = parent;
 		backButton.addClickHandler(backButtonHandler);
-
 	}
 
 	private void addArrowHandlers() {

@@ -126,19 +126,13 @@ public class CategoriesAnimator {
 	 */
 	public void animateWidgetGridAppearenceAndAddToPanel(
 			List<? extends Widget> widgets, Panel panel) {
-		int clientWidth = Window.getClientWidth();
-		int clientHeight = Window.getClientHeight();
-		int widgetCount = widgets.size();
-		if (widgetCount == 0) {
-			parent.hideBusyIndicator();
-			return;
-		}
+		placeWidgetsOnGrid(widgets, panel);
 
-		// getting and caching a widget matrix. This will set left and top
-		// properties of widgets as they were put on grid
-		widgetMatrix = gitWidgetMatrix(widgets, clientWidth, ITEM_WIDTH,
-				ITEM_HEIGHT, CATEGORIES_MARGIN, TOP_OFFSET);
+		// move widgets out the screen
+		moveWidgetsOutOfTheScreen();
+		// =============================
 
+		// ===================================
 		// at this point, widgets have their left and top values set to
 		// destination values (put on grid). Persisting them in
 		// destinationDimentions
@@ -151,13 +145,6 @@ public class CategoriesAnimator {
 					getAmount(top)));
 		}
 
-		addWidgetsToPanel(widgets, panel);
-
-		// move widgets out the screen
-		moveWidgetsOutOfTheScreen();
-		// =============================
-
-		// ===================================
 		// set destination dementions
 		Timer timer = new Timer() {
 			@Override
@@ -173,6 +160,21 @@ public class CategoriesAnimator {
 		// it seems that DOM needs some time to add object appropriately, so we
 		// schedule animation to 1 second in the future
 		timer.schedule(1000);
+	}
+	public void placeWidgetsOnGrid(List<? extends Widget> widgets, Panel panel) {
+		int clientWidth = Window.getClientWidth();
+
+		if (widgets.size() == 0) {
+			parent.hideBusyIndicator();
+			return;
+		}
+
+		// getting and caching a widget matrix. This will set left and top
+		// properties of widgets as they were put on grid
+		widgetMatrix = gitWidgetMatrix(widgets, clientWidth, ITEM_WIDTH,
+				ITEM_HEIGHT, CATEGORIES_MARGIN, TOP_OFFSET);
+
+		addWidgetsToPanel(widgets, panel);
 	}
 	
 	private void animate(HashMap<Widget, Dimention> destinationDimentions) {

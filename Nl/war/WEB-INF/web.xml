@@ -35,7 +35,15 @@
 		<servlet-name>Persister</servlet-name>
 		<url-pattern>/nl/persist</url-pattern>
 	</servlet-mapping>
-	
+
+	<filter>
+		<filter-name>HTML snapshots filter</filter-name>
+		<filter-class>com.denisk.appengine.nl.server.HtmlSnapshotsFilter</filter-class>
+	</filter>	
+	<filter-mapping>
+		<filter-name>HTML snapshots filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 	<!-- Default page to serve -->
 	<welcome-file-list>
 		<welcome-file>Nl.html</welcome-file>

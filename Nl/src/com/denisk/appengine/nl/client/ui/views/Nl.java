@@ -28,8 +28,10 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class Nl implements EntryPoint {
-	private static final String CATEGORY_URL_PREFIX = "!category/";
-	private static final String GOOD_URL_PREFIX = "good/";
+	public static final String CATEGORY = "category/";
+	public static final String GOOD_URL_PREFIX = "good/";
+
+	private static final String CATEGORY_URL_PREFIX = "!" + CATEGORY;
 
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);
 
@@ -68,51 +70,17 @@ public class Nl implements EntryPoint {
 	private ValueChangeHandler<String> valueChangeHandler = new ValueChangeHandler<String>() {
 		@Override
 		public void onValueChange(ValueChangeEvent<String> event) {
-			String token = event.getValue();
 			//clear history, it will be populated afterwards
 			History.newItem("", false);
 			
-			if (token == null || token.isEmpty()) {
-				switchToCategoriesView();
-				renderView(null);
-				return;
-			}
-			String categoryKeyRegexp;
-			Function<List<Photo>, Void> callback = null;
-			if (token.startsWith(CATEGORY_URL_PREFIX)
-					&& !token.contains(GOOD_URL_PREFIX)) {
-				categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/";
-			} else if (token.startsWith(CATEGORY_URL_PREFIX)
-					&& token.contains(GOOD_URL_PREFIX)) {
-				categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/good";
-
-				RegExp goodRegexp = RegExp.compile(".+" + GOOD_URL_PREFIX
-						+ "(.+)/");
-				MatchResult goodMatch = goodRegexp.exec(token);
-				if (goodMatch == null) {
-					showGoodUrlError();
-					return;
-				}
-				final String goodKey = goodMatch.getGroup(1);
-				//1
-				callback = getRenderGoodCallback(goodKey);
-			} else {
-				showCategoryUrlError();
-				return;
-			}
-
-			RegExp p = RegExp.compile(categoryKeyRegexp);
-			MatchResult m = p.exec(token);
-			if (m == null) {
-				showNoCategoryUrlError(callback);
-				return;
-			}
-			final String categoryKey = m.getGroup(1);
-			//2
-			renderCategory(callback, categoryKey);
+			String token = event.getValue();
+			restoreViewFromUrl(token);
 		}
 
 	};
+	
+	//statuses that are used to know that a html snapshot is complete 
+	protected boolean userStatusFetched;
 	
 	private void createLogoutUrl() {
 		dtoService.getLogoutUrl(new AsyncCallback<String>() {
@@ -168,6 +136,15 @@ public class Nl implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
+		renderLayout();
+
+		History.addValueChangeHandler(valueChangeHandler);
+
+		History.fireCurrentHistoryState();
+	}
+
+	//public so it can be used with HTML snapshots
+	public void renderLayout() {
 		categoriesInfo.setVisible(false);
 		updateLabel();
 
@@ -196,11 +173,6 @@ public class Nl implements EntryPoint {
 
 		categoriesView = new CategoriesView(this);
 		goodsView = new GoodsView(this);
-
-
-		History.addValueChangeHandler(valueChangeHandler);
-
-		History.fireCurrentHistoryState();
 	}
 
 	public void showCategoryUrlError() {
@@ -283,6 +255,8 @@ public class Nl implements EntryPoint {
 					newButton.setVisible(false);
 					break;
 				}
+				//for html snapshots only
+				userStatusFetched = true;
 			}
 
 			@Override
@@ -381,4 +355,55 @@ public class Nl implements EntryPoint {
 		switchToCategoriesView();
 		renderView(callback);
 	}
+
+	//this is public so it can be used with HTML snapshots
+	public void restoreViewFromUrl(String url) {
+		if (url == null || url.isEmpty()) {
+			switchToCategoriesView();
+			renderView(null);
+			return;
+		}
+		String categoryKeyRegexp;
+		Function<List<Photo>, Void> callback = null;
+		if (url.startsWith(CATEGORY_URL_PREFIX)
+				&& !url.contains(GOOD_URL_PREFIX)) {
+			categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/";
+		} else if (url.startsWith(CATEGORY_URL_PREFIX)
+				&& url.contains(GOOD_URL_PREFIX)) {
+			categoryKeyRegexp = CATEGORY_URL_PREFIX + "(.+)/good";
+
+			RegExp goodRegexp = RegExp.compile(".+" + GOOD_URL_PREFIX
+					+ "(.+)/");
+			MatchResult goodMatch = goodRegexp.exec(url);
+			if (goodMatch == null) {
+				showGoodUrlError();
+				return;
+			}
+			final String goodKey = goodMatch.getGroup(1);
+			//1
+			callback = getRenderGoodCallback(goodKey);
+		} else {
+			showCategoryUrlError();
+			return;
+		}
+
+		RegExp p = RegExp.compile(categoryKeyRegexp);
+		MatchResult m = p.exec(url);
+		if (m == null) {
+			showNoCategoryUrlError(callback);
+			return;
+		}
+		final String categoryKey = m.getGroup(1);
+		//2
+		renderCategory(callback, categoryKey);
+	}
+
+	public CategoriesView getCategoriesView() {
+		return categoriesView;
+	}
+
+	public GoodsView getGoodsView() {
+		return goodsView;
+	}
+
 }

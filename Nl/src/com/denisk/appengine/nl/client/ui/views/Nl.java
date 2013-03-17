@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class Nl implements EntryPoint {
-	private static final String CATEGORY_URL_PREFIX = "category/";
+	private static final String CATEGORY_URL_PREFIX = "!category/";
 	private static final String GOOD_URL_PREFIX = "good/";
 
 	private static DtoServiceAsync dtoService = GWT.create(DtoService.class);

@@ -245,7 +245,6 @@ public class GoodsView extends AbstractItemsView {
 				parent.getOutputPanel().getElement().getStyle()
 						.setTop(Window.getClientHeight(), Unit.PX);
 
-				//panel.clear();
 				final JsArray<GoodJavascriptObject> goods = GoodJavascriptObject
 						.getArrayFromJson(json);
 				if (goods.length() > 0) {
@@ -258,6 +257,7 @@ public class GoodsView extends AbstractItemsView {
 								
 								@Override
 								public Void apply(CategoryJavascriptObject input) {
+									clearBackgrounds();
 									parent.renderCategory(null, input.getKeyStr());
 									return null;
 								}

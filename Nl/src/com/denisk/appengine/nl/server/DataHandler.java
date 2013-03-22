@@ -37,7 +37,6 @@ import com.google.appengine.api.files.FileService;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
-import com.google.apphosting.datastore.DatastoreV4.FilterOrBuilder;
 
 public class DataHandler {
 	private DatastoreService ds = DatastoreServiceFactory.getDatastoreService();

@@ -25,36 +25,31 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class HtmlSnapshotsFilter implements Filter {
-
+	
 	private static String rewriteQueryString(String queryString)
 			throws UnsupportedEncodingException {
 		StringBuilder queryStringSb = new StringBuilder(queryString);
 		int i = queryStringSb.indexOf("&_escaped_fragment_=");
+		boolean fragmentAtBeginning = false;
 		if (i == -1) {
-			i = queryStringSb.indexOf("?_escaped_fragment_=");
+			i = queryStringSb.indexOf("_escaped_fragment_=");
+			fragmentAtBeginning = true;
 		}
 		if (i != -1) {
-			StringBuilder tmpSb = new StringBuilder(queryStringSb.substring(0,
-					i - 1));
-			System.out.println("|" + tmpSb + "|");
-			tmpSb.append("#!");
-			System.out.println("|" + tmpSb + "|");
-			tmpSb.append(URLDecoder.decode(
-					queryStringSb.substring(i + 20, queryStringSb.length()),
+			//before fragment
+			StringBuilder sb = new StringBuilder();
+			if(! fragmentAtBeginning){
+				String beforeFragment = queryStringSb.substring(0, i);
+				sb.append(beforeFragment);
+			}
+			sb.append("#!");
+			//if fragment is at the beginning, there is no & in front of it
+			sb.append(URLDecoder.decode(
+					queryStringSb.substring(i + (fragmentAtBeginning ? "_escaped_fragment_=".length() : "&_escaped_fragment_=".length()), queryStringSb.length()),
 					"UTF-8"));
-			System.out.println("|" + tmpSb + "|");
-			queryStringSb = tmpSb;
+			queryStringSb = sb;
 		}
 		return queryStringSb.toString();
-	}
-
-	private FilterConfig filterConfig = null;
-
-	/**
-	 * Destroys the filter configuration.
-	 */
-	public void destroy() {
-		this.filterConfig = null;
 	}
 
 	@Override
@@ -75,14 +70,14 @@ public class HtmlSnapshotsFilter implements Filter {
 			}
 			pageNameSb.append(req.getRequestURI());
 			queryString = rewriteQueryString(queryString);
+			pageNameSb.append("?");
 			pageNameSb.append(queryString);
 
-			final WebClient webClient = new WebClient(
-					BrowserVersion.FIREFOX_3_6);
-			webClient.setJavaScriptEnabled(true);
+			final WebClient webClient = new WebClient(BrowserVersion.FIREFOX_3_6);
+			webClient.setJavaScriptTimeout(10000);
+			
 			String pageName = pageNameSb.toString();
 			HtmlPage page = webClient.getPage(pageName);
-			webClient.waitForBackgroundJavaScriptStartingBefore(2000);
 
 			res.setContentType("text/html;charset=UTF-8");
 			PrintWriter out = res.getWriter();
@@ -92,6 +87,8 @@ public class HtmlSnapshotsFilter implements Filter {
 					+ pageName + "\">" + pageName + "</a></h3></center>");
 			out.println("<hr>");
 
+			webClient.waitForBackgroundJavaScriptStartingBefore(10000);
+
 			out.println(page.asXml());
 			webClient.closeAllWindows();
 			out.close();
@@ -100,10 +97,6 @@ public class HtmlSnapshotsFilter implements Filter {
 			
 				chain.doFilter(request, response);
 		}
-	}
-
-	@Override
-	public void init(FilterConfig arg0) throws ServletException {
 	}
 
 	private static class ObjectHolder {
@@ -116,5 +109,13 @@ public class HtmlSnapshotsFilter implements Filter {
 		public void set() {
 			this.set = true;
 		}
+	}
+
+	@Override
+	public void destroy() {
+	}
+
+	@Override
+	public void init(FilterConfig arg0) throws ServletException {
 	}
 }

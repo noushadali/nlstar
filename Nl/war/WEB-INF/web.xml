@@ -44,9 +44,10 @@
 		<filter-name>HTML snapshots filter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+	
 	<!-- Default page to serve -->
 	<welcome-file-list>
-		<welcome-file>Nl.html</welcome-file>
+		<welcome-file>Nl.jsp</welcome-file>
 	</welcome-file-list>
 
   <servlet>

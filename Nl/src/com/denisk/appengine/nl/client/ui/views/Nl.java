@@ -40,7 +40,7 @@ public class Nl implements EntryPoint {
 
 	private final FlowPanel outputPanel = new FlowPanel();
 	private final Label status = new Label();
-	private final RootPanel rootPanel = RootPanel.get("container");
+	private RootPanel rootPanel;
 
 	private final RootPanel buttonsContainer = RootPanel
 			.get("buttonsContainer");
@@ -136,6 +136,7 @@ public class Nl implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
+		rootPanel = RootPanel.get("container");
 		renderLayout();
 
 		History.addValueChangeHandler(valueChangeHandler);

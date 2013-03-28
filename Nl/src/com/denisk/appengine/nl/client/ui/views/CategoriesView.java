@@ -146,7 +146,7 @@ public class CategoriesView extends AbstractItemsView {
 	//callback is used by html snapshot creator
 	protected <T extends ShopItem> void createShopItemsFromJson(
 			final Panel panel, final Function<T, ? extends Panel> creation,
-			final Function<T, ? extends Panel> editableCeation, final String json, final Function callback) {
+			final Function<T, ? extends Panel> editableCeation, final String json) {
 		parent.getDtoService().isAdmin(new AsyncCallback<UserStatus>() {
 			@Override
 			public void onSuccess(UserStatus result) {
@@ -175,9 +175,6 @@ public class CategoriesView extends AbstractItemsView {
 						break;
 					default:
 						categories = createTiles(arrayFromJson, creation);
-				}
-				if(callback != null){
-					callback.apply(categories);
 				}
 				categoriesAnimator.animateWidgetGridAppearenceAndAddToPanel(categories, panel);
 			}
@@ -348,7 +345,7 @@ public class CategoriesView extends AbstractItemsView {
 			@Override
 			public void onSuccess(String json) {
 				createShopItemsFromJson(panel, categoryPanelCreation,
-						editableCategoryPanelCreation, json, callback);
+						editableCategoryPanelCreation, json);
 			}
 
 			@Override

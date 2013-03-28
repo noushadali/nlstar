@@ -85,6 +85,7 @@ public class DataHandler {
 	}
 
 	public ArrayList<Category> getCategories(){
+		System.out.println("Here");
 		Iterator<Entity> iterator = getAllEntities(ds, Category.KIND);
 
 		return getCategories(iterator);

@@ -93,7 +93,6 @@ public class Carousel extends Composite {
 		for (int i = 0; i < images.length; i++) {
 			images[i] = new CarouselImage();
 			//hack for IE
-			System.out.println(Window.Navigator.getUserAgent());
 			if (Window.Navigator.getUserAgent().contains("MSIE")) {
 				images[i].getElement().getStyle().setProperty("height", "auto");
 			}

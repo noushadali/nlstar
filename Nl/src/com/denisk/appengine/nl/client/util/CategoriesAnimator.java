@@ -128,10 +128,6 @@ public class CategoriesAnimator {
 			List<? extends Widget> widgets, Panel panel) {
 		placeWidgetsOnGrid(widgets, panel);
 
-		// move widgets out the screen
-		moveWidgetsOutOfTheScreen();
-		// =============================
-
 		// ===================================
 		// at this point, widgets have their left and top values set to
 		// destination values (put on grid). Persisting them in
@@ -145,6 +141,8 @@ public class CategoriesAnimator {
 					getAmount(top)));
 		}
 
+		// move widgets out the screen
+		moveWidgetsOutOfTheScreen();
 		// set destination dementions
 		Timer timer = new Timer() {
 			@Override
